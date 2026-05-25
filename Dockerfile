@@ -1,5 +1,5 @@
 # Stage 1: build the Vue SPA
-FROM node:22-alpine AS ui-builder
+FROM node:26-alpine AS ui-builder
 WORKDIR /ui
 COPY ui/package*.json ./
 RUN npm ci
