@@ -25,8 +25,8 @@ import (
 	"sync/atomic"
 	"time"
 
-	"nhooyr.io/websocket"
-	"nhooyr.io/websocket/wsjson"
+	"nhooyr.io/websocket"        //nolint:staticcheck
+	"nhooyr.io/websocket/wsjson" //nolint:staticcheck
 )
 
 const (
@@ -69,7 +69,7 @@ func NewBroadcaster() *Broadcaster {
 }
 
 func (b *Broadcaster) Publish(t string, payload any) error {
-	frame, err := newFrame(string(t), payload)
+	frame, err := newFrame(t, payload)
 	if err != nil {
 		return err
 	}
@@ -112,13 +112,13 @@ func (b *Broadcaster) since(id string) []WSFrame {
 
 func (b *Broadcaster) ServeWS(snapshotFn func() (any, error)) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		conn, err := websocket.Accept(w, r, &websocket.AcceptOptions{
+		conn, err := websocket.Accept(w, r, &websocket.AcceptOptions{ //nolint:staticcheck
 			InsecureSkipVerify: true,
 		})
 		if err != nil {
 			return
 		}
-		defer conn.CloseNow()
+		defer conn.CloseNow() //nolint:errcheck,staticcheck
 
 		ctx := r.Context()
 		sinceID := r.URL.Query().Get("since")
@@ -182,8 +182,6 @@ func (b *Broadcaster) ServeWS(snapshotFn func() (any, error)) http.HandlerFunc {
 func (b *Broadcaster) ServeHTTP(snapshotFn func() (any, error)) func(http.ResponseWriter, *http.Request) {
 	return b.ServeWS(snapshotFn)
 }
-
-type noopBroadcaster = Broadcaster
 
 func PublishFrame(ctx context.Context, b *Broadcaster, t EventType, payload any) {
 	_ = b.Publish(string(t), payload)

@@ -33,6 +33,14 @@ import (
 	"github.com/pvc-explorer-operator/pvc-explorer/internal/scaler"
 )
 
+const (
+	testScopeName = "prod"
+	testNamespace = "default"
+	testNSa       = "ns-a"
+	testDataName  = "my-data"
+	testMyPVC     = "my-pvc"
+)
+
 func restScheme() *runtime.Scheme {
 	s := runtime.NewScheme()
 	_ = corev1.AddToScheme(s)
@@ -75,7 +83,7 @@ func TestListScopes_Empty(t *testing.T) {
 func TestCreateAndGetScope(t *testing.T) {
 	mux := newRestMux(t)
 	scope := pvcv1.PVCExplorerScope{
-		ObjectMeta: metav1.ObjectMeta{Name: "prod"},
+		ObjectMeta: metav1.ObjectMeta{Name: testScopeName},
 	}
 	w := doRequest(t, mux, http.MethodPost, "/api/v1/scopes", scope)
 	if w.Code != http.StatusCreated {
@@ -88,7 +96,7 @@ func TestCreateAndGetScope(t *testing.T) {
 	}
 	var got pvcv1.PVCExplorerScope
 	_ = json.NewDecoder(w2.Body).Decode(&got)
-	if got.Name != "prod" {
+	if got.Name != testScopeName {
 		t.Errorf("unexpected name: %s", got.Name)
 	}
 }
@@ -103,7 +111,7 @@ func TestGetScope_NotFound(t *testing.T) {
 
 func TestDeleteScope(t *testing.T) {
 	existing := &pvcv1.PVCExplorerScope{
-		ObjectMeta: metav1.ObjectMeta{Name: "prod"},
+		ObjectMeta: metav1.ObjectMeta{Name: testScopeName},
 	}
 	mux := newRestMux(t, existing)
 	w := doRequest(t, mux, http.MethodDelete, "/api/v1/scopes/prod", nil)
@@ -113,7 +121,7 @@ func TestDeleteScope(t *testing.T) {
 }
 
 func TestListExplorers_FilterByNamespace(t *testing.T) {
-	e1 := &pvcv1.PVCExplorer{ObjectMeta: metav1.ObjectMeta{Name: "e1", Namespace: "ns-a"}}
+	e1 := &pvcv1.PVCExplorer{ObjectMeta: metav1.ObjectMeta{Name: "e1", Namespace: testNSa}}
 	e2 := &pvcv1.PVCExplorer{ObjectMeta: metav1.ObjectMeta{Name: "e2", Namespace: "ns-b"}}
 	mux := newRestMux(t, e1, e2)
 
@@ -130,8 +138,8 @@ func TestListExplorers_FilterByNamespace(t *testing.T) {
 
 func TestListExplorers_SearchFilter(t *testing.T) {
 	e1 := &pvcv1.PVCExplorer{
-		ObjectMeta: metav1.ObjectMeta{Name: "my-data", Namespace: "ns-a"},
-		Spec:       pvcv1.PVCExplorerSpec{PVCName: "my-data"},
+		ObjectMeta: metav1.ObjectMeta{Name: testDataName, Namespace: testNSa},
+		Spec:       pvcv1.PVCExplorerSpec{PVCName: testDataName},
 	}
 	e2 := &pvcv1.PVCExplorer{
 		ObjectMeta: metav1.ObjectMeta{Name: "other", Namespace: "ns-a"},
@@ -145,7 +153,7 @@ func TestListExplorers_SearchFilter(t *testing.T) {
 	}
 	var items []pvcv1.PVCExplorer
 	_ = json.NewDecoder(w.Body).Decode(&items)
-	if len(items) != 1 || items[0].Name != "my-data" {
+	if len(items) != 1 || items[0].Name != testDataName {
 		t.Errorf("expected [my-data], got %+v", items)
 	}
 }
@@ -153,8 +161,8 @@ func TestListExplorers_SearchFilter(t *testing.T) {
 func TestCreateExplorer(t *testing.T) {
 	mux := newRestMux(t)
 	explorer := pvcv1.PVCExplorer{
-		ObjectMeta: metav1.ObjectMeta{Name: "my-pvc", Namespace: "default"},
-		Spec:       pvcv1.PVCExplorerSpec{PVCName: "my-pvc"},
+		ObjectMeta: metav1.ObjectMeta{Name: testMyPVC, Namespace: testNamespace},
+		Spec:       pvcv1.PVCExplorerSpec{PVCName: testMyPVC},
 	}
 	w := doRequest(t, mux, http.MethodPost, "/api/v1/explorers", explorer)
 	if w.Code != http.StatusCreated {
@@ -174,7 +182,7 @@ func TestListLabels(t *testing.T) {
 	e := &pvcv1.PVCExplorer{
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      "e1",
-			Namespace: "default",
+			Namespace: testNamespace,
 			Labels: map[string]string{
 				"team": "aoi",
 				"env":  "prod",
@@ -194,7 +202,7 @@ func TestListLabels(t *testing.T) {
 }
 
 func TestListNamespaces(t *testing.T) {
-	e := &pvcv1.PVCExplorer{ObjectMeta: metav1.ObjectMeta{Name: "e1", Namespace: "ns-a"}}
+	e := &pvcv1.PVCExplorer{ObjectMeta: metav1.ObjectMeta{Name: "e1", Namespace: testNSa}}
 	mux := newRestMux(t, e)
 	w := doRequest(t, mux, http.MethodGet, "/api/v1/namespaces", nil)
 	if w.Code != http.StatusOK {
@@ -204,7 +212,7 @@ func TestListNamespaces(t *testing.T) {
 
 func TestListPVCs(t *testing.T) {
 	pvc := &corev1.PersistentVolumeClaim{
-		ObjectMeta: metav1.ObjectMeta{Name: "my-pvc", Namespace: "default"},
+		ObjectMeta: metav1.ObjectMeta{Name: testMyPVC, Namespace: testNamespace},
 	}
 	mux := newRestMux(t, pvc)
 	w := doRequest(t, mux, http.MethodGet, "/api/v1/namespaces/default/pvcs", nil)

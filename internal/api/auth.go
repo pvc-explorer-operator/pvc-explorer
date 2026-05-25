@@ -24,6 +24,11 @@ import (
 	"github.com/pvc-explorer-operator/pvc-explorer/internal/auth"
 )
 
+const (
+	methodPOST      = "POST"
+	explorersPrefix = "/api/v1/explorers/"
+)
+
 type contextKey string
 
 const (
@@ -38,12 +43,12 @@ type permission struct {
 }
 
 var routePermissions = []permission{
-	{"POST", "/api/v1/auth/", auth.Role("")},
+	{methodPOST, "/api/v1/auth/", auth.Role("")},
 	{"GET", "/api/v1/health", auth.Role("")},
 
-	{"POST", "/api/v1/explorers/", auth.RoleAdmin},
-	{"PUT", "/api/v1/explorers/", auth.RoleAdmin},
-	{"DELETE", "/api/v1/explorers/", auth.RoleAdmin},
+	{methodPOST, explorersPrefix, auth.RoleAdmin},
+	{"PUT", explorersPrefix, auth.RoleAdmin},
+	{"DELETE", explorersPrefix, auth.RoleAdmin},
 	{"POST", "/api/v1/scopes", auth.RoleAdmin},
 	{"PUT", "/api/v1/scopes/", auth.RoleAdmin},
 	{"DELETE", "/api/v1/scopes/", auth.RoleAdmin},
@@ -115,7 +120,7 @@ func isAllowed(method, path string, role auth.Role) bool {
 			return role == p.minRole || (p.minRole == auth.RoleViewer)
 		}
 	}
-	if strings.HasPrefix(path, "/api/v1/explorers/") && strings.Contains(path, "/proxy/api/") {
+	if strings.HasPrefix(path, explorersPrefix) && strings.Contains(path, "/proxy/api/") {
 		if method != http.MethodGet {
 			return role == auth.RoleAdmin
 		}

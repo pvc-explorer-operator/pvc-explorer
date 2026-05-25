@@ -36,6 +36,11 @@ import (
 	pvcexplorerv1alpha1 "github.com/pvc-explorer-operator/pvc-explorer/api/v1alpha1"
 )
 
+const (
+	testScopeMypvc = "mypvc"
+	testStorage    = "storage"
+)
+
 var _ = Describe("PVCExplorerScope Controller", func() {
 	// Utility to create a unique namespace for each test
 	createTestNamespace := func() string {
@@ -53,11 +58,11 @@ var _ = Describe("PVCExplorerScope Controller", func() {
 		ns := createTestNamespace()
 		DeferCleanup(func() { deleteTestNamespace(ns) })
 		pvc := &corev1.PersistentVolumeClaim{
-			ObjectMeta: metav1.ObjectMeta{Name: "mypvc", Namespace: ns},
+			ObjectMeta: metav1.ObjectMeta{Name: testScopeMypvc, Namespace: ns},
 			Spec: corev1.PersistentVolumeClaimSpec{
 				AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadWriteOnce},
 				Resources: corev1.VolumeResourceRequirements{
-					Requests: corev1.ResourceList{"storage": resourceMustParse("1Gi")},
+					Requests: corev1.ResourceList{testStorage: resourceMustParse()},
 				},
 			},
 		}
@@ -68,14 +73,14 @@ var _ = Describe("PVCExplorerScope Controller", func() {
 				Namespaces: pvcexplorerv1alpha1.ScopeNamespacesSpec{Names: []string{ns}},
 				Discovery: pvcexplorerv1alpha1.ScopeDiscoverySpec{
 					Mode:     pvcexplorerv1alpha1.DiscoveryModeExplicit,
-					PVCNames: []string{"mypvc"},
+					PVCNames: []string{testScopeMypvc},
 				},
 			},
 		}
 		Expect(k8sClient.Create(context.Background(), scope)).To(Succeed())
 		DeferCleanup(func() { _ = k8sClient.Delete(context.Background(), scope) })
 		Eventually(func() bool {
-			return pvcExplorerExists(ns, "mypvc")
+			return pvcExplorerExists(ns, testScopeMypvc)
 		}, time.Second*10, time.Millisecond*200).Should(BeTrue())
 	})
 
@@ -87,7 +92,7 @@ var _ = Describe("PVCExplorerScope Controller", func() {
 			Spec: corev1.PersistentVolumeClaimSpec{
 				AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadWriteOnce},
 				Resources: corev1.VolumeResourceRequirements{
-					Requests: corev1.ResourceList{"storage": resourceMustParse("1Gi")},
+					Requests: corev1.ResourceList{testStorage: resourceMustParse()},
 				},
 			},
 		}
@@ -117,7 +122,7 @@ var _ = Describe("PVCExplorerScope Controller", func() {
 			Spec: corev1.PersistentVolumeClaimSpec{
 				AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadWriteOnce},
 				Resources: corev1.VolumeResourceRequirements{
-					Requests: corev1.ResourceList{"storage": resourceMustParse("1Gi")},
+					Requests: corev1.ResourceList{testStorage: resourceMustParse()},
 				},
 			},
 		}
@@ -150,7 +155,7 @@ var _ = Describe("PVCExplorerScope Controller", func() {
 			Spec: corev1.PersistentVolumeClaimSpec{
 				AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadWriteOnce},
 				Resources: corev1.VolumeResourceRequirements{
-					Requests: corev1.ResourceList{"storage": resourceMustParse("1Gi")},
+					Requests: corev1.ResourceList{testStorage: resourceMustParse()},
 				},
 			},
 		}
@@ -192,7 +197,7 @@ var _ = Describe("PVCExplorerScope Controller", func() {
 			Spec: corev1.PersistentVolumeClaimSpec{
 				AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadWriteOnce},
 				Resources: corev1.VolumeResourceRequirements{
-					Requests: corev1.ResourceList{"storage": resourceMustParse("1Gi")},
+					Requests: corev1.ResourceList{testStorage: resourceMustParse()},
 				},
 			},
 		}
@@ -239,7 +244,7 @@ var _ = Describe("PVCExplorerScope Controller", func() {
 			Spec: corev1.PersistentVolumeClaimSpec{
 				AccessModes: []corev1.PersistentVolumeAccessMode{corev1.ReadWriteOnce},
 				Resources: corev1.VolumeResourceRequirements{
-					Requests: corev1.ResourceList{"storage": resourceMustParse("1Gi")},
+					Requests: corev1.ResourceList{testStorage: resourceMustParse()},
 				},
 			},
 		}
@@ -278,8 +283,8 @@ func pvcExplorerExists(ns, pvc string) bool {
 }
 
 // Helper: parse resource quantity
-func resourceMustParse(s string) resource.Quantity {
-	return resource.MustParse(s)
+func resourceMustParse() resource.Quantity {
+	return resource.MustParse("1Gi")
 }
 
 // Helper: create a merge patch

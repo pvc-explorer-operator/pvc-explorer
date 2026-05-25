@@ -24,7 +24,6 @@ import (
 	"net/http/httputil"
 	"net/url"
 	"strings"
-	"time"
 
 	corev1 "k8s.io/api/core/v1"
 	apierrors "k8s.io/apimachinery/pkg/api/errors"
@@ -35,6 +34,8 @@ import (
 	pvcv1 "github.com/pvc-explorer-operator/pvc-explorer/api/v1alpha1"
 	"github.com/pvc-explorer-operator/pvc-explorer/internal/scaler"
 )
+
+const keyName = "name"
 
 type RestHandler struct {
 	client          client.Client
@@ -163,7 +164,7 @@ func (h *RestHandler) deleteScope(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	_ = h.broadcaster.Publish(string(EventScopeDeleted), map[string]string{"name": name})
+	_ = h.broadcaster.Publish(string(EventScopeDeleted), map[string]string{keyName: name})
 	w.WriteHeader(http.StatusNoContent)
 }
 
@@ -292,13 +293,13 @@ func (h *RestHandler) deleteExplorer(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	_ = h.broadcaster.Publish(string(EventExplorerDeleted), map[string]string{"namespace": ns, "name": name})
+	_ = h.broadcaster.Publish(string(EventExplorerDeleted), map[string]string{"namespace": ns, keyName: name})
 	w.WriteHeader(http.StatusNoContent)
 }
 
 func (h *RestHandler) wakeExplorer(w http.ResponseWriter, r *http.Request) {
 	ns, name := r.PathValue("ns"), r.PathValue("name")
-	_ = h.broadcaster.Publish(string(EventAgentWaking), map[string]string{"namespace": ns, "name": name})
+	_ = h.broadcaster.Publish(string(EventAgentWaking), map[string]string{"namespace": ns, keyName: name})
 	if err := h.scaler.WakeAgent(r.Context(), ns, name); err != nil {
 		if apierrors.IsNotFound(err) {
 			http.Error(w, "not found", http.StatusNotFound)
@@ -512,18 +513,6 @@ func (h *RestHandler) listPVCs(w http.ResponseWriter, r *http.Request) {
 		})
 	}
 	writeJSON(w, http.StatusOK, result)
-}
-
-func snapshotPayload(explorers []pvcv1.PVCExplorer, scopes []pvcv1.PVCExplorerScope) map[string]any {
-	return map[string]any{
-		"explorers":  explorers,
-		"scopes":     scopes,
-		"serverTime": time.Now().UTC().Format(time.RFC3339Nano),
-	}
-}
-
-func formatDuration(d time.Duration) string {
-	return fmt.Sprintf("%ds", int(d.Seconds()))
 }
 
 var _ = metav1.Now

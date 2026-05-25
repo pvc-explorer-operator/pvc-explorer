@@ -28,6 +28,11 @@ import (
 	pvcexplorerv1alpha1 "github.com/pvc-explorer-operator/pvc-explorer/api/v1alpha1"
 )
 
+const (
+	KindReplicaSet = "ReplicaSet"
+	KindJob        = "Job"
+)
+
 // Detect returns ConsumerInfo for every Running/Pending pod in namespace that mounts pvcName.
 // Owner chain is fully resolved: Pod→RS→Deployment, Pod→Job→CronJob.
 func Detect(ctx context.Context, c client.Client, namespace, pvcName string) ([]pvcexplorerv1alpha1.ConsumerInfo, error) {
@@ -84,28 +89,28 @@ func resolveOwnerChain(ctx context.Context, c client.Client, pod *corev1.Pod) (k
 	ns := pod.Namespace
 
 	switch ref.Kind {
-	case "ReplicaSet":
+	case KindReplicaSet:
 		rs := &appsv1.ReplicaSet{}
 		if err := c.Get(ctx, types.NamespacedName{Name: ref.Name, Namespace: ns}, rs); err != nil {
-			return "ReplicaSet", ref.Name
+			return KindReplicaSet, ref.Name
 		}
 		if len(rs.OwnerReferences) > 0 && rs.OwnerReferences[0].Kind == "Deployment" {
 			return "Deployment", rs.OwnerReferences[0].Name
 		}
-		return "ReplicaSet", ref.Name
+		return KindReplicaSet, ref.Name
 
 	case "StatefulSet", "DaemonSet":
 		return ref.Kind, ref.Name
 
-	case "Job":
+	case KindJob:
 		job := &batchv1.Job{}
 		if err := c.Get(ctx, types.NamespacedName{Name: ref.Name, Namespace: ns}, job); err != nil {
-			return "Job", ref.Name
+			return KindJob, ref.Name
 		}
 		if len(job.OwnerReferences) > 0 && job.OwnerReferences[0].Kind == "CronJob" {
 			return "CronJob", job.OwnerReferences[0].Name
 		}
-		return "Job", ref.Name
+		return KindJob, ref.Name
 
 	default:
 		return ref.Kind, ref.Name
