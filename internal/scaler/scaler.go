@@ -30,6 +30,9 @@ import (
 )
 
 const (
+	keyNamespace           = "namespace"
+	keyName                = "name"
+	keyRemainingSecs       = "remainingSeconds"
 	AnnotationIdleDeadline = "pvcexplorer.io/idle-deadline"
 	defaultIdleTimeout     = 10 * time.Minute
 	idleWatchInterval      = 5 * time.Second
@@ -117,10 +120,10 @@ func (s *Scaler) ResetIdleTimer(ctx context.Context, namespace, name string) (re
 
 	if s.broadcaster != nil {
 		_ = s.broadcaster.Publish("idle.tick", map[string]any{
-			"namespace":        namespace,
-			"name":             name,
-			"remainingSeconds": int64(timeout.Seconds()),
-			"idleTimeout":      explorer.Spec.Scaling.IdleTimeout,
+			keyNamespace:     namespace,
+			keyName:          name,
+			keyRemainingSecs: int64(timeout.Seconds()),
+			"idleTimeout":    explorer.Spec.Scaling.IdleTimeout,
 		})
 	}
 
@@ -143,7 +146,7 @@ func (s *Scaler) RunIdleWatcher(ctx context.Context) {
 	}
 }
 
-func (s *Scaler) tickAll(ctx context.Context, log interface{ Info(string, ...any) }) {
+func (s *Scaler) tickAll(ctx context.Context, _ interface{ Info(string, ...any) }) {
 	var list pvcv1.PVCExplorerList
 	if err := s.Client.List(ctx, &list); err != nil {
 		return
@@ -168,9 +171,9 @@ func (s *Scaler) tickAll(ctx context.Context, log interface{ Info(string, ...any
 			if err := s.SleepAgent(ctx, ns, name); err == nil {
 				if s.broadcaster != nil {
 					_ = s.broadcaster.Publish("idle.expired", map[string]any{
-						"namespace": ns,
-						"name":      name,
-						"expiredAt": time.Now().UTC().Format(time.RFC3339),
+						keyNamespace: ns,
+						keyName:      name,
+						"expiredAt":  time.Now().UTC().Format(time.RFC3339),
 					})
 				}
 				s.deleteWarnState(ns, name)
@@ -180,10 +183,10 @@ func (s *Scaler) tickAll(ctx context.Context, log interface{ Info(string, ...any
 
 		if s.broadcaster != nil {
 			_ = s.broadcaster.Publish("idle.tick", map[string]any{
-				"namespace":        ns,
-				"name":             name,
-				"remainingSeconds": int64(remaining.Seconds()),
-				"idleTimeout":      timeout.String(),
+				keyNamespace:     ns,
+				keyName:          name,
+				keyRemainingSecs: int64(remaining.Seconds()),
+				"idleTimeout":    timeout.String(),
 			})
 		}
 
@@ -193,9 +196,9 @@ func (s *Scaler) tickAll(ctx context.Context, log interface{ Info(string, ...any
 				state.warned = true
 				if s.broadcaster != nil {
 					_ = s.broadcaster.Publish("idle.warning", map[string]any{
-						"namespace":        ns,
-						"name":             name,
-						"remainingSeconds": int64(remaining.Seconds()),
+						keyNamespace:       ns,
+						keyName:            name,
+						keyRemainingSecs:   int64(remaining.Seconds()),
 						"warningThreshold": int64(warningThreshold.Seconds()),
 					})
 				}

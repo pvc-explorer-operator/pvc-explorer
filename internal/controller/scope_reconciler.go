@@ -107,7 +107,7 @@ func (r *PVCExplorerScopeReconciler) Reconcile(ctx context.Context, req ctrl.Req
 	scope.Status.ExplorerCount = totalExplorers
 	scope.Status.ObservedGeneration = scope.Generation
 	apimeta.SetStatusCondition(&scope.Status.Conditions, metav1.Condition{
-		Type:               "Ready",
+		Type:               condReady,
 		Status:             metav1.ConditionTrue,
 		Reason:             "Reconciled",
 		Message:            fmt.Sprintf("Reconciled %d namespaces, %d explorers", len(namespaces), totalExplorers),
@@ -261,7 +261,7 @@ func (r *PVCExplorerScopeReconciler) buildExplorer(scope *pvcexplorerv1alpha1.PV
 func (r *PVCExplorerScopeReconciler) setReadyCondition(ctx context.Context, scope *pvcexplorerv1alpha1.PVCExplorerScope, status metav1.ConditionStatus, reason, msg string) {
 	patch := client.MergeFrom(scope.DeepCopy())
 	apimeta.SetStatusCondition(&scope.Status.Conditions, metav1.Condition{
-		Type:               "Ready",
+		Type:               condReady,
 		Status:             status,
 		Reason:             reason,
 		Message:            msg,

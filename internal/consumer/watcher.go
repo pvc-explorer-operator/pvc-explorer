@@ -18,13 +18,9 @@ package consumer
 
 import (
 	"context"
-
-	"sigs.k8s.io/controller-runtime/pkg/client"
 )
 
-type Watcher struct {
-	client client.Client
-}
+type Watcher struct{}
 
 func (w *Watcher) Start(ctx context.Context) error {
 	return nil

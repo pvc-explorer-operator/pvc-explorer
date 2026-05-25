@@ -30,7 +30,10 @@ import (
 	"github.com/pvc-explorer-operator/pvc-explorer/internal/auth"
 )
 
-const testNamespace = "pvc-explorer-system"
+const (
+	testNamespace = "pvc-explorer-system"
+	testAdminUser = "admin"
+)
 
 func testScheme() *runtime.Scheme {
 	s := runtime.NewScheme()
@@ -59,7 +62,7 @@ func authSecret(users map[string][]byte) *corev1.Secret {
 
 func TestLogin_ValidAdmin(t *testing.T) {
 	secret := authSecret(map[string][]byte{
-		"admin": bcryptHash(t, "secret"),
+		testAdminUser: bcryptHash(t, "secret"),
 	})
 	c := fake.NewClientBuilder().WithScheme(testScheme()).WithObjects(secret).Build()
 	a := auth.NewAuthenticator(c, testNamespace)
@@ -91,12 +94,12 @@ func TestLogin_ValidViewer(t *testing.T) {
 
 func TestLogin_WrongPassword(t *testing.T) {
 	secret := authSecret(map[string][]byte{
-		"admin": bcryptHash(t, "correct"),
+		testAdminUser: bcryptHash(t, "correct"),
 	})
 	c := fake.NewClientBuilder().WithScheme(testScheme()).WithObjects(secret).Build()
 	a := auth.NewAuthenticator(c, testNamespace)
 
-	_, err := a.Login(context.Background(), "admin", "wrong")
+	_, err := a.Login(context.Background(), testAdminUser, "wrong")
 	if !errors.Is(err, auth.ErrInvalidCredentials) {
 		t.Errorf("expected ErrInvalidCredentials, got %v", err)
 	}
@@ -104,7 +107,7 @@ func TestLogin_WrongPassword(t *testing.T) {
 
 func TestLogin_UnknownUser(t *testing.T) {
 	secret := authSecret(map[string][]byte{
-		"admin": bcryptHash(t, "pass"),
+		testAdminUser: bcryptHash(t, "pass"),
 	})
 	c := fake.NewClientBuilder().WithScheme(testScheme()).WithObjects(secret).Build()
 	a := auth.NewAuthenticator(c, testNamespace)

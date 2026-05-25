@@ -38,7 +38,6 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/webhook"
 
 	pvcexplorerv1alpha1 "github.com/pvc-explorer-operator/pvc-explorer/api/v1alpha1"
-	pvcv1alpha1 "github.com/pvc-explorer-operator/pvc-explorer/api/v1alpha1"
 	internalapi "github.com/pvc-explorer-operator/pvc-explorer/internal/api"
 	internalauthpkg "github.com/pvc-explorer-operator/pvc-explorer/internal/auth"
 	"github.com/pvc-explorer-operator/pvc-explorer/internal/consumer"
@@ -227,8 +226,8 @@ func main() {
 	apiHandler.RegisterRoutes(mux)
 	restHandler.RegisterRoutes(mux)
 	snapshotFn := func() (any, error) {
-		var explorers pvcv1alpha1.PVCExplorerList
-		var scopes pvcv1alpha1.PVCExplorerScopeList
+		var explorers pvcexplorerv1alpha1.PVCExplorerList
+		var scopes pvcexplorerv1alpha1.PVCExplorerScopeList
 		if err := mgr.GetClient().List(context.Background(), &explorers); err != nil {
 			return nil, err
 		}

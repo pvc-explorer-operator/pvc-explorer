@@ -65,6 +65,9 @@ const (
 	agentTokenSecretKey    = "token"
 
 	annotationRestartAt = "pvcexplorer.io/restart-at"
+	condReady           = "Ready"
+	strategyDirect      = "Direct"
+	labelApp            = "app"
 )
 
 // AgentReconciler reconciles a PVCExplorer object.
@@ -122,7 +125,7 @@ func (r *PVCExplorerReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 			explorer.Status.Phase = pvcexplorerv1alpha1.ExplorerPhasePending
 			explorer.Status.ObservedGeneration = explorer.Generation
 			apimeta.SetStatusCondition(&explorer.Status.Conditions, metav1.Condition{
-				Type:               "Ready",
+				Type:               condReady,
 				Status:             metav1.ConditionFalse,
 				Reason:             "PVCNotBound",
 				Message:            fmt.Sprintf("PVC %q is Pending, waiting for volume to bind", explorer.Spec.PVCName),
@@ -207,7 +210,7 @@ func (r *PVCExplorerReconciler) mountPolicy(
 	isROX := len(pvc.Spec.AccessModes) > 0 && pvc.Spec.AccessModes[0] == corev1.ReadOnlyMany
 	if isROX {
 		dec.readOnly = true
-		dec.strategy = "Direct"
+		dec.strategy = strategyDirect
 		return dec
 	}
 
@@ -215,7 +218,7 @@ func (r *PVCExplorerReconciler) mountPolicy(
 
 	if len(consumers) == 0 {
 		dec.readOnly = !explorer.Spec.ForceRW
-		dec.strategy = "Direct"
+		dec.strategy = strategyDirect
 		return dec
 	}
 
@@ -323,8 +326,8 @@ func (r *PVCExplorerReconciler) buildDeployment(
 	}
 
 	podLabels := map[string]string{
-		managedByLabelKey: "pvc-explorer",
-		"app":             explorer.Name,
+		managedByLabelKey: managedByValue,
+		labelApp:          explorer.Name,
 	}
 	maps.Copy(podLabels, explorer.Spec.ExplorerLabels)
 
@@ -371,14 +374,14 @@ func (r *PVCExplorerReconciler) buildDeployment(
 			Name:      explorer.Name,
 			Namespace: explorer.Namespace,
 			Labels: map[string]string{
-				managedByLabelKey: "pvc-explorer",
+				managedByLabelKey: managedByValue,
 				scopeLabelKey:     explorer.Labels[scopeLabelKey],
 			},
 		},
 		Spec: appsv1.DeploymentSpec{
 			Replicas: &replicas,
 			Selector: &metav1.LabelSelector{
-				MatchLabels: map[string]string{"app": explorer.Name},
+				MatchLabels: map[string]string{labelApp: explorer.Name},
 			},
 			Template: corev1.PodTemplateSpec{
 				ObjectMeta: metav1.ObjectMeta{Labels: podLabels},
@@ -523,7 +526,7 @@ func (r *PVCExplorerReconciler) reconcileAgentTokenSecret(ctx context.Context, e
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      name,
 			Namespace: ns,
-			Labels:    map[string]string{managedByLabelKey: "pvc-explorer"},
+			Labels:    map[string]string{managedByLabelKey: managedByValue},
 		},
 		Type: corev1.SecretTypeOpaque,
 		StringData: map[string]string{
@@ -580,10 +583,10 @@ func (r *PVCExplorerReconciler) buildService(explorer *pvcexplorerv1alpha1.PVCEx
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      explorer.Name,
 			Namespace: explorer.Namespace,
-			Labels:    map[string]string{managedByLabelKey: "pvc-explorer"},
+			Labels:    map[string]string{managedByLabelKey: managedByValue},
 		},
 		Spec: corev1.ServiceSpec{
-			Selector: map[string]string{"app": explorer.Name},
+			Selector: map[string]string{labelApp: explorer.Name},
 			Ports: []corev1.ServicePort{
 				{
 					Name:       "http",
@@ -632,7 +635,7 @@ func (r *PVCExplorerReconciler) syncStatus(
 	explorer.Status.Phase = r.derivePhase(explorer, deploy)
 
 	apimeta.SetStatusCondition(&explorer.Status.Conditions, metav1.Condition{
-		Type:               "Ready",
+		Type:               condReady,
 		Status:             metav1.ConditionTrue,
 		Reason:             string(explorer.Status.Phase),
 		Message:            fmt.Sprintf("Agent %s", explorer.Status.Phase),
@@ -708,7 +711,7 @@ func (r *PVCExplorerReconciler) setPending(
 	explorer.Status.ObservedGeneration = explorer.Generation
 	explorer.Status.Mount.Consumers = consumers
 	apimeta.SetStatusCondition(&explorer.Status.Conditions, metav1.Condition{
-		Type:               "Ready",
+		Type:               condReady,
 		Status:             metav1.ConditionFalse,
 		Reason:             "MultiNodeConflict",
 		Message:            fmt.Sprintf("RWO PVC mounted on %d nodes; waiting for conflict to resolve", len(consumers)),
@@ -730,7 +733,7 @@ func (r *PVCExplorerReconciler) setFailed(
 	explorer.Status.Phase = pvcexplorerv1alpha1.ExplorerPhaseFailed
 	explorer.Status.ObservedGeneration = explorer.Generation
 	apimeta.SetStatusCondition(&explorer.Status.Conditions, metav1.Condition{
-		Type:               "Ready",
+		Type:               condReady,
 		Status:             metav1.ConditionFalse,
 		Reason:             reason,
 		Message:            message,

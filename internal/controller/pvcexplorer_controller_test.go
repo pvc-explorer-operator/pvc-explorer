@@ -33,6 +33,16 @@ import (
 	pvcexplorerv1alpha1 "github.com/pvc-explorer-operator/pvc-explorer/api/v1alpha1"
 )
 
+const (
+	testMyPVC      = "mypvc"
+	testConsPVC    = "conspvc"
+	testReleasePVC = "releasepvc"
+	testRWOPVC     = "rwopvc"
+	containerName  = "app"
+	volumeName     = "data"
+	testImage      = "busybox"
+)
+
 var _ = Describe("PVCExplorer Controller", func() {
 	newNS := func() string {
 		ns := fmt.Sprintf("agent-test-%s", uuid.NewString()[:8])
@@ -73,12 +83,12 @@ var _ = Describe("PVCExplorer Controller", func() {
 
 	It("creates Deployment with replicas=0 for ScaledToZero mode", func() {
 		ns := newNS()
-		boundPVC(ns, "mypvc")
-		newExplorer(ns, "mypvc", pvcexplorerv1alpha1.ExplorerModeScaledToZero, true)
+		boundPVC(ns, testMyPVC)
+		newExplorer(ns, testMyPVC, pvcexplorerv1alpha1.ExplorerModeScaledToZero, true)
 
 		deploy := &appsv1.Deployment{}
 		Eventually(func() error {
-			return k8sClient.Get(context.Background(), types.NamespacedName{Name: "mypvc", Namespace: ns}, deploy)
+			return k8sClient.Get(context.Background(), types.NamespacedName{Name: testMyPVC, Namespace: ns}, deploy)
 		}, 10*time.Second, 200*time.Millisecond).Should(Succeed())
 
 		Expect(*deploy.Spec.Replicas).To(Equal(int32(0)))
@@ -189,20 +199,20 @@ var _ = Describe("PVCExplorer Controller", func() {
 
 	It("mounts RO and sets ForceRWDeferred when consumer pod is Running", func() {
 		ns := newNS()
-		boundPVC(ns, "conspvc")
-		newExplorer(ns, "conspvc", pvcexplorerv1alpha1.ExplorerModeScaledToZero, true)
+		boundPVC(ns, testConsPVC)
+		newExplorer(ns, testConsPVC, pvcexplorerv1alpha1.ExplorerModeScaledToZero, true)
 
 		Eventually(func() error {
 			deploy := &appsv1.Deployment{}
-			return k8sClient.Get(context.Background(), types.NamespacedName{Name: "conspvc", Namespace: ns}, deploy)
+			return k8sClient.Get(context.Background(), types.NamespacedName{Name: testConsPVC, Namespace: ns}, deploy)
 		}, 10*time.Second, 200*time.Millisecond).Should(Succeed())
 
 		consumer := &corev1.Pod{
 			ObjectMeta: metav1.ObjectMeta{Name: "consumer-pod", Namespace: ns},
 			Spec: corev1.PodSpec{
-				Containers: []corev1.Container{{Name: "app", Image: "busybox"}},
+				Containers: []corev1.Container{{Name: containerName, Image: testImage}},
 				Volumes: []corev1.Volume{{
-					Name: "data",
+					Name: volumeName,
 					VolumeSource: corev1.VolumeSource{
 						PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{ClaimName: "conspvc"},
 					},
@@ -214,7 +224,7 @@ var _ = Describe("PVCExplorer Controller", func() {
 		patch.Status.Phase = corev1.PodRunning
 		Expect(k8sClient.Status().Update(context.Background(), patch)).To(Succeed())
 
-		key := types.NamespacedName{Name: "conspvc", Namespace: ns}
+		key := types.NamespacedName{Name: testConsPVC, Namespace: ns}
 		explorer := &pvcexplorerv1alpha1.PVCExplorer{}
 		Eventually(func() bool {
 			_ = k8sClient.Get(context.Background(), key, explorer)
@@ -227,17 +237,17 @@ var _ = Describe("PVCExplorer Controller", func() {
 
 	It("remounts RW when consumer pod is deleted", func() {
 		ns := newNS()
-		boundPVC(ns, "releasepvc")
-		newExplorer(ns, "releasepvc", pvcexplorerv1alpha1.ExplorerModeScaledToZero, true)
+		boundPVC(ns, testReleasePVC)
+		newExplorer(ns, testReleasePVC, pvcexplorerv1alpha1.ExplorerModeScaledToZero, true)
 
 		consumer := &corev1.Pod{
 			ObjectMeta: metav1.ObjectMeta{Name: "consumer-pod", Namespace: ns},
 			Spec: corev1.PodSpec{
-				Containers: []corev1.Container{{Name: "app", Image: "busybox"}},
+				Containers: []corev1.Container{{Name: containerName, Image: testImage}},
 				Volumes: []corev1.Volume{{
-					Name: "data",
+					Name: volumeName,
 					VolumeSource: corev1.VolumeSource{
-						PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{ClaimName: "releasepvc"},
+						PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{ClaimName: testReleasePVC},
 					},
 				}},
 			},
@@ -247,7 +257,7 @@ var _ = Describe("PVCExplorer Controller", func() {
 		patch.Status.Phase = corev1.PodRunning
 		Expect(k8sClient.Status().Update(context.Background(), patch)).To(Succeed())
 
-		key := types.NamespacedName{Name: "releasepvc", Namespace: ns}
+		key := types.NamespacedName{Name: testReleasePVC, Namespace: ns}
 		explorer := &pvcexplorerv1alpha1.PVCExplorer{}
 		Eventually(func() bool {
 			_ = k8sClient.Get(context.Background(), key, explorer)
@@ -262,24 +272,24 @@ var _ = Describe("PVCExplorer Controller", func() {
 		}, 15*time.Second, 200*time.Millisecond).Should(BeTrue())
 
 		deploy := &appsv1.Deployment{}
-		Expect(k8sClient.Get(context.Background(), types.NamespacedName{Name: "releasepvc", Namespace: ns}, deploy)).To(Succeed())
+		Expect(k8sClient.Get(context.Background(), types.NamespacedName{Name: testReleasePVC, Namespace: ns}, deploy)).To(Succeed())
 		Expect(deploy.Spec.Template.Spec.Volumes[0].PersistentVolumeClaim.ReadOnly).To(BeFalse())
 	})
 
 	It("sets status.mount.strategy=NodeAffinity and targetNode for RWO+consumer", func() {
 		ns := newNS()
-		boundPVC(ns, "rwopvc")
-		newExplorer(ns, "rwopvc", pvcexplorerv1alpha1.ExplorerModeScaledToZero, true)
+		boundPVC(ns, testRWOPVC)
+		newExplorer(ns, testRWOPVC, pvcexplorerv1alpha1.ExplorerModeScaledToZero, true)
 
 		consumer := &corev1.Pod{
 			ObjectMeta: metav1.ObjectMeta{Name: "rwo-consumer", Namespace: ns},
 			Spec: corev1.PodSpec{
 				NodeName:   "worker-node-1",
-				Containers: []corev1.Container{{Name: "app", Image: "busybox"}},
+				Containers: []corev1.Container{{Name: containerName, Image: testImage}},
 				Volumes: []corev1.Volume{{
-					Name: "data",
+					Name: volumeName,
 					VolumeSource: corev1.VolumeSource{
-						PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{ClaimName: "rwopvc"},
+						PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{ClaimName: testRWOPVC},
 					},
 				}},
 			},
@@ -289,7 +299,7 @@ var _ = Describe("PVCExplorer Controller", func() {
 		patch.Status.Phase = corev1.PodRunning
 		Expect(k8sClient.Status().Update(context.Background(), patch)).To(Succeed())
 
-		key := types.NamespacedName{Name: "rwopvc", Namespace: ns}
+		key := types.NamespacedName{Name: testRWOPVC, Namespace: ns}
 		explorer := &pvcexplorerv1alpha1.PVCExplorer{}
 		Eventually(func() string {
 			_ = k8sClient.Get(context.Background(), key, explorer)
@@ -299,7 +309,7 @@ var _ = Describe("PVCExplorer Controller", func() {
 		Expect(explorer.Status.Mount.TargetNode).To(Equal("worker-node-1"))
 
 		deploy := &appsv1.Deployment{}
-		Expect(k8sClient.Get(context.Background(), types.NamespacedName{Name: "rwopvc", Namespace: ns}, deploy)).To(Succeed())
+		Expect(k8sClient.Get(context.Background(), types.NamespacedName{Name: testRWOPVC, Namespace: ns}, deploy)).To(Succeed())
 		aff := deploy.Spec.Template.Spec.Affinity
 		Expect(aff).NotTo(BeNil())
 		terms := aff.NodeAffinity.RequiredDuringSchedulingIgnoredDuringExecution.NodeSelectorTerms
@@ -316,9 +326,9 @@ var _ = Describe("PVCExplorer Controller", func() {
 				ObjectMeta: metav1.ObjectMeta{Name: fmt.Sprintf("consumer-%d", i), Namespace: ns},
 				Spec: corev1.PodSpec{
 					NodeName:   node,
-					Containers: []corev1.Container{{Name: "app", Image: "busybox"}},
+					Containers: []corev1.Container{{Name: containerName, Image: testImage}},
 					Volumes: []corev1.Volume{{
-						Name: "data",
+						Name: volumeName,
 						VolumeSource: corev1.VolumeSource{
 							PersistentVolumeClaim: &corev1.PersistentVolumeClaimVolumeSource{ClaimName: "multinodepvc"},
 						},
