@@ -1,0 +1,55 @@
+/* Global style: match topbar time picker — semi-transparent dark look for all buttons.
+   Scoped to .app-dark so light mode uses PrimeVue's native button tokens.
+   Form field tokens (inputs, checkboxes, radios, dropdowns) are set via definePreset in main.ts */
+.app-dark .p-button {
+	background: rgba(255,255,255,0.08) !important;
+	color: #e2e8f0 !important;
+	border: 1px solid rgba(255,255,255,0.2) !important;
+	box-shadow: none !important;
+	border-radius: 6px !important;
+	transition: background 0.15s, border-color 0.15s, color 0.15s;
+}
+.app-dark .p-button:hover,
+.app-dark .p-button:focus {
+	background: rgba(255,255,255,0.15) !important;
+	color: #fff !important;
+	border-color: rgba(255,255,255,0.35) !important;
+}
+.app-dark .p-button-danger,
+.app-dark .p-button[severity="danger"] {
+	background: rgba(255,255,255,0.08) !important;
+	color: #fca5a5 !important;
+	border: 1px solid rgba(255,255,255,0.2) !important;
+}
+.app-dark .p-button-danger:hover,
+.app-dark .p-button[severity="danger"]:hover {
+	background: rgba(255,255,255,0.15) !important;
+	color: #f87171 !important;
+	border-color: rgba(255,255,255,0.35) !important;
+}
+/* ── Tag colors (pinned across dark/light modes) ── */
+.p-tag-success    { background: #16a34a !important; color: #fff !important; }
+.p-tag-secondary  { background: #64748b !important; color: #fff !important; }
+.p-tag-info       { background: #4f46e5 !important; color: #fff !important; }
+.p-tag-warn,
+.p-tag-warning    { background: #d97706 !important; color: #fff !important; }
+.p-tag-danger     { background: #dc2626 !important; color: #fff !important; }
+.p-tag-success .p-tag-icon,
+.p-tag-info .p-tag-icon,
+.p-tag-warn .p-tag-icon,
+.p-tag-warning .p-tag-icon,
+.p-tag-danger .p-tag-icon { color: #fff !important; }
+
+/* Form field tokens are set via definePreset in main.ts */
+
+/* ── YAML syntax highlighting ── */
+.sy-key     { color: var(--p-primary-500); }
+.sy-string  { color: #22c55e; }
+.sy-bool    { color: #a855f7; }
+.sy-number  { color: #f59e0b; }
+.sy-comment { color: var(--text-color-disabled, #6b7280); font-style: italic; }
+.sy-list    { color: var(--text-color-secondary); }
+html:not(.app-dark) .sy-key    { color: #2563eb; }
+html:not(.app-dark) .sy-string { color: #16a34a; }
+html:not(.app-dark) .sy-bool   { color: #9333ea; }
+html:not(.app-dark) .sy-number { color: #d97706; }

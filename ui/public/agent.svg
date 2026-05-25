@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 64" fill="none" aria-hidden="true">
+  <!-- Agent head -->
+  <ellipse cx="32" cy="32" rx="18" ry="18" fill="#38bdf8" stroke="#0369a1" stroke-width="2"/>
+  <!-- Eyes -->
+  <ellipse cx="26" cy="30" rx="2.5" ry="3.5" fill="#fff"/>
+  <ellipse cx="38" cy="30" rx="2.5" ry="3.5" fill="#fff"/>
+  <ellipse cx="26" cy="31" rx="1.2" ry="1.7" fill="#0369a1"/>
+  <ellipse cx="38" cy="31" rx="1.2" ry="1.7" fill="#0369a1"/>
+  <!-- Smile -->
+  <path d="M26 38 Q32 43 38 38" stroke="#0369a1" stroke-width="2" fill="none"/>
+  <!-- Antenna -->
+  <rect x="30.5" y="10" width="3" height="10" rx="1.5" fill="#bae6fd"/>
+  <circle cx="32" cy="10" r="3" fill="#0ea5e9" stroke="#38bdf8" stroke-width="1.2"/>
+  <!-- Letters 'Agent' -->
+  <text x="65" y="38" font-family="Arial, Helvetica, sans-serif" font-size="22" fill="#0369a1" font-weight="bold">Agent</text>
+</svg>

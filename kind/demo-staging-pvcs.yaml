@@ -1,0 +1,38 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: staging-app
+  namespace: demo-staging
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: demo-hostpath
+  resources:
+    requests:
+      storage: 2Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: staging-db
+  namespace: demo-staging
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: demo-hostpath
+  resources:
+    requests:
+      storage: 5Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: staging-uploads
+  namespace: demo-staging
+spec:
+  accessModes:
+    - ReadWriteMany
+  storageClassName: demo-hostpath
+  resources:
+    requests:
+      storage: 1Gi

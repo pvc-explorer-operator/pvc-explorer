@@ -1,0 +1,7 @@
+namespace: pvc-explorer-system
+
+resources:
+  - ../../base
+
+patches:
+  - path: image-dev.yaml

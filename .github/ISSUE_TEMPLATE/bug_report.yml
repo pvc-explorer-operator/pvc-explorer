@@ -1,0 +1,81 @@
+name: Bug report
+description: Report a reproducible bug
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report this bug.
+
+  - type: input
+    id: summary
+    attributes:
+      label: Summary
+      description: One-line description of the issue
+      placeholder: Agent stays in Waking phase forever
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      description: Provide exact steps
+      placeholder: |
+        1. Create PVCExplorer for pvc X
+        2. Click Browse Files
+        3. Observe phase remains Waking
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected behavior
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Actual behavior
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: pvc-explorer version
+      description: Output from Settings page (or /api/version)
+      placeholder: v0.1.0-5-gabcdef1
+    validations:
+      required: false
+
+  - type: input
+    id: k8s
+    attributes:
+      label: Kubernetes version
+      placeholder: v1.30.2
+    validations:
+      required: false
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: Environment
+      options:
+        - kind
+        - k3d
+        - EKS
+        - GKE
+        - AKS
+        - Other
+    validations:
+      required: false
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs
+      render: shell
+      description: Include controller logs or events if available

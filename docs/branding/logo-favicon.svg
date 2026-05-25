@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="activeBody" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#2A5FC4"/>
+      <stop offset="100%" stop-color="#1A3A7A"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Favicon — simplified mark -->
+  <rect width="64" height="64" rx="14" fill="#0D1117"/>
+
+  <!-- Single active cylinder -->
+  <ellipse cx="24" cy="42" rx="14" ry="4" fill="#122878"/>
+  <rect x="10" y="30" width="28" height="12" fill="url(#activeBody)"/>
+  <ellipse cx="24" cy="30" rx="14" ry="4" fill="#326CE5"/>
+  <circle cx="35" cy="30" r="2" fill="#22C55E"/>
+
+  <!-- Magnifying glass -->
+  <circle cx="44" cy="32" r="12" fill="none" stroke="#00CFFF" stroke-width="3"/>
+  <line x1="52" y1="42" x2="58" y2="50" stroke="#00CFFF" stroke-width="4" stroke-linecap="round"/>
+  <circle cx="44" cy="32" r="1.5" fill="#00CFFF" opacity="0.6"/>
+</svg>

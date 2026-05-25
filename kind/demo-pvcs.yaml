@@ -1,0 +1,51 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: demo-data
+  namespace: demo
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: demo-hostpath
+  resources:
+    requests:
+      storage: 1Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: demo-logs
+  namespace: demo
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: demo-hostpath
+  resources:
+    requests:
+      storage: 512Mi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: demo-cache
+  namespace: demo
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: demo-hostpath
+  resources:
+    requests:
+      storage: 256Mi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: demo-unclaimed
+  namespace: demo
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: demo-hostpath
+  resources:
+    requests:
+      storage: 1Gi

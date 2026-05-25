@@ -1,0 +1,28 @@
+apiVersion: pvcexplorer.io/v1alpha1
+kind: PVCExplorer
+metadata:
+  name: my-pvc
+  namespace: data-archive
+  labels:
+    pvcexplorer.io/scope: production
+spec:
+  pvcName: my-pvc
+  mode: ScaledToZero
+  image: ghcr.io/pvc-explorer-operator/pvc-explorer-agent:dev
+  port: 8081
+  forceRW: true
+  scaling:
+    provider: auto
+    idleTimeout: "10m"
+    startupTimeout: "60s"
+  mountStrategy:
+    autoDetect: true
+    allowNodeAffinity: true
+    fallbackOnConflict: Pending
+  resources:
+    requests:
+      cpu: "50m"
+      memory: "64Mi"
+    limits:
+      cpu: "200m"
+      memory: "256Mi"

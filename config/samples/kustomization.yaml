@@ -1,0 +1,5 @@
+## Append samples of your project ##
+resources:
+- pvcexplorer_v1alpha1_pvcexplorerscope.yaml
+- pvcexplorer_v1alpha1_pvcexplorer.yaml
+# +kubebuilder:scaffold:manifestskustomizesamples

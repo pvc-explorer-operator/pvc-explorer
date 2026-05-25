@@ -1,0 +1,12 @@
+replicaCount: 1
+image:
+  repository: ghcr.io/pvc-explorer-operator/pvc-explorer
+  tag: "latest"
+  pullPolicy: IfNotPresent
+serviceAccount:
+  create: true
+  name: ""
+resources: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}

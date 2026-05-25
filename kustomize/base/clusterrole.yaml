@@ -1,0 +1,37 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: pvc-explorer-manager-role
+  labels:
+    app: pvc-explorer
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps", "namespaces", "persistentvolumeclaims", "pods"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["create", "patch"]
+  - apiGroups: [""]
+    resources: ["secrets", "services"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["apps"]
+    resources: ["daemonsets", "replicasets", "statefulsets"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["apps"]
+    resources: ["deployments"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["batch"]
+    resources: ["jobs"]
+    verbs: ["get", "list", "watch"]
+  - apiGroups: ["rbac.authorization.k8s.io"]
+    resources: ["roles", "rolebindings"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["pvcexplorer.io"]
+    resources: ["pvcexplorers", "pvcexplorerscopes"]
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  - apiGroups: ["pvcexplorer.io"]
+    resources: ["pvcexplorers/status", "pvcexplorerscopes/status"]
+    verbs: ["get", "update", "patch"]
+  - apiGroups: ["pvcexplorer.io"]
+    resources: ["pvcexplorers/finalizers", "pvcexplorerscopes/finalizers"]
+    verbs: ["update"]

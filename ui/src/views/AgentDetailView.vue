@@ -1,0 +1,162 @@
+<template>
+  <div class="detail-view" v-if="explorer">
+    <div class="detail-card">
+      <div class="detail-header">
+        <span :class="['phase-dot', `dot-${(explorer.phase || '').toLowerCase()}`]" />
+        <span class="explorer-name">{{ explorer.name }}</span>
+        <Tag v-if="explorer.phase" :value="explorer.phase" :severity="phaseSeverity(explorer.phase)" rounded />
+        <MountStateBanner :state="explorer.mountState" />
+      </div>
+      <div class="detail-meta">
+        <div><span class="meta-label">Namespace:</span> <span class="meta-value">{{ explorer.namespace }}</span></div>
+        <div><span class="meta-label">PVC:</span> <span class="meta-value">{{ explorer.pvcName }}</span></div>
+        <div v-if="explorer.accessMode || explorer.mode"><span class="meta-label">Mode:</span> <Tag :value="explorer.accessMode || explorer.mode" severity="info" rounded /></div>
+      </div>
+      <div v-if="explorer.labels?.length" class="labels-row">
+        <Chip v-for="label in explorer.labels" :key="label" :label="label" class="label-chip" />
+      </div>
+      <div class="detail-actions">
+        <Button v-if="explorer.phase === 'Running'" severity="success" icon="pi pi-folder-open" label="Browse Files" rounded @click="goToFiles" />
+        <Button v-else-if="explorer.phase === 'ScaledToZero'" severity="primary" icon="pi pi-plug" label="Connect" rounded @click="wake" />
+        <Button v-else-if="explorer.phase === 'Waking'" severity="primary" icon="pi pi-spin pi-spinner" label="Waking..." rounded disabled />
+        <Button v-else severity="secondary" icon="pi pi-ban" label="Unavailable" rounded disabled />
+        <Button severity="secondary" icon="pi pi-refresh" label="Refresh" rounded @click="refresh" />
+      </div>
+    </div>
+    <MountStateBanner v-if="explorer.mountState && explorer.mountState !== 'Mounted'" :state="explorer.mountState" style="margin-top:1rem;" />
+    <ConditionsTable v-if="explorer.conditions" :conditions="explorer.conditions" style="margin-top:1.2rem;" />
+    <ConsumerList v-if="explorer.consumers" :consumers="explorer.consumers" style="margin-top:1.2rem;" />
+    <WakeUpDialog v-if="showWakeDialog" :explorer="explorer" @close="onWakeDialogClose" />
+  </div>
+  <div v-else class="loading-detail">Loading...</div>
+</template>
+
+<script setup lang="ts">
+import { ref, onMounted, watch } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { useExplorerStore } from '../stores/explorerStore'
+import type { Explorer } from '../stores/explorerStore'
+import MountStateBanner from '../components/agents/MountStateBanner.vue'
+import WakeUpDialog from '../components/shared/WakeUpDialog.vue'
+import ConditionsTable from '../components/agents/ConditionsTable.vue'
+import ConsumerList from '../components/agents/ConsumerList.vue'
+import Button from 'primevue/button'
+import Tag from 'primevue/tag'
+import Chip from 'primevue/chip'
+
+const route = useRoute()
+const router = useRouter()
+const store = useExplorerStore()
+const explorer = ref<Explorer | null>(null)
+const showWakeDialog = ref(false)
+
+async function fetchExplorer() {
+  const ns = route.params.ns as string
+  const name = route.params.name as string
+  try {
+    explorer.value = await store.fetchExplorer(ns, name)
+  } catch {
+    explorer.value = null
+  }
+}
+
+function phaseSeverity(phase: string) {
+  if (phase === 'Running') return 'success'
+  if (phase === 'ScaledToZero') return 'warning'
+  if (phase === 'Waking') return 'info'
+  if (phase === 'Failed') return 'danger'
+  if (phase === 'Pending') return 'warn'
+  return 'secondary'
+}
+
+function refresh() {
+  fetchExplorer()
+}
+
+function goToFiles() {
+  if (!explorer.value) return
+  router.push(`/explorers/${explorer.value.namespace}/${explorer.value.name}/files`)
+}
+
+function wake() {
+  showWakeDialog.value = true
+}
+
+function onWakeDialogClose() {
+  showWakeDialog.value = false
+  fetchExplorer()
+}
+
+onMounted(fetchExplorer)
+watch(() => [route.params.ns, route.params.name], fetchExplorer)
+</script>
+
+<style scoped>
+.detail-view {
+  max-width: 700px;
+  margin: 2.5rem auto 0 auto;
+  padding: 1.5rem 1rem 3rem;
+}
+.detail-card {
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: 8px;
+  padding: 1.3rem 1.5rem 1.1rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.detail-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.phase-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  background: var(--text-color-secondary);
+}
+.dot-running         { background: var(--p-green-500); }
+.dot-scaledtozero    { background: var(--p-amber-500); }
+.dot-waking          { background: var(--primary-color); }
+.dot-pending         { background: var(--p-amber-500); }
+.dot-failed          { background: var(--p-red-500); }
+.explorer-name {
+  flex: 1;
+  font-weight: 600;
+  color: var(--text-color);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.detail-meta {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.98rem;
+  flex-wrap: wrap;
+}
+.meta-label { color: var(--text-color-secondary); }
+.meta-value { color: var(--text-color-secondary); }
+.labels-row { display: flex; flex-wrap: wrap; gap: 0.25rem; }
+.label-chip {
+  background: var(--surface-hover);
+  color: var(--text-color-secondary);
+  border-radius: 4px;
+  padding: 0.1em 0.5em;
+  font-size: 0.875rem;
+}
+.detail-actions {
+  margin-top: 0.5rem;
+  display: flex;
+  gap: 0.7rem;
+}
+
+.loading-detail {
+  text-align: center;
+  color: var(--text-color-secondary);
+  margin-top: 3rem;
+  font-size: 1.2rem;
+}
+</style>

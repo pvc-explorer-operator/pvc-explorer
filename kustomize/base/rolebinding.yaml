@@ -1,0 +1,13 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: pvc-explorer-rolebinding
+  labels:
+    app: pvc-explorer
+subjects:
+  - kind: ServiceAccount
+    name: pvc-explorer-controller-manager
+roleRef:
+  kind: Role
+  name: pvc-explorer-role
+  apiGroup: rbac.authorization.k8s.io

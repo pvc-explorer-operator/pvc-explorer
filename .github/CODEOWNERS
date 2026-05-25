@@ -1,0 +1,25 @@
+# Each line is a file pattern followed by one or more owners.
+# Order matters: the last matching pattern takes precedence.
+
+# Default owners for everything
+* @ricardoleal
+
+# Go source code and module files
+*.go @ricardoleal
+go.mod @ricardoleal
+go.sum @ricardoleal
+Makefile @ricardoleal
+
+# CI/CD and GitHub configuration
+.github/ @ricardoleal
+
+# Docker
+Dockerfile @ricardoleal
+Dockerfile.* @ricardoleal
+
+# Documentation
+docs/ @ricardoleal
+README.md @ricardoleal
+
+# Security and compliance
+SECURITY.md @ricardoleal

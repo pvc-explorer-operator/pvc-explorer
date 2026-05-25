@@ -1,0 +1,17 @@
+pvc-explorer
+
+Copyright 2024-2026 Contributors
+
+Licensed under the Apache License, Version 2.0 (the "License").
+See LICENSE file for details.
+
+Third-party license notices are available in the dependencies listed in:
+- go.mod (Go dependencies)
+- ui/package.json (npm dependencies)
+
+To view all third-party licenses:
+  make sbom
+
+To review specific dependency licenses:
+  go-licenses csv ./...  (Go packages)
+  npm ls --depth=0       (npm packages in ui/)

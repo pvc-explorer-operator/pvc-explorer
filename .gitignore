@@ -1,0 +1,50 @@
+# Binaries
+bin/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+/agent-bin
+
+# Test output
+*.test
+*.out
+
+# Go workspace
+go.work
+
+# Demo / dev scripts (not for public distribution)
+demo-monitor.sh
+
+# editor and IDE paraphernalia
+.idea
+.vscode
+*.swp
+*.swo
+*~
+
+# AI tools
+.cursor
+.claude
+.copilot
+.aider*
+.continue
+.codeium
+.tabnine
+.opencode
+AGENTS.md
+
+# Kubeconfig might contain secrets
+*.kubeconfig
+
+# opencode
+.sisyphus/*
+
+# Build output
+dist/
+Dockerfile.cross
+
+# Node / UI
+ui/node_modules/
+ui/dist/

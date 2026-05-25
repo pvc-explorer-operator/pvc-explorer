@@ -1,0 +1,14 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: pvc-explorer-manager-rolebinding
+  labels:
+    app: pvc-explorer
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: pvc-explorer-manager-role
+subjects:
+  - kind: ServiceAccount
+    name: pvc-explorer-controller-manager
+    namespace: pvc-explorer-system

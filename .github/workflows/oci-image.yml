@@ -1,0 +1,376 @@
+name: OCI Image
+
+on:
+  push:
+    tags:
+      - v*
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  id-token: write
+  packages: write
+
+concurrency:
+  group: oci-image-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  create-release-on-tag:
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+      - name: Create GitHub Release for version tags
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="${GITHUB_REF#refs/tags/}"
+          title="Release ${tag}"
+
+          if [[ "${tag}" == *-* ]]; then
+            gh release create "${tag}" --title "${title}" --notes "" --prerelease --target ${{ github.sha }} || \
+            gh release edit "${tag}" --title "${title}" --notes "" --prerelease --latest=false --target ${{ github.sha }}
+          else
+            gh release create "${tag}" --title "${title}" --notes "" --latest --target ${{ github.sha }} || \
+            gh release edit "${tag}" --title "${title}" --notes "" --latest --target ${{ github.sha }}
+          fi
+
+  publish-dev:
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 0
+
+      - name: Check for dev image source changes
+        id: changes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OWNER: ${{ github.repository_owner }}
+          PACKAGE_NAME: ${{ github.event.repository.name }}
+        run: |
+          set -euo pipefail
+
+          mapfile -t watched_paths < <(cat <<'EOF'
+          Dockerfile
+          go.mod
+          go.sum
+          embed.go
+          cmd
+          internal
+          ui
+          .github/workflows/oci-image.yml
+          EOF
+          )
+
+          last_dev_tag="$(gh api \
+            -H "Accept: application/vnd.github+json" \
+            "/orgs/${OWNER}/packages/container/${PACKAGE_NAME}/versions?per_page=100" \
+            --paginate \
+            --jq '[.[]
+              | select((.metadata.container.tags // []) | index("dev"))
+              | ((.metadata.container.tags // []) | map(select(startswith("dev-"))) | .[0])
+            ][0]' || true)"
+
+          if [ -z "${last_dev_tag}" ] || [ "${last_dev_tag}" = "null" ]; then
+            echo "No prior dev baseline tag (dev-<sha> paired with dev) found; build required."
+            echo "should_build=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          last_dev_sha="${last_dev_tag#dev-}"
+          if ! git rev-parse --verify --quiet "${last_dev_sha}^{commit}" >/dev/null; then
+            echo "Previous dev tag (${last_dev_tag}) does not map to a local commit; build required."
+            echo "should_build=true" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+
+          if git diff --quiet "${last_dev_sha}"..HEAD -- "${watched_paths[@]}"; then
+            echo "No watched source changes since ${last_dev_tag}; skipping dev image build."
+            echo "should_build=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "Watched source changes found since ${last_dev_tag}; build required."
+            echo "should_build=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Set up QEMU
+        if: steps.changes.outputs.should_build == 'true'
+        uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4
+
+      - name: Set up Docker Buildx
+        if: steps.changes.outputs.should_build == 'true'
+        uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4
+
+      - name: Log in to GHCR
+        if: steps.changes.outputs.should_build == 'true'
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate image metadata
+        if: steps.changes.outputs.should_build == 'true'
+        id: meta
+        uses: docker/metadata-action@80c7e94dd9b9319bd5eb7a0e0fe9291e23a2a2e9 # v6
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=raw,value=dev
+            type=sha,prefix=dev-
+          labels: |
+            org.opencontainers.image.title=pvc-explorer
+            org.opencontainers.image.description=Kubernetes controller for browsing PersistentVolumeClaims on demand
+            org.opencontainers.image.vendor=pvc-explorer-operator
+            org.opencontainers.image.licenses=Apache-2.0
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.url=https://github.com/${{ github.repository }}
+
+      - name: Install cosign
+        if: steps.changes.outputs.should_build == 'true'
+        uses: sigstore/cosign-installer@398d4b0eeef1380460a10c8013a76f728fb906ac # v3
+
+      - name: Build and push dev image
+        if: steps.changes.outputs.should_build == 'true'
+        id: build
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          provenance: mode=max
+          sbom: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Generate dev SBOM file
+        if: steps.changes.outputs.should_build == 'true'
+        env:
+          IMAGE_REF: ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}
+        run: |
+          docker run --rm -v "$PWD:/work" -w /work anchore/syft:latest "$IMAGE_REF" -o spdx-json=sbom-dev-${{ github.sha }}.spdx.json
+
+      - name: Prune old dev OCI images
+        if: steps.changes.outputs.should_build == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          OWNER: ${{ github.repository_owner }}
+          PACKAGE_NAME: ${{ github.event.repository.name }}
+          CURRENT_DIGEST: ${{ steps.build.outputs.digest }}
+        run: |
+          set -o pipefail
+
+          mapfile -t stale_versions < <(
+            gh api \
+              -H "Accept: application/vnd.github+json" \
+              "/orgs/${OWNER}/packages/container/${PACKAGE_NAME}/versions?per_page=100" \
+              --paginate \
+              --jq '.[]
+                | select(.name != env.CURRENT_DIGEST)
+                | select(
+                    ((.metadata.container.tags // []) | map(startswith("dev-")) | any)
+                    or ((.metadata.container.tags // []) | map(test("\\.(sig|sbom)$")) | any)
+                    or (((.metadata.container.tags // []) | length) == 0)
+                  )
+                | [.id, .name, ((.metadata.container.tags // []) | join(","))]
+                | @tsv'
+          )
+
+          echo "Found ${#stale_versions[@]} stale OCI package version(s)"
+          deleted=0
+          for version in "${stale_versions[@]}"; do
+            [ -z "$version" ] && continue
+            version_id="${version%%$'\t'*}"
+            rest="${version#*$'\t'}"
+            version_name="${rest%%$'\t'*}"
+            version_tags="${rest#*$'\t'}"
+            [ "$version_tags" = "$rest" ] && version_tags="<none>"
+            echo "Deleting package version ID ${version_id} (name=${version_name}, tags=${version_tags})"
+            gh api --method DELETE "/orgs/${OWNER}/packages/container/${PACKAGE_NAME}/versions/${version_id}" >/dev/null
+            deleted=$((deleted + 1))
+          done
+          echo "Deleted ${deleted} stale OCI package version(s)"
+
+      - name: Sign dev image
+        if: steps.changes.outputs.should_build == 'true'
+        env:
+          COSIGN_YES: "true"
+        run: |
+          cosign sign ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}
+
+      - name: Attach dev SBOM to image with cosign
+        if: steps.changes.outputs.should_build == 'true'
+        env:
+          IMAGE_REF: ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}
+        run: |
+          cosign attach sbom --sbom sbom-dev-${{ github.sha }}.spdx.json "$IMAGE_REF"
+
+      - name: Add dev SBOM summary
+        if: steps.changes.outputs.should_build == 'true'
+        run: |
+          {
+            echo "### OCI Image Output"
+            echo ""
+            echo "- Image digest: \`ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}\`"
+            echo "- Download SBOM: \`cosign download sbom ghcr.io/${{ github.repository }}:dev\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Add dev skip summary
+        if: steps.changes.outputs.should_build != 'true'
+        run: |
+          {
+            echo "### OCI Image Output"
+            echo ""
+            echo "- Skipped dev image build: no watched source changes since last dev image tag."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  publish-release:
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4
+
+      - name: Log in to GHCR
+        uses: docker/login-action@c94ce9fb468520275223c153574b00df6fe4bcc9 # v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate image metadata
+        id: meta
+        uses: docker/metadata-action@80c7e94dd9b9319bd5eb7a0e0fe9291e23a2a2e9 # v6
+        with:
+          images: ghcr.io/${{ github.repository }}
+          tags: |
+            type=ref,event=tag
+            type=raw,value=latest,enable=${{ !contains(github.ref_name, '-') }}
+          labels: |
+            org.opencontainers.image.title=pvc-explorer
+            org.opencontainers.image.description=Kubernetes controller for browsing PersistentVolumeClaims on demand
+            org.opencontainers.image.vendor=pvc-explorer-operator
+            org.opencontainers.image.licenses=Apache-2.0
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.url=https://github.com/${{ github.repository }}
+
+      - name: Install cosign
+        uses: sigstore/cosign-installer@398d4b0eeef1380460a10c8013a76f728fb906ac # v3
+
+      - name: Build and push release image
+        id: build
+        uses: docker/build-push-action@f9f3042f7e2789586610d6e8b85c8f03e5195baf # v7
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          provenance: mode=max
+          sbom: true
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Generate CRDs artifact
+        run: |
+          make kustomize
+          bin/kustomize build config/crd > crds.yaml
+
+      - name: Sign release image
+        env:
+          COSIGN_YES: "true"
+        run: |
+          cosign sign ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}
+
+      - name: Generate release SBOM file
+        env:
+          IMAGE_REF: ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}
+        run: |
+          docker run --rm -v "$PWD:/work" -w /work anchore/syft:latest "$IMAGE_REF" -o spdx-json=sbom-${{ github.ref_name }}.spdx.json
+
+      - name: Upload release SBOM workflow artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: sbom-${{ github.ref_name }}
+          path: sbom-${{ github.ref_name }}.spdx.json
+          if-no-files-found: error
+
+      - name: Attach release SBOM to image with cosign
+        env:
+          IMAGE_REF: ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}
+        run: |
+          cosign attach sbom --sbom sbom-${{ github.ref_name }}.spdx.json "$IMAGE_REF"
+
+      - name: Attach assets to GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release upload "${GITHUB_REF#refs/tags/}" \
+            "sbom-${{ github.ref_name }}.spdx.json" \
+            "crds.yaml" \
+            --clobber
+
+      - name: Add release SBOM summary
+        run: |
+          {
+            echo "### OCI Image Output"
+            echo ""
+            echo "- Image digest: \`ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}\`"
+            echo "- Download SBOM: \`cosign download sbom ghcr.io/${{ github.repository }}:${{ github.ref_name }}\`"
+            echo "- Release asset: \`sbom-${{ github.ref_name }}.spdx.json\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Update GitHub release notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+          PACKAGE_NAME: ${{ github.event.repository.name }}
+        run: |
+          set -euo pipefail
+
+          previous_tag="$({
+            gh api "/repos/${REPO}/releases?per_page=100" \
+              --jq '[.[] | select(.draft == false and .prerelease == false and .tag_name != env.TAG)][0].tag_name'
+          } || true)"
+
+          {
+            echo "## Artifacts"
+            echo ""
+            echo "- OCI image tag: [ghcr.io/${REPO}:${TAG}](https://github.com/${REPO}/pkgs/container/${PACKAGE_NAME})"
+            echo "- OCI image digest: \`ghcr.io/${REPO}@${{ steps.build.outputs.digest }}\`"
+            echo "- CRDs: [crds.yaml](https://github.com/${REPO}/releases/download/${TAG}/crds.yaml)"
+            echo "- SBOM (SPDX JSON): [sbom-${TAG}.spdx.json](https://github.com/${REPO}/releases/download/${TAG}/sbom-${TAG}.spdx.json)"
+            echo ""
+            echo "## Changes"
+            echo ""
+            echo "Generated commit list since the previous stable release:"
+            echo ""
+
+            if [ -n "${previous_tag}" ] && [ "${previous_tag}" != "null" ]; then
+              echo "Compare: https://github.com/${REPO}/compare/${previous_tag}...${TAG}"
+              echo ""
+              gh api "/repos/${REPO}/compare/${previous_tag}...${TAG}" \
+                --jq '.commits[] | "- " + (.commit.message | split("\n")[0])'
+            else
+              echo "- Initial release"
+            fi
+          } > release-notes.md
+
+          gh release edit "${TAG}" --notes-file release-notes.md

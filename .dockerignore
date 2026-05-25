@@ -1,0 +1,22 @@
+# Ignore everything by default and re-include only needed files
+**
+
+# Re-include Go source files (but not *_test.go)
+!**/*.go
+**/*_test.go
+
+# Re-include Go module files
+!go.mod
+!go.sum
+
+# Re-include UI source for multi-stage build
+!ui/package.json
+!ui/package-lock.json
+!ui/index.html
+!ui/vite.config.ts
+!ui/tsconfig.json
+!ui/tsconfig.app.json
+!ui/tsconfig.node.json
+!ui/src/**
+!ui/dev-mock/**
+!ui/public/**

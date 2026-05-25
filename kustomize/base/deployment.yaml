@@ -1,0 +1,31 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pvc-explorer-controller-manager
+  labels:
+    app: pvc-explorer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pvc-explorer
+  template:
+    metadata:
+      labels:
+        app: pvc-explorer
+    spec:
+      serviceAccountName: pvc-explorer-controller-manager
+      containers:
+        - name: manager
+          image: ghcr.io/pvc-explorer-operator/pvc-explorer:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8080
+              name: http
+            - containerPort: 8081
+              name: health
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace

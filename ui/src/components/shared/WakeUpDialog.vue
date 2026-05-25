@@ -1,0 +1,158 @@
+<template>
+  <div v-if="open" class="modal-overlay">
+    <div class="modal-dialog">
+      <div class="modal-header">
+        <span>Starting {{ explorer.name }}</span>
+      </div>
+      <div class="dialog-body">
+        <div v-if="!error" class="spinner" />
+        <p class="status-msg" :class="{ 'is-error': !!error }">{{ message }}</p>
+      </div>
+      <div class="modal-footer">
+        <Button v-if="!error" severity="secondary" icon="pi pi-times" label="Cancel" rounded @click="cancel" />
+        <Button v-else severity="primary" icon="pi pi-check" label="Close" rounded @click="close" />
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, onMounted, onUnmounted } from 'vue'
+import { useRouter } from 'vue-router'
+import type { Explorer } from '../../stores/explorerStore'
+import Button from 'primevue/button'
+import { useWebSocket } from '../../composables/useWebSocket'
+
+const props = defineProps<{ explorer: Explorer }>()
+const emit = defineEmits<{ (e: 'close'): void }>()
+
+const router = useRouter()
+const open = ref(true)
+const error = ref(false)
+const message = ref('Sending wake request...')
+
+let cancelled = false
+let deadlineTimer: ReturnType<typeof setTimeout> | null = null
+let cycleTimer: ReturnType<typeof setTimeout> | null = null
+
+const MESSAGES = ['Creating agent pod', 'Mounting PVC', 'Waiting for agent to be ready']
+let msgIdx = 0
+
+function cycleMessage() {
+  msgIdx = (msgIdx + 1) % MESSAGES.length
+  message.value = MESSAGES[msgIdx]
+  cycleTimer = setTimeout(cycleMessage, 4000)
+}
+
+function onReady() {
+  if (cancelled) return
+  open.value = false
+  emit('close')
+  router.push(`/explorers/${props.explorer.namespace}/${props.explorer.name}/files`)
+}
+
+const { connect: wsConnect, disconnect: wsDisconnect } = useWebSocket({
+  onAgentReady(p) {
+    if (p.namespace === props.explorer.namespace && p.name === props.explorer.name) {
+      onReady()
+    }
+  },
+})
+
+async function run() {
+  const base = `/api/v1/explorers/${props.explorer.namespace}/${props.explorer.name}`
+  const wakeRes = await fetch(`${base}/wake`, { method: 'POST' })
+  if (!wakeRes.ok) throw new Error('Wake request failed')
+  message.value = MESSAGES[0]
+  cycleTimer = setTimeout(cycleMessage, 4000)
+
+  deadlineTimer = setTimeout(() => {
+    if (!cancelled && open.value) {
+      error.value = true
+      message.value = 'Timed out waiting for agent to start'
+      if (cycleTimer) clearTimeout(cycleTimer)
+    }
+  }, 120_000)
+}
+
+onMounted(() => {
+  wsConnect()
+  run().catch(err => {
+    error.value = true
+    message.value = err instanceof Error ? err.message : 'Failed to start agent'
+    if (cycleTimer) clearTimeout(cycleTimer)
+  })
+})
+
+onUnmounted(() => {
+  cancelled = true
+  wsDisconnect()
+  if (cycleTimer) clearTimeout(cycleTimer)
+  if (deadlineTimer) clearTimeout(deadlineTimer)
+})
+
+function cancel() {
+  cancelled = true
+  close()
+}
+
+function close() {
+  open.value = false
+  emit('close')
+}
+</script>
+
+<style scoped>
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.32);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.modal-dialog {
+  background: var(--surface-card);
+  border-radius: 8px;
+  box-shadow: 0 2px 24px 0 rgba(0,0,0,0.13);
+  min-width: 320px;
+  max-width: 95vw;
+  padding: 1.2rem 1.5rem 1rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.modal-header {
+  font-weight: 600;
+  font-size: 1.08rem;
+  color: var(--text-color);
+  margin-bottom: 0.2rem;
+}
+.dialog-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.5rem 0;
+}
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 4px solid var(--surface-hover);
+  border-top: 4px solid var(--primary-color);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+.status-msg { color: var(--text-color-secondary); font-size: 0.95rem; text-align: center; }
+.status-msg.is-error { color: var(--p-red-500); }
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.5rem;
+}
+</style>

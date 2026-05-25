@@ -1,0 +1,149 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: demo-snapshotter
+  namespace: demo
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: demo-snapshotter
+rules:
+  - apiGroups: [""]
+    resources: ["persistentvolumeclaims"]
+    verbs: ["get", "list", "create"]
+  - apiGroups: [""]
+    resources: ["persistentvolumes"]
+    verbs: ["get", "list", "create"]
+  - apiGroups: [""]
+    resources: ["nodes"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: demo-snapshotter
+subjects:
+  - kind: ServiceAccount
+    name: demo-snapshotter
+    namespace: demo
+roleRef:
+  kind: ClusterRole
+  name: demo-snapshotter
+  apiGroup: rbac.authorization.k8s.io
+---
+# CronJob that runs every 10 minutes, mounts the fixed demo-cache PVC,
+# does some cache work, then exits. This makes demo-cache flip between
+# "busy" (while the job runs) and "free" (after it finishes),
+# demonstrating consumer attach/detach in the dashboard.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: cache-worker
+  namespace: demo
+spec:
+  schedule: "*/10 * * * *"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: worker
+              image: busybox:latest
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  echo "==> Cache worker started at $(date)"
+                  echo "Writing heartbeat to demo-cache..."
+                  date > /cache/last-heartbeat
+                  echo "Contents of /cache:"
+                  ls -la /cache
+                  echo "Simulating cache work for 5m..."
+                  sleep 300
+                  echo "==> Cache worker done at $(date)"
+              volumeMounts:
+                - name: cache
+                  mountPath: /cache
+          volumes:
+            - name: cache
+              persistentVolumeClaim:
+                claimName: demo-cache
+---
+# CronJob that runs once every 24 hours, creates a dated snapshot PVC
+# with some content. These accumulate over days, giving lots of free
+# PVCs to explore via the dashboard.
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: daily-snapshot
+  namespace: demo
+spec:
+  schedule: "0 6 * * *"
+  suspend: true
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          serviceAccountName: demo-snapshotter
+          restartPolicy: OnFailure
+          containers:
+            - name: snapshot
+              image: bitnami/kubectl:latest
+              command:
+                - /bin/sh
+                - -c
+                - |
+                  set -e
+                  DATE=$(date +%Y-%m-%d)
+                  NAME="demo-snapshot-${DATE}"
+                  NODE=$(kubectl get nodes -o jsonpath='{.items[0].metadata.name}')
+                  echo "Creating daily snapshot ${NAME}"
+                  kubectl apply -f - <<MANIFEST
+                  apiVersion: v1
+                  kind: PersistentVolume
+                  metadata:
+                    name: ${NAME}
+                  spec:
+                    capacity:
+                      storage: 1Gi
+                    accessModes:
+                      - ReadWriteOnce
+                    persistentVolumeReclaimPolicy: Delete
+                    storageClassName: demo-hostpath
+                    hostPath:
+                      path: /tmp/pvc-explorer/${NAME}
+                      type: DirectoryOrCreate
+                    nodeAffinity:
+                      required:
+                        nodeSelectorTerms:
+                          - matchExpressions:
+                              - key: kubernetes.io/hostname
+                                operator: In
+                                values:
+                                  - ${NODE}
+                  ---
+                  apiVersion: v1
+                  kind: PersistentVolumeClaim
+                  metadata:
+                    name: ${NAME}
+                    namespace: demo
+                    labels:
+                      app.kubernetes.io/managed-by: daily-snapshot
+                  spec:
+                    storageClassName: demo-hostpath
+                    accessModes:
+                      - ReadWriteOnce
+                    resources:
+                      requests:
+                        storage: 1Gi
+                  MANIFEST
+                  echo "Snapshot ${NAME} created"

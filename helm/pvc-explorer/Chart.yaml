@@ -1,0 +1,16 @@
+apiVersion: v2
+name: pvc-explorer
+version: 0.1.0
+appVersion: "0.1.0"
+description: Kubernetes operator for browsing PersistentVolumeClaims via ephemeral agent pods
+home: https://github.com/pvc-explorer-operator/pvc-explorer
+sources:
+- https://github.com/pvc-explorer-operator/pvc-explorer
+maintainers:
+  - name: pvc-explorer-operator
+    email: <your-email@example.com>
+keywords:
+  - kubernetes
+  - pvc
+  - explorer
+  - operator

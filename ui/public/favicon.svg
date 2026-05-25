@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <!-- Cylinder body -->
+  <rect x="20" y="16" width="24" height="26" rx="2" fill="#326CE5"/>
+  <ellipse cx="32" cy="16" rx="12" ry="5" fill="#5B8DEF"/>
+  <ellipse cx="32" cy="42" rx="12" ry="5" fill="#1A3A7A"/>
+  <!-- Green dot (active indicator) -->
+  <circle cx="46" cy="16" r="5" fill="#22C55E"/>
+  <circle cx="46" cy="16" r="2.5" fill="#86EFAC"/>
+</svg>

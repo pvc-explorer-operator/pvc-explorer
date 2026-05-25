@@ -1,0 +1,33 @@
+apiVersion: pvcexplorer.io/v1alpha1
+kind: PVCExplorerScope
+metadata:
+  name: production
+spec:
+  namespaces:
+    names:
+      - data-archive
+    labelSelector:
+      matchLabels:
+        pvc-explorer: enabled
+  discovery:
+    mode: Auto
+    excludePVCs:
+      - "tmp-*"
+  deletionPolicy: Cleanup
+  defaults:
+    mode: ScaledToZero
+    image: ghcr.io/pvc-explorer-operator/pvc-explorer-agent:dev
+    forceRW: true
+    scaling:
+      idleTimeout: "10m"
+      startupTimeout: "60s"
+    mountStrategy:
+      allowNodeAffinity: true
+      fallbackOnConflict: Pending
+    resources:
+      requests:
+        cpu: "50m"
+        memory: "64Mi"
+      limits:
+        cpu: "200m"
+        memory: "256Mi"

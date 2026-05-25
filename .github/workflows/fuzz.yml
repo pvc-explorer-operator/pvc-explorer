@@ -1,0 +1,25 @@
+name: Fuzzing
+
+on:
+  schedule:
+    - cron: '30 5 * * 1' # weekly on Monday
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fuzz:
+    name: Fuzz
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - uses: actions/setup-go@40f1582b2485089dde7abd97c1529aa768e1baff # v5
+        with:
+          go-version: stable
+      - name: Run fuzz tests
+        run: go test -fuzz=. -fuzztime=5m ./...
+        env:
+          GOTOOLCHAIN: go

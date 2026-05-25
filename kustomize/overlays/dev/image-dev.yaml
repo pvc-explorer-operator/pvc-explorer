@@ -1,0 +1,10 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pvc-explorer-controller-manager
+spec:
+  template:
+    spec:
+      containers:
+        - name: manager
+          image: pvc-explorer:dev

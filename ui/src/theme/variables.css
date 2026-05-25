@@ -1,0 +1,39 @@
+/* ─────────────────────────────────────────────
+   Sakai semantic aliases → PrimeVue tokens
+   ───────────────────────────────────────────── */
+:root {
+  --primary-color:                  var(--p-primary-color);
+  --primary-contrast-color:         var(--p-primary-contrast-color);
+  --text-color:                     var(--p-text-color);
+  --text-color-secondary:           var(--p-text-muted-color);
+  --surface-border:                 var(--p-content-border-color);
+  --surface-card:                   var(--p-content-background);
+  --surface-hover:                  var(--p-content-hover-background);
+  --surface-overlay:                var(--p-overlay-popover-background);
+  --surface-ground:                 var(--p-surface-100);
+  --maskbg:                         var(--p-mask-background);
+  --content-border-radius:          var(--p-content-border-radius);
+  --transition-duration:            var(--p-transition-duration);
+  --element-transition-duration:    var(--p-transition-duration);
+  --layout-section-transition-duration: 0.2s;
+}
+
+:root[class*=app-dark] {
+  --surface-ground:                 var(--p-surface-950);
+}
+
+/* ─────────────────────────────────────────────
+   Typography scale
+   Base: 14px (set on html in layout.css)
+   All values in rem relative to that base.
+   ───────────────────────────────────────────── */
+:root {
+  --fs-xs:   0.8125rem;  /* 11.5px — de-emphasized counts/badges */
+  --fs-sm:   0.875rem;   /* 12.25px — metadata, table cells */
+  --fs-base: 1rem;       /* 14px — body */
+  --fs-body: 0.938rem;   /* 13px — compact body / filter options */
+  --fs-lg:   1.125rem;   /* 15.75px — larger body */
+  --fs-xl:   1.25rem;    /* 17.5px — subheadings */
+  --fs-2xl:  1.5rem;     /* 21px — section headings */
+  --fs-icon: 2.5rem;     /* 35px — large icons */
+}
