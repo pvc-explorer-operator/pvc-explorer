@@ -1,7 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import type { RouteRecordRaw } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
-import { nextTick } from 'vue'
 
 const routes: RouteRecordRaw[] = [
   { path: '/login', name: 'Login', component: () => import('../views/LoginView.vue'), meta: { title: 'Sign In' } },
@@ -36,9 +35,6 @@ router.beforeEach(async (to, _from, next) => {
 router.afterEach((to) => {
   const base = 'PVC Explorer'
   document.title = to.meta.title ? `${String(to.meta.title)} — ${base}` : base
-  if (document.startViewTransition) {
-    document.startViewTransition(() => nextTick())
-  }
 })
 
 export default router
