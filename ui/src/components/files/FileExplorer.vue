@@ -1,5 +1,5 @@
 <template>
-  <div class="fe-shell" @click="closeCtx" @keydown.escape="closeCtx(); closeModal()">
+  <div class="fe-shell" @click="closeCtx" @keydown.escape="closeCtx()">
 
     <!-- ── Toolbar ────────────────────────────────────────────────────────── -->
     <div class="fe-toolbar">
@@ -98,29 +98,26 @@
     </div>
 
     <!-- ── Modal ─────────────────────────────────────────────────────────── -->
-    <div v-if="modal" class="fe-modal-overlay" @click.self="closeModal">
-      <div class="fe-modal">
-        <div class="fe-modal-title">{{ modal.title }}</div>
-        <div v-if="modal.message" class="fe-modal-msg">{{ modal.message }}</div>
-        <input
-          v-if="modal.hasInput"
-          ref="modalInputEl"
-          v-model="modalInputValue"
-          class="fe-modal-input"
-          :placeholder="modal.placeholder ?? ''"
-          @keyup.enter="confirmModal"
-          @keydown.stop
-        />
-        <div class="fe-modal-actions">
-          <button class="fe-btn fe-btn-ghost" @click="closeModal">Cancel</button>
-          <button
-            class="fe-btn"
-            :class="modal.danger ? 'fe-btn-danger' : 'fe-btn-primary'"
-            @click="confirmModal"
-          >{{ modal.confirmLabel }}</button>
-        </div>
+    <dialog v-if="modal" ref="modalDialogEl" class="fe-modal" @close="onDialogClose">
+      <div class="fe-modal-title">{{ modal.title }}</div>
+      <div v-if="modal.message" class="fe-modal-msg">{{ modal.message }}</div>
+      <input
+        v-if="modal.hasInput"
+        ref="modalInputEl"
+        v-model="modalInputValue"
+        class="fe-modal-input"
+        :placeholder="modal.placeholder ?? ''"
+        @keyup.enter="confirmModal"
+      />
+      <div class="fe-modal-actions">
+        <button class="fe-btn fe-btn-ghost" @click="closeModal">Cancel</button>
+        <button
+          class="fe-btn"
+          :class="modal.danger ? 'fe-btn-danger' : 'fe-btn-primary'"
+          @click="confirmModal"
+        >{{ modal.confirmLabel }}</button>
       </div>
-    </div>
+    </dialog>
 
     <!-- ── Toast ─────────────────────────────────────────────────────────── -->
     <Transition name="fe-toast">
@@ -235,14 +232,24 @@ function ctxDelete()  { closeCtx(); if (ctxEntry.value) onDeleteEntry(ctxEntry.v
 const modal = ref<ModalState | null>(null)
 const modalInputValue = ref('')
 const modalInputEl = ref<HTMLInputElement | null>(null)
+const modalDialogEl = ref<HTMLDialogElement | null>(null)
 
 function openModal(config: ModalState, initialInput = '') {
   modal.value = config
   modalInputValue.value = initialInput
-  if (config.hasInput) nextTick(() => { modalInputEl.value?.focus(); modalInputEl.value?.select() })
+  nextTick(() => {
+    modalDialogEl.value?.showModal()
+    if (config.hasInput) modalInputEl.value?.select()
+  })
 }
 
-function closeModal() { modal.value = null }
+function closeModal() {
+  modalDialogEl.value?.close()
+}
+
+function onDialogClose() {
+  modal.value = null
+}
 
 function confirmModal() {
   modal.value?.onConfirm(modalInputValue.value)
@@ -512,27 +519,39 @@ function showToast(msg: string, type: 'success' | 'danger' = 'success') {
 .fe-ctx-item--danger { color: var(--p-red-400); }
 .fe-ctx-sep { height: 1px; background: var(--surface-border); margin: 3px 6px; }
 
-/* ── Modal ── */
-.fe-modal-overlay {
-  position: fixed; inset: 0;
-  background: var(--maskbg, rgba(0,0,0,.5));
-  display: flex; align-items: center; justify-content: center;
-  z-index: 2000;
-  backdrop-filter: blur(2px);
-  animation: fe-fade .15s ease;
-}
-@keyframes fe-fade { from { opacity: 0 } to { opacity: 1 } }
-
+/* ── Modal (native <dialog>) ── */
 .fe-modal {
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 0.2s ease, transform 0.2s ease,
+              display 0.2s allow-discrete, overlay 0.2s allow-discrete;
+  transition-behavior: allow-discrete;
   background: var(--surface-card);
   border: 1px solid var(--surface-border);
   border-radius: var(--content-border-radius, var(--r));
   padding: 24px;
   min-width: 320px; max-width: 440px; width: 90%;
   box-shadow: 0 24px 48px rgba(0,0,0,.5);
-  animation: fe-slideup .15s ease;
 }
-@keyframes fe-slideup { from { opacity: 0; transform: translateY(10px) } to { opacity: 1; transform: none } }
+.fe-modal[open] {
+  opacity: 1;
+  transform: scale(1);
+  @starting-style { opacity: 0; transform: scale(0.95); }
+}
+.fe-modal::backdrop {
+  background: rgb(0 0 0 / 0);
+  transition: display 0.2s allow-discrete, overlay 0.2s allow-discrete,
+              background 0.2s ease;
+  transition-behavior: allow-discrete;
+  backdrop-filter: blur(2px);
+}
+.fe-modal[open]::backdrop {
+  background: rgb(0 0 0 / 50%);
+  @starting-style { background: rgb(0 0 0 / 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .fe-modal { transform: none; transition-duration: 0.1s; }
+}
 
 .fe-modal-title { font-size: 1rem; font-weight: 600; margin-bottom: 8px; color: var(--text-color); }
 .fe-modal-msg   { font-size: 0.8125rem; color: var(--text-color-secondary); margin-bottom: 16px; line-height: 1.5; }
