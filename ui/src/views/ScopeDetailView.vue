@@ -2,7 +2,7 @@
   <main v-if="scope" class="sd-page">
 
     <!-- Header -->
-    <div class="sd-header">
+    <div class="sd-header detail-section">
       <div>
         <div class="sd-badges">
           <span class="sd-badge sd-badge--ns">
@@ -27,7 +27,7 @@
       <div class="sd-info-col">
 
         <!-- Overview -->
-        <div class="sd-section">
+        <div class="sd-section detail-section">
           <div class="sd-section-title">Overview</div>
           <div class="sd-rows">
             <div class="sd-row">
@@ -50,7 +50,7 @@
         </div>
 
         <!-- Namespaces -->
-        <div class="sd-section">
+        <div class="sd-section detail-section">
           <div class="sd-section-title">Namespaces</div>
           <template v-if="scope.spec.namespaces?.names?.length">
             <div class="sd-row-label sd-sub-label">Explicit names</div>
@@ -71,7 +71,7 @@
         </div>
 
         <!-- Discovery: excludePVCs / pvcNames -->
-        <div v-if="scope.spec.discovery?.excludePVCs?.length || scope.spec.discovery?.pvcNames?.length" class="sd-section">
+        <div v-if="scope.spec.discovery?.excludePVCs?.length || scope.spec.discovery?.pvcNames?.length" class="sd-section detail-section">
           <div class="sd-section-title">Discovery</div>
           <template v-if="scope.spec.discovery?.pvcNames?.length">
             <div class="sd-row-label sd-sub-label">Explicit PVCs</div>
@@ -88,7 +88,7 @@
         </div>
 
         <!-- Defaults -->
-        <div v-if="scope.spec.defaults" class="sd-section">
+        <div v-if="scope.spec.defaults" class="sd-section detail-section">
           <div class="sd-section-title">Defaults</div>
           <div class="sd-rows">
             <div class="sd-row" v-if="scope.spec.defaults.mode">
@@ -149,7 +149,7 @@
         </div>
 
         <!-- Conditions -->
-        <div v-if="scope.status?.conditions?.length" class="sd-section">
+        <div v-if="scope.status?.conditions?.length" class="sd-section detail-section">
           <div class="sd-section-title">Conditions</div>
           <div class="sd-conditions">
             <div v-for="cond in scope.status.conditions" :key="cond.type" class="sd-condition">
@@ -164,7 +164,7 @@
         </div>
 
         <!-- Explorers -->
-        <div class="sd-section">
+        <div class="sd-section detail-section">
           <div class="sd-section-title">Explorers ({{ explorers.length }})</div>
           <div v-if="explorers.length" class="sd-explorer-list">
             <div
@@ -186,7 +186,7 @@
 
       <!-- ── Right: YAML ── -->
       <div class="sd-yaml-col">
-        <div class="sd-yaml-card">
+        <div class="sd-yaml-card detail-section">
           <div class="sd-yaml-header">
             <span class="sd-yaml-title">Manifest</span>
             <div class="sd-yaml-actions">
@@ -697,5 +697,19 @@ onMounted(() => { store.fetchExplorers(); fetchScope() })
   .sd-body { flex-direction: column; }
   .sd-yaml-col { width: 100%; position: static; }
   .sd-yaml-pre { max-height: 300px; }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: scroll()) {
+    .detail-section {
+      animation: sd-fade-in-up linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 25%;
+    }
+    @keyframes sd-fade-in-up {
+      from { opacity: 0; translate: 0 20px; }
+      to   { opacity: 1; translate: 0; }
+    }
+  }
 }
 </style>

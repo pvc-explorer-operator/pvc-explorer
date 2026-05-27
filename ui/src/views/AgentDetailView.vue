@@ -1,6 +1,6 @@
 <template>
   <main v-if="explorer" class="detail-view">
-    <div class="detail-card">
+    <div class="detail-card detail-section">
       <div class="detail-header">
         <span :class="['phase-dot', `dot-${(explorer.phase || '').toLowerCase()}`]" aria-hidden="true" />
         <h1 class="explorer-name">{{ explorer.name }}</h1>
@@ -24,9 +24,9 @@
         <Button severity="secondary" icon="pi pi-refresh" label="Refresh" rounded @click="refresh" />
       </div>
     </div>
-    <MountStateBanner v-if="explorer.mountState && explorer.mountState !== 'Mounted'" :state="explorer.mountState" style="margin-top:1rem;" />
-    <ConditionsTable v-if="explorer.conditions" :conditions="explorer.conditions" style="margin-top:1.2rem;" />
-    <ConsumerList v-if="explorer.consumers" :consumers="explorer.consumers" style="margin-top:1.2rem;" />
+    <MountStateBanner v-if="explorer.mountState && explorer.mountState !== 'Mounted'" :state="explorer.mountState" style="margin-top:1rem;" class="detail-section" />
+    <ConditionsTable v-if="explorer.conditions" :conditions="explorer.conditions" style="margin-top:1.2rem;" class="detail-section" />
+    <ConsumerList v-if="explorer.consumers" :consumers="explorer.consumers" style="margin-top:1.2rem;" class="detail-section" />
     <WakeUpDialog v-if="showWakeDialog" :explorer="explorer" @close="onWakeDialogClose" />
   </main>
   <div v-else-if="loading" class="detail-view">
@@ -214,5 +214,19 @@ useExplorerDetailShortcuts({ explorer, goToFiles, wake, doDisconnect, refresh })
 .sk-agent-card .labels-row,
 .sk-agent-card .detail-actions {
   pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  @supports (animation-timeline: scroll()) {
+    .detail-section {
+      animation: ag-fade-in-up linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 25%;
+    }
+    @keyframes ag-fade-in-up {
+      from { opacity: 0; translate: 0 20px; }
+      to   { opacity: 1; translate: 0; }
+    }
+  }
 }
 </style>
