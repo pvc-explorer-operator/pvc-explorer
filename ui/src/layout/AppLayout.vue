@@ -1,14 +1,22 @@
 <script setup lang="ts">
 import { useLayout } from '@/layout/composables/layout'
-import { computed } from 'vue'
+import { computed, provide, ref } from 'vue'
 import AppSidebar from './AppSidebar.vue'
 import AppTopbar from './AppTopbar.vue'
 import { useKeyboardShortcuts } from '@/composables/useKeyboardShortcuts'
 import KeyboardShortcutsModal from '@/components/shared/KeyboardShortcutsModal.vue'
 import SearchDialog from '@/components/shared/SearchDialog.vue'
+import OnboardingTour from '@/components/shared/OnboardingTour.vue'
 
 const { layoutConfig, layoutState, hideMobileMenu } = useLayout()
 useKeyboardShortcuts()
+
+const tourRef = ref<InstanceType<typeof OnboardingTour> | null>(null)
+
+function startTour() {
+  tourRef.value?.start()
+}
+provide('startTour', startTour)
 
 const containerClass = computed(() => ({
   'layout-overlay': layoutConfig.menuMode === 'overlay',
@@ -30,11 +38,16 @@ const containerClass = computed(() => ({
       </div>
       <div class="layout-footer">
         <span>pvc-explorer</span>
+        <span class="footer-sep">|</span>
+        <a href="https://github.com/pvc-explorer-operator/pvc-explorer" target="_blank" rel="noopener">GitHub</a>
+        <span class="footer-sep">|</span>
+        <a href="https://github.com/pvc-explorer-operator/pvc-explorer/blob/main/LICENSE" target="_blank" rel="noopener">Apache 2.0 License</a>
       </div>
     </div>
     <div class="layout-mask animate-fadein" @click="hideMobileMenu" />
   </div>
   <Toast />
-  <KeyboardShortcutsModal />
+  <KeyboardShortcutsModal @request-tour="startTour" />
   <SearchDialog />
+  <OnboardingTour ref="tourRef" />
 </template>
