@@ -1,8 +1,11 @@
 <template>
-  <a
+  <div
     :class="['app-card', { 'card-in-use': !!explorer.consumerCount }]"
-    :href="`/explorers/${explorer.namespace}/${explorer.name}`"
-    @click.prevent="goToDetails"
+    role="link"
+    tabindex="0"
+    @click="goToDetails"
+    @keydown.enter="goToDetails"
+    @keydown.space.prevent="goToDetails"
   >
     <!-- Header -->
     <div class="flex justify-between items-center mb-4">
@@ -138,7 +141,7 @@
         :title="'View details'"
       />
     </div>
-  </a>
+  </div>
 </template>
 
 <script setup lang="ts">
