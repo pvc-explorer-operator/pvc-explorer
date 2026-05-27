@@ -17,76 +17,82 @@
         <div />
       </div>
 
-      <div class="ft-list-body">
-        <div
-          v-for="(e, i) in sorted"
-          :key="e.name"
-          class="ft-row"
-          :class="{ 'ft-row--sel': selSet.has(e.name) }"
-          :style="{ animationDelay: `${Math.min(i, 10) * 0.025}s` }"
-          @click.stop="e.isDir ? $emit('navigate', e) : $emit('open', e)"
-          @contextmenu.prevent.stop="$emit('context-menu', $event, e)"
-        >
-          <div class="ft-cell-chk">
-            <input
-              type="checkbox"
-              class="ft-chk"
-              :checked="selSet.has(e.name)"
-              @click.stop="$emit('toggle-select', e.name)"
-            />
+      <VirtualScroller
+        v-if="sorted.length"
+        :items="sorted"
+        :item-size="36"
+        class="ft-list-body"
+        style="height: 100%"
+      >
+        <template #item="{ item: e, options }">
+          <div
+            class="ft-row"
+            :class="{ 'ft-row--sel': selSet.has(e.name) }"
+            :style="{ animationDelay: `${Math.min(options.index, 10) * 0.025}s` }"
+            @click.stop="e.isDir ? $emit('navigate', e) : $emit('open', e)"
+            @contextmenu.prevent.stop="$emit('context-menu', $event, e)"
+          >
+            <div class="ft-cell-chk">
+              <input
+                type="checkbox"
+                class="ft-chk"
+                :checked="selSet.has(e.name)"
+                @click.stop="$emit('toggle-select', e.name)"
+              />
+            </div>
+            <div class="ft-cell-name">
+              <span class="ft-icon" :class="e.isDir ? 'ft-icon--dir' : 'ft-icon--file'">
+                <svg v-if="e.isDir" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/>
+                </svg>
+                <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                  <polyline points="14 2 14 8 20 8"/>
+                </svg>
+              </span>
+              <span class="ft-name">{{ e.name }}</span>
+            </div>
+            <div class="ft-cell-meta">{{ e.isDir ? '—' : fmtSize(e.size) }}</div>
+            <div class="ft-cell-meta">{{ fmtDate(e.modTime) }}</div>
+            <div class="ft-cell-actions" @click.stop>
+              <button v-if="!e.isDir" class="ft-act-btn" title="Download" @click="$emit('download', e)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                  <polyline points="7 10 12 15 17 10"/>
+                  <line x1="12" y1="15" x2="12" y2="3"/>
+                </svg>
+              </button>
+              <button v-if="!readonly" class="ft-act-btn" title="Rename" @click="$emit('rename', e)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+                </svg>
+              </button>
+              <button v-if="!readonly" class="ft-act-btn ft-act-btn--danger" title="Delete" @click="$emit('delete', e)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                </svg>
+              </button>
+            </div>
           </div>
-          <div class="ft-cell-name">
-            <span class="ft-icon" :class="e.isDir ? 'ft-icon--dir' : 'ft-icon--file'">
-              <svg v-if="e.isDir" viewBox="0 0 24 24" fill="currentColor">
-                <path d="M10 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/>
-              </svg>
-              <svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
-                <polyline points="14 2 14 8 20 8"/>
-              </svg>
-            </span>
-            <span class="ft-name">{{ e.name }}</span>
-          </div>
-          <div class="ft-cell-meta">{{ e.isDir ? '—' : fmtSize(e.size) }}</div>
-          <div class="ft-cell-meta">{{ fmtDate(e.modTime) }}</div>
-          <div class="ft-cell-actions" @click.stop>
-            <button v-if="!e.isDir" class="ft-act-btn" title="Download" @click="$emit('download', e)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-                <polyline points="7 10 12 15 17 10"/>
-                <line x1="12" y1="15" x2="12" y2="3"/>
-              </svg>
-            </button>
-            <button v-if="!readonly" class="ft-act-btn" title="Rename" @click="$emit('rename', e)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
-              </svg>
-            </button>
-            <button v-if="!readonly" class="ft-act-btn ft-act-btn--danger" title="Delete" @click="$emit('delete', e)">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="3 6 5 6 21 6"/>
-                <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
-              </svg>
-            </button>
-          </div>
-        </div>
+        </template>
+      </VirtualScroller>
 
-        <div v-if="!entries.length" class="ft-empty">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
-            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
-          </svg>
-          <span>Empty folder</span>
-          <div v-if="!readonly" class="ft-empty-actions">
-            <button class="ft-empty-btn" title="Create a new folder" @click.stop="$emit('new-folder')">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
-              New Folder
-            </button>
-            <button class="ft-empty-btn" title="Create a new file" @click.stop="$emit('new-file')">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-              New File
-            </button>
-          </div>
+      <div v-if="!entries.length" class="ft-empty">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
+          <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
+        </svg>
+        <span>Empty folder</span>
+        <div v-if="!readonly" class="ft-empty-actions">
+          <button class="ft-empty-btn" title="Create a new folder" @click.stop="$emit('new-folder')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/><line x1="12" y1="11" x2="12" y2="17"/><line x1="9" y1="14" x2="15" y2="14"/></svg>
+            New Folder
+          </button>
+          <button class="ft-empty-btn" title="Create a new file" @click.stop="$emit('new-file')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+            New File
+          </button>
         </div>
       </div>
     </template>
@@ -139,6 +145,7 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
 import type { FileEntry } from '../../api/files'
+import VirtualScroller from 'primevue/virtualscroller'
 
 const props = defineProps<{
   entries: FileEntry[]
