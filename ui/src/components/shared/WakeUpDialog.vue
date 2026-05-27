@@ -1,19 +1,23 @@
 <template>
-  <div v-if="open" class="modal-overlay">
-    <div class="modal-dialog">
-      <div class="modal-header">
-        <span>Starting {{ explorer.name }}</span>
-      </div>
-      <div class="dialog-body">
-        <div v-if="!error" class="spinner" />
-        <p class="status-msg" :class="{ 'is-error': !!error }">{{ message }}</p>
-      </div>
-      <div class="modal-footer">
-        <Button v-if="!error" severity="secondary" icon="pi pi-times" label="Cancel" rounded @click="cancel" />
-        <Button v-else severity="primary" icon="pi pi-check" label="Close" rounded @click="close" />
-      </div>
+  <Dialog
+    v-model:visible="open"
+    :header="`Starting ${explorer.name}`"
+    :modal="true"
+    :closable="false"
+    :draggable="false"
+    style="min-width: 320px; max-width: 95vw"
+    @hide="onDialogHide"
+  >
+    <div class="dialog-body">
+      <div v-if="!error" class="spinner" />
+      <p class="status-msg" :class="{ 'is-error': !!error }">{{ message }}</p>
     </div>
-  </div>
+
+    <template #footer>
+      <Button v-if="!error" severity="secondary" icon="pi pi-times" label="Cancel" rounded @click="cancel" />
+      <Button v-else severity="primary" icon="pi pi-check" label="Close" rounded @click="close" />
+    </template>
+  </Dialog>
 </template>
 
 <script setup lang="ts">
@@ -21,6 +25,7 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import type { Explorer } from '../../stores/explorerStore'
 import Button from 'primevue/button'
+import Dialog from 'primevue/dialog'
 import { useWebSocket } from '../../composables/useWebSocket'
 
 const props = defineProps<{ explorer: Explorer }>()
@@ -91,44 +96,30 @@ onUnmounted(() => {
   if (deadlineTimer) clearTimeout(deadlineTimer)
 })
 
+let emitted = false
+
 function cancel() {
   cancelled = true
   close()
 }
 
 function close() {
+  if (emitted) return
+  emitted = true
   open.value = false
   emit('close')
+}
+
+function onDialogHide() {
+  // Called by PrimeVue after Escape or programmatic close.
+  // Ensures the parent is notified and the wake operation is cancelled
+  // even when PrimeVue closes the dialog via Escape key.
+  cancelled = true
+  close()
 }
 </script>
 
 <style scoped>
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.32);
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-.modal-dialog {
-  background: var(--surface-card);
-  border-radius: 8px;
-  box-shadow: 0 2px 24px 0 rgba(0,0,0,0.13);
-  min-width: 320px;
-  max-width: 95vw;
-  padding: 1.2rem 1.5rem 1rem 1.5rem;
-  display: flex;
-  flex-direction: column;
-  gap: 0.7rem;
-}
-.modal-header {
-  font-weight: 600;
-  font-size: 1.08rem;
-  color: var(--text-color);
-  margin-bottom: 0.2rem;
-}
 .dialog-body {
   display: flex;
   flex-direction: column;
@@ -150,9 +141,4 @@ function close() {
 }
 .status-msg { color: var(--text-color-secondary); font-size: 0.95rem; text-align: center; }
 .status-msg.is-error { color: var(--p-red-500); }
-.modal-footer {
-  display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
-}
 </style>
