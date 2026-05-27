@@ -93,7 +93,7 @@
         icon="pi pi-folder-open"
         severity="success"
         size="small"
-        @click="goToFiles"
+        @click.stop="goToFiles"
       />
       <Button
         v-if="explorer.phase === 'Running'"
@@ -102,7 +102,7 @@
         severity="warn"
         size="small"
         :loading="disconnecting"
-        @click="doDisconnect"
+        @click.stop="doDisconnect"
       />
       <Button
         v-else-if="explorer.phase === 'ScaledToZero'"
@@ -110,7 +110,7 @@
         icon="pi pi-power-off"
         size="small"
         :loading="connecting"
-        @click="doConnect"
+        @click.stop="doConnect"
       />
       <Button
         v-else-if="explorer.phase === 'Waking'"
@@ -126,7 +126,7 @@
         icon="pi pi-info-circle"
         severity="secondary"
         size="small"
-        @click="goToDetails"
+        @click.stop="goToDetails"
       />
       <Button
         icon="pi pi-ellipsis-v"
@@ -134,7 +134,7 @@
         text
         size="small"
         class="ml-auto"
-        @click="goToDetails"
+        @click.stop="goToDetails"
         :title="'View details'"
       />
     </div>
