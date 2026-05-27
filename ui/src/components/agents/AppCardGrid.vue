@@ -11,6 +11,26 @@
       :explorer="explorer"
     />
   </TransitionGroup>
+  <div v-else-if="loading" class="card-grid">
+    <div v-for="i in 6" :key="i" class="sk-card">
+      <div class="sk-card-header">
+        <Skeleton shape="circle" size="0.625rem" />
+        <Skeleton width="60%" height="1rem" />
+        <Skeleton width="3.5rem" height="1.25rem" borderRadius="999px" />
+      </div>
+      <div class="sk-card-meta">
+        <Skeleton width="40%" height="0.75rem" />
+        <Skeleton width="55%" height="0.75rem" />
+      </div>
+      <div class="sk-card-labels">
+        <Skeleton v-for="j in 3" :key="j" width="3rem" height="1.25rem" borderRadius="4px" />
+      </div>
+      <div class="sk-card-actions">
+        <Skeleton width="7rem" height="2rem" borderRadius="6px" />
+        <Skeleton width="5rem" height="2rem" borderRadius="6px" />
+      </div>
+    </div>
+  </div>
   <div v-else class="card-grid">
     <div class="empty-state">
       <i class="pi pi-inbox empty-icon" />
@@ -21,9 +41,10 @@
 
 <script setup lang="ts">
 import AppCard from './AppCard.vue'
+import Skeleton from 'primevue/skeleton'
 import type { Explorer } from '../../stores/explorerStore'
 
-defineProps<{ explorers: Explorer[] }>()
+defineProps<{ explorers: Explorer[]; loading?: boolean }>()
 </script>
 
 <style scoped>
@@ -58,5 +79,36 @@ defineProps<{ explorers: Explorer[] }>()
   .card-leave-active { transition: opacity 0.2s ease, translate 0.2s ease; }
   .card-move      { transition: transform 0.25s ease; }
   .card-leave-active { position: absolute; }
+}
+
+/* ── Skeleton card ── */
+.sk-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  padding: 1.3rem 1.5rem 1.1rem;
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: 8px;
+}
+.sk-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.sk-card-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.sk-card-labels {
+  display: flex;
+  gap: 0.25rem;
+  flex-wrap: wrap;
+}
+.sk-card-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 0.25rem;
 }
 </style>

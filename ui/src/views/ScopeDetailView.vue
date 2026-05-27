@@ -209,8 +209,57 @@
     </div><!-- /body -->
 
   </main>
-  <div v-else-if="loading" class="sd-loading">
-    <i class="pi pi-spin pi-spinner"></i> Loading…
+  <div v-else-if="loading" class="sd-page">
+    <div class="sd-header">
+      <div class="sd-badges">
+        <Skeleton width="8rem" height="1.5rem" borderRadius="20px" />
+        <Skeleton width="9rem" height="1.5rem" borderRadius="20px" />
+        <Skeleton width="5rem" height="1.5rem" borderRadius="20px" />
+      </div>
+    </div>
+    <div class="sd-body">
+      <div class="sd-info-col">
+        <div class="sd-section">
+          <Skeleton width="4rem" height="0.72rem" />
+          <div class="sd-rows" style="margin-top:0.75rem">
+            <div class="sd-row"><Skeleton width="6rem" height="0.8125rem" /></div>
+            <div class="sd-row"><Skeleton width="8rem" height="0.8125rem" /></div>
+            <div class="sd-row"><Skeleton width="5rem" height="0.8125rem" /></div>
+          </div>
+        </div>
+        <div class="sd-section">
+          <Skeleton width="5.5rem" height="0.72rem" />
+          <div class="sd-tag-row" style="margin-top:0.75rem">
+            <Skeleton v-for="j in 5" :key="j" width="4rem" height="1.25rem" borderRadius="4px" />
+          </div>
+        </div>
+        <div class="sd-section">
+          <Skeleton width="4.5rem" height="0.72rem" />
+          <div class="sd-explorer-list" style="margin-top:0.75rem">
+            <div v-for="j in 4" :key="j" class="sd-explorer-item">
+              <Skeleton shape="circle" size="0.5rem" />
+              <Skeleton width="30%" height="0.875rem" />
+              <Skeleton width="25%" height="0.78rem" />
+              <Skeleton width="35%" height="0.78rem" />
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="sd-yaml-col">
+        <div class="sd-yaml-card">
+          <div class="sd-yaml-header">
+            <Skeleton width="4rem" height="0.72rem" />
+            <div style="display:flex;gap:0.5rem">
+              <Skeleton width="3.5rem" height="1.5rem" borderRadius="5px" />
+              <Skeleton width="4rem" height="1.5rem" borderRadius="5px" />
+            </div>
+          </div>
+          <div style="padding:1rem">
+            <Skeleton v-for="j in 8" :key="j" width="60%" height="0.78rem" style="margin-bottom:0.5rem" />
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
   <div v-else class="sd-loading">Scope not found.</div>
 
@@ -222,6 +271,7 @@ import { ref, computed, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useExplorerStore } from '../stores/explorerStore'
 import { highlightYaml } from '../utils/yamlHighlight'
+import Skeleton from 'primevue/skeleton'
 
 const route   = useRoute()
 const router  = useRouter()

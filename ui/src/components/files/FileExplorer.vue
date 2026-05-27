@@ -52,6 +52,7 @@
         :entries="entries"
         :selected-names="selectedNames"
         :view-mode="viewMode"
+        :loading="loading"
         :readonly="readonly"
         @toggle-select="toggleSelect"
         @navigate="onNavigate"

@@ -74,7 +74,7 @@
               </button>
             </div>
             <span class="cs-field-hint">Namespaces matching <em>any</em> of these labels are also included.</span>
-          </div>
+          </fieldset>
         </div>
 
         <!-- Discovery -->

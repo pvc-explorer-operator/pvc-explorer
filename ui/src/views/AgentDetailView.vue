@@ -29,7 +29,27 @@
     <ConsumerList v-if="explorer.consumers" :consumers="explorer.consumers" style="margin-top:1.2rem;" />
     <WakeUpDialog v-if="showWakeDialog" :explorer="explorer" @close="onWakeDialogClose" />
   </main>
-  <div v-else-if="loading" class="loading-detail">Loading...</div>
+  <div v-else-if="loading" class="detail-view">
+    <div class="detail-card sk-agent-card">
+      <div class="detail-header">
+        <Skeleton shape="circle" size="0.625rem" />
+        <Skeleton width="50%" height="1.25rem" />
+        <Skeleton width="4rem" height="1.25rem" borderRadius="999px" />
+      </div>
+      <div class="detail-meta">
+        <div><Skeleton width="8rem" height="0.875rem" /></div>
+        <div><Skeleton width="10rem" height="0.875rem" /></div>
+        <div><Skeleton width="6rem" height="0.875rem" /></div>
+      </div>
+      <div class="labels-row">
+        <Skeleton v-for="j in 4" :key="j" width="5rem" height="1.25rem" borderRadius="4px" />
+      </div>
+      <div class="detail-actions">
+        <Skeleton width="7.5rem" height="2.25rem" borderRadius="6px" />
+        <Skeleton width="6rem" height="2.25rem" borderRadius="6px" />
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -44,6 +64,7 @@ import ConsumerList from '../components/agents/ConsumerList.vue'
 import Button from 'primevue/button'
 import Tag from 'primevue/tag'
 import Chip from 'primevue/chip'
+import Skeleton from 'primevue/skeleton'
 import { useExplorerDetailShortcuts } from '../composables/useExplorerDetailShortcuts'
 
 const route = useRoute()
@@ -188,10 +209,10 @@ useExplorerDetailShortcuts({ explorer, goToFiles, wake, doDisconnect, refresh })
   gap: 0.7rem;
 }
 
-.loading-detail {
-  text-align: center;
-  color: var(--text-color-secondary);
-  margin-top: 3rem;
-  font-size: 1.2rem;
+.sk-agent-card .detail-header,
+.sk-agent-card .detail-meta,
+.sk-agent-card .labels-row,
+.sk-agent-card .detail-actions {
+  pointer-events: none;
 }
 </style>

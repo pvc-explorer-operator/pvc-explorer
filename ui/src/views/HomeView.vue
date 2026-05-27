@@ -63,7 +63,7 @@
     </div>
 
     <!-- Cards or List -->
-    <AppCardGrid v-if="viewMode === 'cards'" :explorers="paginated" />
+    <AppCardGrid v-if="viewMode === 'cards'" :explorers="paginated" :loading="loading" />
     <AppListView v-else :explorers="paginated" />
   </main>
 </template>
@@ -86,6 +86,7 @@ const { connect } = useWebSocket({
 })
 
 const explorers = computed(() => store.explorers)
+const loading = ref(true)
 
 /* ── View mode ── */
 const viewMode = ref<'cards' | 'list'>('cards')
@@ -191,8 +192,13 @@ const filtered = computed(() => {
   return list
 })
 
-onMounted(() => {
-  store.fetchExplorers()
+onMounted(async () => {
+  loading.value = true
+  try {
+    await store.fetchExplorers()
+  } finally {
+    loading.value = false
+  }
   connect()
 })
 </script>

@@ -8,7 +8,6 @@
         @remove="remove"
       />
       <input
-        ref="inputEl"
         v-model="typed"
         class="chip-input"
         placeholder="key=value"
@@ -50,7 +49,6 @@ const typed = ref('')
 const open = ref(false)
 const activeIndex = ref(-1)
 const listId = 'label-suggestions'
-const inputEl = ref<HTMLInputElement | null>(null)
 
 const suggestions = computed(() =>
   typed.value.length

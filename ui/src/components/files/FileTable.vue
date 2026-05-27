@@ -79,7 +79,17 @@
         </template>
       </VirtualScroller>
 
-      <div v-if="!entries.length" class="ft-empty">
+      <div v-if="loading && !entries.length" class="ft-list-body">
+        <div v-for="i in 10" :key="i" class="ft-row ft-row--sk">
+          <div class="ft-cell-chk"><Skeleton width="13px" height="13px" /></div>
+          <div class="ft-cell-name"><Skeleton width="1rem" height="1rem" /><Skeleton width="60%" height="0.875rem" /></div>
+          <div class="ft-cell-meta"><Skeleton width="3rem" height="0.875rem" /></div>
+          <div class="ft-cell-meta"><Skeleton width="5rem" height="0.875rem" /></div>
+          <div class="ft-cell-actions" style="opacity:1"><Skeleton width="1.75rem" height="1.25rem" /></div>
+        </div>
+      </div>
+
+      <div v-if="!entries.length && !loading" class="ft-empty">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
           <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
         </svg>
@@ -121,7 +131,15 @@
         <span class="ft-grid-size">{{ e.isDir ? '—' : fmtSize(e.size) }}</span>
       </div>
 
-      <div v-if="!entries.length" class="ft-empty ft-empty--grid">
+      <template v-if="loading && !entries.length">
+        <div v-for="i in 12" :key="i" class="ft-grid-item ft-grid-item--sk">
+          <Skeleton width="2.25rem" height="2.25rem" borderRadius="4px" />
+          <Skeleton width="70%" height="0.6875rem" />
+          <Skeleton width="40%" height="0.625rem" />
+        </div>
+      </template>
+
+      <div v-if="!entries.length && !loading" class="ft-empty ft-empty--grid">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1">
             <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
           </svg>
@@ -146,11 +164,13 @@
 import { ref, computed } from 'vue'
 import type { FileEntry } from '../../api/files'
 import VirtualScroller from 'primevue/virtualscroller'
+import Skeleton from 'primevue/skeleton'
 
 const props = defineProps<{
   entries: FileEntry[]
   selectedNames: string[]
   viewMode: 'list' | 'grid'
+  loading: boolean
   readonly: boolean
 }>()
 
