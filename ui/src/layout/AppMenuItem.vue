@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { useLayout } from '@/layout/composables/layout'
 import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 
+const route = useRoute()
 const { layoutState, isDesktop } = useLayout()
 
 const props = defineProps<{
@@ -87,6 +89,7 @@ const onMouseEnter = () => {
       :class="item.class"
       tabindex="0"
       :to="item.to"
+      :aria-current="route.path === item.to ? 'page' : undefined"
       @mouseenter="onMouseEnter"
     >
       <i :class="item.icon" class="layout-menuitem-icon" />

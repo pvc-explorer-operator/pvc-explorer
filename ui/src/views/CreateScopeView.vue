@@ -41,12 +41,13 @@
         <div class="cs-section">
           <div class="cs-section-title">Namespaces</div>
           <div class="cs-field">
-            <label class="cs-label">Namespace names</label>
+            <label class="cs-label" for="ns-tag-input">Namespace names</label>
             <div class="cs-tag-input" @click="focusTagInput('ns')">
               <span v-for="(ns, i) in nsNames" :key="i" class="cs-tag">
                 {{ ns }}<button class="cs-tag-remove" :aria-label="`Remove namespace ${ns}`" @click.stop="nsNames.splice(i, 1)">×</button>
               </span>
               <input
+                id="ns-tag-input"
                 ref="nsInputEl"
                 v-model="nsInputVal"
                 class="cs-tag-inner-input"
@@ -59,8 +60,8 @@
             </div>
             <span class="cs-field-hint">Press Enter or comma to add. Leave empty to match all namespaces via label selector.</span>
           </div>
-          <div class="cs-field">
-            <label class="cs-label">Label selector <span class="cs-optional">(optional)</span></label>
+          <fieldset class="cs-field">
+            <legend class="cs-label">Label selector <span class="cs-optional">(optional)</span></legend>
             <div class="cs-label-pairs">
               <div v-for="(pair, i) in labelPairs" :key="i" class="cs-label-pair">
                 <input v-model="pair.key"   class="cs-input cs-input--sm" placeholder="key" spellcheck="false" />
@@ -95,12 +96,13 @@
             </span>
           </div>
           <div v-if="discoveryMode === 'Explicit'" class="cs-field">
-            <label class="cs-label">PVC names</label>
+            <label class="cs-label" for="pvc-tag-input">PVC names</label>
             <div class="cs-tag-input" @click="focusTagInput('pvc')">
               <span v-for="(p, i) in pvcNames" :key="i" class="cs-tag">
                 {{ p }}<button class="cs-tag-remove" :aria-label="`Remove PVC ${p}`" @click.stop="pvcNames.splice(i, 1)">×</button>
               </span>
               <input
+                id="pvc-tag-input"
                 ref="pvcInputEl"
                 v-model="pvcInputVal"
                 class="cs-tag-inner-input"
@@ -113,12 +115,13 @@
             </div>
           </div>
           <div class="cs-field">
-            <label class="cs-label">Exclude PVCs <span class="cs-optional">(glob patterns)</span></label>
+            <label class="cs-label" for="excl-tag-input">Exclude PVCs <span class="cs-optional">(glob patterns)</span></label>
             <div class="cs-tag-input" @click="focusTagInput('excl')">
               <span v-for="(p, i) in excludePVCs" :key="i" class="cs-tag cs-tag--warn">
                 {{ p }}<button class="cs-tag-remove" :aria-label="`Remove exclude pattern ${p}`" @click.stop="excludePVCs.splice(i, 1)">×</button>
               </span>
               <input
+                id="excl-tag-input"
                 ref="exclInputEl"
                 v-model="exclInputVal"
                 class="cs-tag-inner-input"
@@ -542,6 +545,11 @@ function downloadYaml() {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
+}
+fieldset.cs-field {
+  border: none;
+  padding: 0;
+  margin: 0;
 }
 .cs-field--row {
   flex-direction: row;
