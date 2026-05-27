@@ -62,6 +62,8 @@ See [docs/getting-started.md](docs/getting-started.md) for the full guide, dev-m
 | Development workflow              | [docs/development.md](docs/development.md)         |
 | Local setup and first run         | [docs/getting-started.md](docs/getting-started.md) |
 | Overview and runtime architecture | [docs/architecture.md](docs/architecture.md)       |
+| UI component & contributor docs   | [docs/ui/](docs/ui/)                               |
+| UI accessibility & UX improvements | [docs/modern-web-improvements.md](docs/modern-web-improvements.md) |
 | Release and versioning            | [docs/releases.md](docs/releases.md)               |
 | Security reporting                | [SECURITY.md](SECURITY.md)                         |
 
