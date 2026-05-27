@@ -41,7 +41,7 @@
 
 html {
   height: 100%;
-  font-size: 14px;
+  font-size: 87.5%;
 }
 
 body {
@@ -58,6 +58,12 @@ body {
 
 a {
   text-decoration: none;
+}
+
+:where(a:any-link, button, [role="button"], [role="option"], [role="tab"], input, select, textarea):focus-visible {
+  outline: 3px solid var(--p-primary-500);
+  outline-offset: 3px;
+  border-radius: 3px;
 }
 
 /* ─── Layout Wrapper ─── */

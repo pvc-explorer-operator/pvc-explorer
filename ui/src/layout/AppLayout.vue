@@ -5,6 +5,7 @@ import AppSidebar from './AppSidebar.vue'
 import AppTopbar from './AppTopbar.vue'
 import { useKeyboardShortcuts } from '@/composables/useKeyboardShortcuts'
 import KeyboardShortcutsModal from '@/components/shared/KeyboardShortcutsModal.vue'
+import SearchDialog from '@/components/shared/SearchDialog.vue'
 
 const { layoutConfig, layoutState, hideMobileMenu } = useLayout()
 useKeyboardShortcuts()
@@ -35,4 +36,5 @@ const containerClass = computed(() => ({
   </div>
   <Toast />
   <KeyboardShortcutsModal />
+  <SearchDialog />
 </template>

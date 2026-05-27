@@ -182,13 +182,13 @@ function goToDetails() {
 async function pollPhase(target: string, timeout = 60000): Promise<void> {
   const deadline = Date.now() + timeout
   while (Date.now() < deadline) {
-    await new Promise(r => setTimeout(r, 3000))
     try {
       const e = await explorerStore.fetchExplorer(props.explorer.namespace, props.explorer.name)
       if (e.phase === target) return
     } catch {
       // retry
     }
+    await new Promise(r => setTimeout(r, 3000))
   }
   throw new Error(`Timed out waiting for phase ${target}`)
 }
@@ -209,9 +209,12 @@ async function doDisconnect() {
   disconnecting.value = true
   try {
     await explorerStore.sleepExplorer(props.explorer.namespace, props.explorer.name)
-    await pollPhase('ScaledToZero')
+    await explorerStore.fetchExplorer(props.explorer.namespace, props.explorer.name)
+    if (props.explorer.phase !== 'ScaledToZero') {
+      await pollPhase('ScaledToZero')
+    }
   } catch {
-    // fetchExplorer already updated the store
+    await explorerStore.fetchExplorer(props.explorer.namespace, props.explorer.name).catch(() => {})
   }
   disconnecting.value = false
 }

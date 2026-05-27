@@ -54,6 +54,18 @@ html:not(.app-dark) .sy-string { color: #16a34a; }
 html:not(.app-dark) .sy-bool   { color: #9333ea; }
 html:not(.app-dark) .sy-number { color: #d97706; }
 
+.visually-hidden:where(:not(:focus-within, :active)) {
+  position: absolute !important;
+  clip-path: inset(50%) !important;
+  overflow: hidden !important;
+  width: 1px !important;
+  height: 1px !important;
+  margin: -1px !important;
+  padding: 0 !important;
+  border: 0 !important;
+  white-space: nowrap !important;
+}
+
 /* ── Dark-mode scrollbar WebKit fallback ── */
 @supports not (scrollbar-color: auto) {
   .ft-list-body::-webkit-scrollbar,

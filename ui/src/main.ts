@@ -40,6 +40,18 @@ const SakaiSky = definePreset(Lara, {
       900: '{sky.900}',
       950: '{sky.950}',
     },
+    colorScheme: {
+      light: {
+        text: {
+          color: '{surface.900}',
+          mutedColor: '{surface.600}',
+          hoverMutedColor: '{surface.700}',
+        },
+        content: {
+          color: '{surface.900}',
+        },
+      },
+    },
   },
 })
 import 'primeicons/primeicons.css'

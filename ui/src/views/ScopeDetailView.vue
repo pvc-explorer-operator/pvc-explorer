@@ -652,7 +652,7 @@ onMounted(() => { store.fetchExplorers(); fetchScope() })
   display: flex; align-items: center; justify-content: space-between;
   padding: 0.6rem 1rem;
   border-bottom: 1px solid var(--surface-border);
-  background: var(--surface-hover);
+  background: var(--surface-card);
 }
 .sd-yaml-title {
   font-size: 0.72rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-color-secondary);
@@ -672,7 +672,7 @@ onMounted(() => { store.fetchExplorers(); fetchScope() })
 .sd-action-btn--done { color: #22c55e; border-color: #22c55e; }
 .sd-yaml-pre {
   margin: 0; padding: 1rem;
-  background: var(--surface-ground);
+  background: var(--surface-card);
   font-family: 'JetBrains Mono', 'Fira Mono', monospace;
   font-size: 0.78rem; line-height: 1.6;
   color: var(--text-color);
@@ -684,7 +684,7 @@ onMounted(() => { store.fetchExplorers(); fetchScope() })
   padding: 0.5rem 1rem;
   font-size: 0.75rem; color: var(--text-color-secondary);
   border-top: 1px solid var(--surface-border);
-  background: var(--surface-hover);
+  background: var(--surface-card);
 }
 .sd-yaml-footer code { font-family: 'JetBrains Mono', monospace; font-size: 0.75rem; }
 .sd-loading {

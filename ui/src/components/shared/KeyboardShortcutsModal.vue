@@ -16,6 +16,7 @@
             <tr><td><kbd>b</kbd></td><td>Toggle sidebar</td></tr>
             <tr><td><kbd>d</kbd></td><td>Toggle dark / light mode</td></tr>
             <tr><td><kbd>/</kbd></td><td>Focus filter search <span class="ks-note">(dashboard)</span></td></tr>
+            <tr><td><kbd>⌘</kbd>/<kbd>Ctrl</kbd> <kbd>K</kbd></td><td>Open page search</td></tr>
             <tr><td><kbd>?</kbd></td><td>Toggle this help</td></tr>
           </tbody>
         </table>

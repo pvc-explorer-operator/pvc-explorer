@@ -4,7 +4,10 @@
     <!-- Header -->
     <div class="cs-header">
       <div>
-        <p class="cs-subtitle">Fill in the fields below to generate a <code>PVCExplorerScope</code> manifest you can apply with <code>kubectl apply -f</code>.</p>
+        <div class="cs-info-banner">
+          <i class="pi pi-info-circle cs-info-icon" aria-hidden="true"></i>
+          <span>Fill in the fields below to generate a <code>PVCExplorerScope</code> manifest you can apply with <code>kubectl apply -f</code>.</span>
+        </div>
       </div>
       <button class="cs-cancel-btn" @click="router.push('/scopes')">
         <i class="pi pi-times"></i> Cancel
@@ -449,14 +452,27 @@ function downloadYaml() {
   color: var(--text-color);
   margin: 0 0 0.25rem;
 }
-.cs-subtitle {
-  font-size: 0.85rem;
-  color: var(--text-color-secondary);
-  margin: 0;
+.cs-info-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55rem;
+  padding: 0.6rem 0.9rem;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--p-primary-400) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--p-primary-400) 35%, transparent);
+  font-size: 0.84rem;
+  color: var(--text-color);
+  line-height: 1.5;
 }
-.cs-subtitle code {
+.cs-info-icon {
+  color: var(--p-primary-500);
+  font-size: 0.95rem;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+.cs-info-banner code {
   font-family: 'JetBrains Mono', monospace;
-  background: var(--surface-hover);
+  background: color-mix(in srgb, var(--p-primary-400) 18%, transparent);
   padding: 1px 5px;
   border-radius: 3px;
   font-size: 0.8rem;
@@ -758,7 +774,7 @@ fieldset.cs-field {
   justify-content: space-between;
   padding: 0.6rem 1rem;
   border-bottom: 1px solid var(--surface-border);
-  background: var(--surface-hover);
+  background: var(--surface-card);
 }
 .cs-yaml-title {
   font-size: 0.75rem;
@@ -798,7 +814,7 @@ fieldset.cs-field {
 .cs-yaml-pre {
   margin: 0;
   padding: 1rem;
-  background: var(--surface-ground);
+  background: var(--surface-card);
   font-family: 'JetBrains Mono', 'Fira Mono', monospace;
   font-size: 0.78rem;
   line-height: 1.6;
@@ -813,7 +829,7 @@ fieldset.cs-field {
   font-size: 0.75rem;
   color: var(--text-color-secondary);
   border-top: 1px solid var(--surface-border);
-  background: var(--surface-hover);
+  background: var(--surface-card);
 }
 .cs-yaml-footer code {
   font-family: 'JetBrains Mono', monospace;

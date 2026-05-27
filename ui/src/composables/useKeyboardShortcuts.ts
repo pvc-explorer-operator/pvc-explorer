@@ -3,6 +3,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { useLayout } from '@/layout/composables/layout'
 import { useExplorerStore } from '@/stores/explorerStore'
 import { shortcutsModalOpen } from '@/composables/useShortcutsModal'
+import { searchDialogOpen } from '@/composables/useSearchDialog'
 
 function isTypingTarget(el: EventTarget | null): boolean {
   if (!(el instanceof HTMLElement)) return false
@@ -29,6 +30,13 @@ export function useKeyboardShortcuts() {
   }
 
   function onKeydown(e: KeyboardEvent) {
+    // Cmd+K / Ctrl+K — open search dialog (allow through modifier guard)
+    if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'k') {
+      e.preventDefault()
+      searchDialogOpen.value = !searchDialogOpen.value
+      return
+    }
+
     if (e.metaKey || e.ctrlKey || e.altKey) return
     if (isTypingTarget(e.target)) return
 

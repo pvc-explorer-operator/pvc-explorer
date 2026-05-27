@@ -1,5 +1,5 @@
 <template>
-  <div class="fe-shell" @click="closeCtx" @keydown.escape="closeCtx()">
+  <div class="fe-shell" @click="closeCtx" @keydown.escape="closeCtx()" @keydown="onShellKeydown">
 
     <!-- ── Toolbar ────────────────────────────────────────────────────────── -->
     <div class="fe-toolbar">
@@ -178,6 +178,13 @@ function toggleSelect(name: string) {
   selectedNames.value = idx === -1
     ? [...selectedNames.value, name]
     : selectedNames.value.filter(n => n !== name)
+}
+
+function onShellKeydown(e: KeyboardEvent) {
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'a') {
+    e.preventDefault()
+    selectAll()
+  }
 }
 
 function clearSelection() { selectedNames.value = [] }

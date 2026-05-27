@@ -77,7 +77,7 @@ export function useLayout() {
   }
 
   const isDesktop = () => window.innerWidth > 991
-  const isDarkTheme = computed(() => document.documentElement.classList.contains('app-dark'))
+  const isDarkTheme = computed(() => layoutConfig.darkTheme)
   const hasOpenOverlay = computed(() => layoutState.overlayMenuActive || layoutState.mobileMenuActive)
 
   return {
