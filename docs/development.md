@@ -23,6 +23,8 @@ npm run dev
 
 The mock plugin only runs during `npm run dev`.
 
+See [`docs/ui/`](ui/) for component documentation, keyboard shortcuts, and the accessibility guide.
+
 ## Versioning
 
 The binary version is injected via Go linker flags from the build system and exposed at `GET /api/version`.
