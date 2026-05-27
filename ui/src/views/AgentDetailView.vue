@@ -1,5 +1,5 @@
 <template>
-  <main class="detail-view" v-if="explorer">
+  <main v-if="explorer" class="detail-view">
     <div class="detail-card">
       <div class="detail-header">
         <span :class="['phase-dot', `dot-${(explorer.phase || '').toLowerCase()}`]" aria-hidden="true" />
@@ -29,7 +29,7 @@
     <ConsumerList v-if="explorer.consumers" :consumers="explorer.consumers" style="margin-top:1.2rem;" />
     <WakeUpDialog v-if="showWakeDialog" :explorer="explorer" @close="onWakeDialogClose" />
   </main>
-  <div v-else class="loading-detail">Loading...</div>
+  <div v-else-if="loading" class="loading-detail">Loading...</div>
 </template>
 
 <script setup lang="ts">
@@ -50,16 +50,20 @@ const route = useRoute()
 const router = useRouter()
 const store = useExplorerStore()
 const explorer = ref<Explorer | null>(null)
+const loading = ref(true)
 const showWakeDialog = ref(false)
 const disconnecting = ref(false)
 
 async function fetchExplorer() {
+  loading.value = true
   const ns = route.params.ns as string
   const name = route.params.name as string
   try {
     explorer.value = await store.fetchExplorer(ns, name)
   } catch {
     explorer.value = null
+  } finally {
+    loading.value = false
   }
 }
 

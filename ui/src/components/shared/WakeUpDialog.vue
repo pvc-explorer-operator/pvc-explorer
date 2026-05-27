@@ -141,4 +141,12 @@ function onDialogHide() {
 }
 .status-msg { color: var(--text-color-secondary); font-size: 0.95rem; text-align: center; }
 .status-msg.is-error { color: var(--p-red-500); }
+
+@media (prefers-reduced-motion: reduce) {
+  :deep(.p-dialog-mask),
+  :deep(.p-dialog) {
+    animation: none;
+    transition: none;
+  }
+}
 </style>
