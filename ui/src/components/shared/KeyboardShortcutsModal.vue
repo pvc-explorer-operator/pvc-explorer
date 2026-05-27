@@ -1,83 +1,68 @@
 <template>
-  <Teleport to="body">
-    <Transition name="ks-fade">
-      <div v-if="open" class="ks-backdrop" @click.self="close" @keydown.esc="close">
-        <div class="ks-modal" role="dialog" aria-modal="true" aria-labelledby="ks-title">
-          <div class="ks-header">
-            <span id="ks-title" class="ks-title">Keyboard Shortcuts</span>
-            <button class="ks-close" aria-label="Close" @click="close">✕</button>
-          </div>
+  <dialog v-if="open" ref="dlgEl" class="ks-modal" aria-labelledby="ks-title" @close="onClose">
+    <div class="ks-header">
+      <span id="ks-title" class="ks-title">Keyboard Shortcuts</span>
+      <button class="ks-close" aria-label="Close" @click="close">✕</button>
+    </div>
 
-          <div class="ks-body">
-            <section>
-              <h3 class="ks-section-title">Global</h3>
-              <table class="ks-table">
-                <tbody>
-                  <tr><td><kbd>g</kbd> <kbd>h</kbd></td><td>Go to Home</td></tr>
-                  <tr><td><kbd>g</kbd> <kbd>s</kbd></td><td>Go to Scopes</td></tr>
-                  <tr><td><kbd>r</kbd></td><td>Refresh explorer list</td></tr>
-                  <tr><td><kbd>b</kbd></td><td>Toggle sidebar</td></tr>
-                  <tr><td><kbd>d</kbd></td><td>Toggle dark / light mode</td></tr>
-                  <tr><td><kbd>/</kbd></td><td>Focus filter search <span class="ks-note">(dashboard)</span></td></tr>
-                  <tr><td><kbd>?</kbd></td><td>Toggle this help</td></tr>
-                </tbody>
-              </table>
-            </section>
+    <div class="ks-body">
+      <section>
+        <h3 class="ks-section-title">Global</h3>
+        <table class="ks-table">
+          <tbody>
+            <tr><td><kbd>g</kbd> <kbd>h</kbd></td><td>Go to Home</td></tr>
+            <tr><td><kbd>g</kbd> <kbd>s</kbd></td><td>Go to Scopes</td></tr>
+            <tr><td><kbd>r</kbd></td><td>Refresh explorer list</td></tr>
+            <tr><td><kbd>b</kbd></td><td>Toggle sidebar</td></tr>
+            <tr><td><kbd>d</kbd></td><td>Toggle dark / light mode</td></tr>
+            <tr><td><kbd>/</kbd></td><td>Focus filter search <span class="ks-note">(dashboard)</span></td></tr>
+            <tr><td><kbd>?</kbd></td><td>Toggle this help</td></tr>
+          </tbody>
+        </table>
+      </section>
 
-            <section>
-              <h3 class="ks-section-title">Explorer detail</h3>
-              <table class="ks-table">
-                <tbody>
-                  <tr><td><kbd>f</kbd></td><td>Browse files <span class="ks-note">(Running)</span></td></tr>
-                  <tr><td><kbd>w</kbd></td><td>Wake / Connect <span class="ks-note">(ScaledToZero)</span></td></tr>
-                  <tr><td><kbd>x</kbd></td><td>Disconnect <span class="ks-note">(Running)</span></td></tr>
-                  <tr><td><kbd>r</kbd></td><td>Refresh</td></tr>
-                </tbody>
-              </table>
-            </section>
+      <section>
+        <h3 class="ks-section-title">Explorer detail</h3>
+        <table class="ks-table">
+          <tbody>
+            <tr><td><kbd>f</kbd></td><td>Browse files <span class="ks-note">(Running)</span></td></tr>
+            <tr><td><kbd>w</kbd></td><td>Wake / Connect <span class="ks-note">(ScaledToZero)</span></td></tr>
+            <tr><td><kbd>x</kbd></td><td>Disconnect <span class="ks-note">(Running)</span></td></tr>
+            <tr><td><kbd>r</kbd></td><td>Refresh</td></tr>
+          </tbody>
+        </table>
+      </section>
 
-            <section>
-              <h3 class="ks-section-title">File browser</h3>
-              <table class="ks-table">
-                <tbody>
-                  <tr><td><kbd>Ctrl</kbd>/<kbd>⌘</kbd> <kbd>A</kbd></td><td>Select all files</td></tr>
-                  <tr><td><kbd>Delete</kbd> / <kbd>⌫</kbd></td><td>Delete selected</td></tr>
-                </tbody>
-              </table>
-            </section>
-          </div>
-        </div>
-      </div>
-    </Transition>
-  </Teleport>
+      <section>
+        <h3 class="ks-section-title">File browser</h3>
+        <table class="ks-table">
+          <tbody>
+            <tr><td><kbd>Ctrl</kbd>/<kbd>⌘</kbd> <kbd>A</kbd></td><td>Select all files</td></tr>
+            <tr><td><kbd>Delete</kbd> / <kbd>⌫</kbd></td><td>Delete selected</td></tr>
+          </tbody>
+        </table>
+      </section>
+    </div>
+  </dialog>
 </template>
 
 <script setup lang="ts">
-import { watch } from 'vue'
+import { watch, ref, nextTick } from 'vue'
 import { shortcutsModalOpen } from '@/composables/useShortcutsModal'
 
 const open = shortcutsModalOpen
+const dlgEl = ref<HTMLDialogElement | null>(null)
+
+watch(open, (val) => {
+  if (val) nextTick(() => dlgEl.value?.showModal())
+})
 
 function close() { open.value = false }
 
-// Trap body scroll while open
-watch(open, (val) => {
-  document.body.style.overflow = val ? 'hidden' : ''
-})
+function onClose() { open.value = false }
 </script>
 
 <style scoped>
-.ks-backdrop {
-  position: fixed;
-  inset: 0;
-  z-index: 9999;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: color-mix(in srgb, var(--surface-900, #0f1117) 60%, transparent);
-  backdrop-filter: blur(4px);
-}
-
 .ks-modal {
   background: var(--surface-card);
   border: 1px solid var(--surface-border);
@@ -88,8 +73,34 @@ watch(open, (val) => {
   display: flex;
   flex-direction: column;
   overflow: hidden;
-}
 
+  /* Transition */
+  opacity: 0;
+  transform: scale(0.95);
+  transition: opacity 0.2s ease, transform 0.2s ease,
+              display 0.2s allow-discrete, overlay 0.2s allow-discrete;
+  transition-behavior: allow-discrete;
+}
+.ks-modal[open] {
+  opacity: 1;
+  transform: scale(1);
+  @starting-style { opacity: 0; transform: scale(0.95); }
+}
+.ks-modal::backdrop {
+  background: color-mix(in srgb, var(--surface-900, #0f1117) 0%, transparent);
+  backdrop-filter: blur(0px);
+  transition: display 0.2s allow-discrete, overlay 0.2s allow-discrete,
+              background 0.2s ease, backdrop-filter 0.2s ease;
+  transition-behavior: allow-discrete;
+}
+.ks-modal[open]::backdrop {
+  background: color-mix(in srgb, var(--surface-900, #0f1117) 60%, transparent);
+  backdrop-filter: blur(4px);
+  @starting-style { background: color-mix(in srgb, var(--surface-900, #0f1117) 0%, transparent); backdrop-filter: blur(0px); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ks-modal { transform: none; transition-duration: 0.1s; }
+}
 .ks-header {
   display: flex;
   align-items: center;
@@ -176,13 +187,4 @@ kbd {
   color: var(--text-color-secondary);
 }
 
-/* Transition */
-.ks-fade-enter-active,
-.ks-fade-leave-active {
-  transition: opacity 0.15s ease;
-}
-.ks-fade-enter-from,
-.ks-fade-leave-to {
-  opacity: 0;
-}
 </style>
