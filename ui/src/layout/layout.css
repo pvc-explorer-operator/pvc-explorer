@@ -270,6 +270,8 @@ a {
   overflow-y: auto;
   overflow-x: hidden;
   padding: 0.5rem 0.75rem;
+  scrollbar-color: light-dark(#aaa, #555) light-dark(#f0f0f0, #1a1d2b);
+  scrollbar-width: thin;
 }
 
 /* Sidebar filter area */

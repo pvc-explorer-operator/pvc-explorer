@@ -54,3 +54,23 @@ html:not(.app-dark) .sy-string { color: #16a34a; }
 html:not(.app-dark) .sy-bool   { color: #9333ea; }
 html:not(.app-dark) .sy-number { color: #d97706; }
 
+/* ── Dark-mode scrollbar WebKit fallback ── */
+@supports not (scrollbar-color: auto) {
+  .ft-list-body::-webkit-scrollbar,
+  .ft-grid::-webkit-scrollbar,
+  .layout-sidebar-scroll::-webkit-scrollbar {
+    width: 6px;
+  }
+  .ft-list-body::-webkit-scrollbar-thumb,
+  .ft-grid::-webkit-scrollbar-thumb,
+  .layout-sidebar-scroll::-webkit-scrollbar-thumb {
+    background: #555;
+    border-radius: 3px;
+  }
+  .ft-list-body::-webkit-scrollbar-track,
+  .ft-grid::-webkit-scrollbar-track,
+  .layout-sidebar-scroll::-webkit-scrollbar-track {
+    background: #1a1d2b;
+  }
+}
+

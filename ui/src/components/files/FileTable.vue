@@ -270,6 +270,8 @@ function fmtDate(iso: string): string {
 .ft-list-body {
   overflow-y: auto;
   flex: 1;
+  scrollbar-color: light-dark(#aaa, #555) light-dark(#f0f0f0, #1a1d2b);
+  scrollbar-width: thin;
 }
 .ft-row {
   display: grid;
@@ -391,6 +393,8 @@ function fmtDate(iso: string): string {
   overflow-y: auto;
   flex: 1;
   align-content: start;
+  scrollbar-color: light-dark(#aaa, #555) light-dark(#f0f0f0, #1a1d2b);
+  scrollbar-width: thin;
 }
 .ft-grid-item {
   display: flex;
