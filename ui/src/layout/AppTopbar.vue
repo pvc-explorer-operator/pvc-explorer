@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { ref, computed, inject, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useLayout } from '@/layout/composables/layout'
 import { useExplorerStore } from '@/stores/explorerStore'
@@ -7,6 +7,7 @@ import { shortcutsModalOpen } from '@/composables/useShortcutsModal'
 
 const { toggleMenu, toggleDarkMode, isDarkTheme } = useLayout()
 const explorerStore = useExplorerStore()
+const startTour = inject<() => void>('startTour', () => {})
 const route  = useRoute()
 const router = useRouter()
 
@@ -129,6 +130,9 @@ onUnmounted(() => {
       <div class="topbar-divider"></div>
       <button type="button" class="layout-topbar-action" @click="toggleDarkMode" :title="isDarkTheme ? 'Light mode' : 'Dark mode'" :aria-label="isDarkTheme ? 'Switch to light mode' : 'Switch to dark mode'">
         <i :class="['pi', isDarkTheme ? 'pi-sun' : 'pi-moon']" aria-hidden="true"></i>
+      </button>
+      <button type="button" class="layout-topbar-action" @click="startTour" title="Start welcome tour" aria-label="Start welcome tour">
+        <i class="pi pi-info-circle" aria-hidden="true"></i>
       </button>
       <button type="button" class="layout-topbar-action" @click="shortcutsModalOpen = !shortcutsModalOpen" title="Keyboard shortcuts" aria-label="Toggle keyboard shortcuts">
         <i class="pi pi-question-circle" aria-hidden="true"></i>

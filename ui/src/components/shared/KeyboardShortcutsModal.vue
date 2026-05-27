@@ -43,6 +43,10 @@
           </tbody>
         </table>
       </section>
+
+      <div class="ks-tour-row">
+        <button class="p-button p-button-sm p-button-outlined" @click="startTour">Show welcome tour</button>
+      </div>
     </div>
   </dialog>
 </template>
@@ -51,7 +55,14 @@
 import { watch, ref, nextTick } from 'vue'
 import { shortcutsModalOpen } from '@/composables/useShortcutsModal'
 
+const emit = defineEmits<{ requestTour: [] }>()
+
 const open = shortcutsModalOpen
+
+function startTour() {
+  close()
+  emit('requestTour')
+}
 const dlgEl = ref<HTMLDialogElement | null>(null)
 
 watch(open, (val) => {
@@ -188,4 +199,10 @@ kbd {
   color: var(--text-color-secondary);
 }
 
+.ks-tour-row {
+  display: flex;
+  justify-content: center;
+  padding-top: 0.5rem;
+  border-top: 1px solid var(--surface-border, #e2e8f0);
+}
 </style>
