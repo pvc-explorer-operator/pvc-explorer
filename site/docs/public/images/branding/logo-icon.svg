@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="50 100 420 300" width="420" height="300">
+  <defs>
+    <linearGradient id="activeBody" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#2A5FC4"/>
+      <stop offset="100%" stop-color="#1A3A7A"/>
+    </linearGradient>
+    <linearGradient id="dimBody" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#111E35"/>
+      <stop offset="100%" stop-color="#0A1422"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="5" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="softglow" x="-25%" y="-25%" width="150%" height="150%">
+      <feGaussianBlur stdDeviation="3" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="activeglow" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <!-- Icon only — no background, no text -->
+
+  <ellipse cx="205" cy="148" rx="110" ry="35" fill="#326CE5" opacity="0.10" filter="url(#activeglow)"/>
+
+  <!-- Cylinder 3 — bottom — DIM -->
+  <ellipse cx="205" cy="350" rx="90" ry="22" fill="#070E1C"/>
+  <rect x="115" y="289" width="180" height="61" fill="url(#dimBody)" opacity="0.8"/>
+  <ellipse cx="205" cy="289" rx="90" ry="22" fill="#111E38" opacity="0.8"/>
+  <ellipse cx="205" cy="289" rx="90" ry="22" fill="none" stroke="#1E3660" stroke-width="1" stroke-dasharray="6,4" opacity="0.5"/>
+
+  <!-- Cylinder 2 — middle — DIM -->
+  <ellipse cx="205" cy="279" rx="90" ry="22" fill="#0A1628" opacity="0.85"/>
+  <rect x="115" y="218" width="180" height="61" fill="url(#dimBody)" opacity="0.85"/>
+  <ellipse cx="205" cy="218" rx="90" ry="22" fill="#13213C" opacity="0.85"/>
+  <ellipse cx="205" cy="218" rx="90" ry="22" fill="none" stroke="#1E3660" stroke-width="1" stroke-dasharray="6,4" opacity="0.5"/>
+
+  <!-- ZZZ -->
+  <text x="302" y="308" font-family="'Courier New', monospace" font-size="15" font-weight="700" fill="#1E3E6A" opacity="0.7">z</text>
+  <text x="316" y="292" font-family="'Courier New', monospace" font-size="12" font-weight="700" fill="#1E3E6A" opacity="0.5">z</text>
+  <text x="328" y="279" font-family="'Courier New', monospace" font-size="9"  font-weight="700" fill="#1E3E6A" opacity="0.3">z</text>
+
+  <!-- Cylinder 1 — top — ACTIVE -->
+  <ellipse cx="205" cy="208" rx="90" ry="22" fill="#122878"/>
+  <rect x="115" y="147" width="180" height="61" fill="url(#activeBody)"/>
+  <ellipse cx="205" cy="147" rx="90" ry="22" fill="#326CE5"/>
+  <ellipse cx="192" cy="143" rx="42" ry="11" fill="white" opacity="0.13"/>
+  <rect x="120" y="147" width="26" height="61" fill="white" opacity="0.05" rx="3"/>
+  <circle cx="270" cy="147" r="6" fill="#22C55E" filter="url(#glow)"/>
+  <circle cx="270" cy="147" r="3" fill="white" opacity="0.9"/>
+
+  <!-- Magnifying glass -->
+  <circle cx="336" cy="200" r="76" fill="none" stroke="#00CFFF" stroke-width="2" opacity="0.15" filter="url(#glow)"/>
+  <circle cx="336" cy="200" r="68" fill="#060F1E" opacity="0.93"/>
+  <circle cx="336" cy="200" r="68" fill="none" stroke="#00CFFF" stroke-width="11" filter="url(#softglow)"/>
+  <line x1="386" y1="252" x2="430" y2="304" stroke="#00CFFF" stroke-width="15" stroke-linecap="round" filter="url(#softglow)"/>
+  <circle cx="388" cy="254" r="7" fill="#00CFFF" filter="url(#softglow)"/>
+
+  <line x1="296" y1="178" x2="376" y2="178" stroke="#00CFFF" stroke-width="1" opacity="0.2"/>
+  <line x1="291" y1="194" x2="381" y2="194" stroke="#00CFFF" stroke-width="1.5" opacity="0.3"/>
+  <line x1="291" y1="210" x2="381" y2="210" stroke="#00CFFF" stroke-width="1" opacity="0.2"/>
+  <line x1="296" y1="226" x2="376" y2="226" stroke="#00CFFF" stroke-width="1" opacity="0.15"/>
+  <line x1="336" y1="140" x2="336" y2="260" stroke="#00CFFF" stroke-width="1" opacity="0.18"/>
+  <circle cx="336" cy="200" r="5" fill="#00CFFF" opacity="0.5"/>
+  <ellipse cx="312" cy="176" r="16" fill="white" opacity="0.04" transform="rotate(-25 312 176)"/>
+</svg>
