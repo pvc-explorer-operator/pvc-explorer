@@ -12,17 +12,26 @@
         v-model="typed"
         class="chip-input"
         placeholder="key=value"
-        @keydown.enter.prevent="addTyped"
+        role="combobox"
+        aria-autocomplete="list"
+        :aria-expanded="open && suggestions.length > 0"
+        :aria-controls="listId"
+        :aria-activedescendant="activeIndex >= 0 ? `${listId}-${activeIndex}` : undefined"
+        @keydown="onKeydown"
         @keydown.backspace="onBackspace"
         @focus="open = true"
         @blur="onBlur"
       />
     </div>
-    <ul v-if="open && suggestions.length" class="dropdown">
+    <ul v-if="open && suggestions.length" :id="listId" class="dropdown" role="listbox">
       <li
-        v-for="s in suggestions"
+        v-for="(s, i) in suggestions"
         :key="s"
+        :id="`${listId}-${i}`"
+        role="option"
+        :aria-selected="i === activeIndex"
         @mousedown.prevent="addSuggestion(s)"
+        @mouseenter="activeIndex = i"
       >{{ s }}</li>
     </ul>
   </div>
@@ -39,7 +48,9 @@ const emit = defineEmits<{ (e: 'update:modelValue', v: string[]): void }>()
 const allLabels = ref<string[]>([])
 const typed = ref('')
 const open = ref(false)
-
+const activeIndex = ref(-1)
+const listId = 'label-suggestions'
+const inputEl = ref<HTMLInputElement | null>(null)
 
 const suggestions = computed(() =>
   typed.value.length
@@ -59,6 +70,7 @@ function add(label: string) {
   }
   typed.value = ''
   open.value = false
+  activeIndex.value = -1
 }
 
 function addTyped() { add(typed.value) }
@@ -75,7 +87,34 @@ function onBackspace() {
 }
 
 function onBlur() {
-  setTimeout(() => { open.value = false }, 150)
+  setTimeout(() => { open.value = false; activeIndex.value = -1 }, 150)
+}
+
+function moveActive(dir: 1 | -1) {
+  if (!open.value || !suggestions.value.length) return
+  const max = suggestions.value.length - 1
+  activeIndex.value = Math.min(Math.max(activeIndex.value + dir, 0), max)
+}
+
+function onEscape() {
+  if (open.value) {
+    open.value = false
+    activeIndex.value = -1
+  }
+}
+
+function onKeydown(e: KeyboardEvent) {
+  if (e.key === 'ArrowDown') { e.preventDefault(); moveActive(1) }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); moveActive(-1) }
+  else if (e.key === 'Escape') { onEscape() }
+  else if (e.key === 'Enter') {
+    if (activeIndex.value >= 0) {
+      e.preventDefault()
+      addSuggestion(suggestions.value[activeIndex.value])
+    } else {
+      addTyped()
+    }
+  }
 }
 </script>
 
