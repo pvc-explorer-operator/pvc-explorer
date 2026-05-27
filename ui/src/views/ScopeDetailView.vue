@@ -1,5 +1,5 @@
 <template>
-  <div v-if="scope" class="sd-page">
+  <main v-if="scope" class="sd-page">
 
     <!-- Header -->
     <div class="sd-header">
@@ -208,7 +208,7 @@
 
     </div><!-- /body -->
 
-  </div>
+  </main>
   <div v-else-if="loading" class="sd-loading">
     <i class="pi pi-spin pi-spinner"></i> Loading…
   </div>
@@ -307,12 +307,12 @@ const scopeYaml = computed(() => {
   lines.push('  namespaces:')
   if (ns?.names?.length) {
     lines.push('    names:')
-    ns.names.forEach(n => lines.push(`      - ${n}`))
+    for (const n of ns.names) { lines.push(`      - ${n}`) }
   }
   if (ns?.labelSelector?.matchLabels && Object.keys(ns.labelSelector.matchLabels).length) {
     lines.push('    labelSelector:')
     lines.push('      matchLabels:')
-    Object.entries(ns.labelSelector.matchLabels).forEach(([k, v]) => lines.push(`        ${k}: "${v}"`))
+    for (const [k, v] of Object.entries(ns.labelSelector.matchLabels)) { lines.push(`        ${k}: "${v}"`) }
   }
   if (!ns?.names?.length && !ns?.labelSelector) lines.push('    names: []')
 
@@ -322,11 +322,11 @@ const scopeYaml = computed(() => {
   lines.push(`    mode: ${disc?.mode ?? 'Auto'}`)
   if (disc?.pvcNames?.length) {
     lines.push('    pvcNames:')
-    disc.pvcNames.forEach(p => lines.push(`      - ${p}`))
+    for (const p of disc.pvcNames) { lines.push(`      - ${p}`) }
   }
   if (disc?.excludePVCs?.length) {
     lines.push('    excludePVCs:')
-    disc.excludePVCs.forEach(p => lines.push(`      - "${p}"`))
+    for (const p of disc.excludePVCs) { lines.push(`      - "${p}"`) }
   }
 
   // deletion policy

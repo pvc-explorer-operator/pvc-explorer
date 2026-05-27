@@ -1,9 +1,13 @@
 <template>
-  <div :class="['app-card', { 'card-in-use': !!explorer.consumerCount }]" @click="goToDetails">
+  <a
+    :class="['app-card', { 'card-in-use': !!explorer.consumerCount }]"
+    :href="`/explorers/${explorer.namespace}/${explorer.name}`"
+    @click.prevent="goToDetails"
+  >
     <!-- Header -->
     <div class="flex justify-between items-center mb-4">
       <div class="flex items-center gap-2 card-name-wrap">
-        <span :class="['phase-dot', `dot-${phaseCss}`]" />
+        <span :class="['phase-dot', `dot-${phaseCss}`]" aria-hidden="true" />
         <span class="explorer-name font-semibold" :title="explorer.name">{{ explorer.name }}</span>
       </div>
       <div class="flex items-center gap-2 card-tags-wrap">
@@ -134,7 +138,7 @@
         :title="'View details'"
       />
     </div>
-  </div>
+  </a>
 </template>
 
 <script setup lang="ts">

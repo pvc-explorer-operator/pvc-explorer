@@ -1,12 +1,12 @@
 <template>
-  <div class="login-bg" :class="{ 'is-dark': isDark }">
+  <main class="login-bg" :class="{ 'is-dark': isDark }">
     <canvas ref="bgCanvas" class="login-canvas" aria-hidden="true" />
 
     <div class="card login-card">
       <!-- Logo / title -->
       <div class="login-hero">
         <img src="/logo-icon.svg" class="login-logo" alt="PVC Explorer icon" />
-        <h2 class="login-title">PVC Explorer</h2>
+        <h1 class="login-title">PVC Explorer</h1>
         <span class="login-sub">Sign in to manage your PVC agents</span>
       </div>
 
@@ -26,7 +26,7 @@
         <Button type="submit" label="Sign In" icon="pi pi-sign-in" :loading="loading" :disabled="!canSubmit" class="w-full" fluid />
       </form>
     </div>
-  </div>
+  </main>
 </template>
 
 <script setup lang="ts">
@@ -176,18 +176,25 @@ function loop(t: number) {
   raf = requestAnimationFrame(loop)
 }
 
+function onResize() {
+  const canvas = bgCanvas.value
+  if (!canvas) return
+  resize(canvas)
+  initNodes(canvas.width, canvas.height)
+}
+
 onMounted(() => {
   const canvas = bgCanvas.value!
   resize(canvas)
   initNodes(canvas.width, canvas.height)
   raf = requestAnimationFrame(loop)
-  window.addEventListener('resize', () => {
-    resize(canvas)
-    initNodes(canvas.width, canvas.height)
-  })
+  window.addEventListener('resize', onResize)
 })
 
-onUnmounted(() => cancelAnimationFrame(raf))
+onUnmounted(() => {
+  cancelAnimationFrame(raf)
+  window.removeEventListener('resize', onResize)
+})
 
 // observe app-dark class changes so isDark ref stays in sync
 const mo = new MutationObserver(() => {

@@ -26,7 +26,8 @@ export function createFileApi(proxyBase: string) {
     const q = path ? `?path=${encodeURIComponent(path)}` : ''
     const res = await fetch(endpoint(`files${q}`))
     if (!res.ok) throw new Error(`List failed: ${res.statusText}`)
-    return res.json()
+    const data = await res.json()
+    return { entries: data.entries ?? [] }
   }
 
   async function fetchContent(path: string): Promise<string> {

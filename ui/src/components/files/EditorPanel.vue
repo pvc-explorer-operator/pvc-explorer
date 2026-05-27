@@ -15,7 +15,7 @@
         >
           <span class="ep-tab__dot" v-if="tab.dirty" title="Unsaved changes" />
           <span class="ep-tab__name">{{ tab.name }}</span>
-          <button class="ep-tab__close" @click.stop="closeTab(tab.path)" title="Close tab">×</button>
+          <span role="button" tabindex="0" class="ep-tab__close" @click.stop="closeTab(tab.path)" @keydown.enter.stop="closeTab(tab.path)" @keydown.space.stop="closeTab(tab.path)" title="Close tab">×</span>
         </button>
         <div class="ep-tabs__spacer" />
         <!-- Settings hamburger -->
@@ -87,7 +87,7 @@
           >
             <span class="ep-tab__dot" v-if="t.dirty" />
             <span class="ep-tab__name">{{ t.name }}</span>
-            <button class="ep-tab__close" @click.stop="closeTab(t.path)">×</button>
+            <span role="button" tabindex="0" class="ep-tab__close" @click.stop="closeTab(t.path)" @keydown.enter.stop="closeTab(t.path)" @keydown.space.stop="closeTab(t.path)">×</span>
           </button>
           <div class="ep-tabs__spacer" />
           <button class="ep-toolbar-btn" title="Close split" @click="toggleSplit">
@@ -134,7 +134,7 @@
           >
             <span class="ep-tab__dot" v-if="t.dirty" />
             <span class="ep-tab__name">{{ t.name }}</span>
-            <button class="ep-tab__close" @click.stop="closeTab(t.path)">×</button>
+            <span role="button" tabindex="0" class="ep-tab__close" @click.stop="closeTab(t.path)" @keydown.enter.stop="closeTab(t.path)" @keydown.space.stop="closeTab(t.path)">×</span>
           </button>
         </div>
         <div class="ep-pane-bar" v-if="rightTab">

@@ -1,6 +1,22 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&display=swap');
 
+.skip-link {
+  position: absolute;
+  top: -3rem;
+  left: 0.5rem;
+  z-index: 9999;
+  padding: 0.5rem 1rem;
+  background: var(--p-primary-500, #4f8ef7);
+  color: #fff;
+  border-radius: 0 0 6px 6px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: top 0.1s;
+}
+.skip-link:focus { top: 0; }
+
 /* Hamburger in topbar (mobile only) */
 .layout-topbar-hamburger {
   display: none;

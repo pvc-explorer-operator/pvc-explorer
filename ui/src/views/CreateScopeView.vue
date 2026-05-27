@@ -21,8 +21,9 @@
         <div class="cs-section">
           <div class="cs-section-title">Identity</div>
           <div class="cs-field">
-            <label class="cs-label">Name <span class="cs-required">*</span></label>
+            <label class="cs-label" for="scope-name">Name <span class="cs-required">*</span></label>
             <input
+              id="scope-name"
               v-model="name"
               class="cs-input"
               :class="{ 'cs-input--error': nameError }"
@@ -43,7 +44,7 @@
             <label class="cs-label">Namespace names</label>
             <div class="cs-tag-input" @click="focusTagInput('ns')">
               <span v-for="(ns, i) in nsNames" :key="i" class="cs-tag">
-                {{ ns }}<button class="cs-tag-remove" @click.stop="nsNames.splice(i, 1)">×</button>
+                {{ ns }}<button class="cs-tag-remove" :aria-label="`Remove namespace ${ns}`" @click.stop="nsNames.splice(i, 1)">×</button>
               </span>
               <input
                 ref="nsInputEl"
@@ -79,11 +80,12 @@
         <div class="cs-section">
           <div class="cs-section-title">Discovery</div>
           <div class="cs-field">
-            <label class="cs-label">Mode</label>
-            <div class="cs-chip-group">
+            <label class="cs-label" id="mode-label">Mode</label>
+            <div class="cs-chip-group" role="radiogroup" aria-labelledby="mode-label">
               <button
                 v-for="m in ['Auto', 'Explicit']" :key="m"
                 class="cs-chip" :class="{ 'cs-chip--active': discoveryMode === m }"
+                role="radio" :aria-checked="discoveryMode === m"
                 @click="discoveryMode = m as 'Auto' | 'Explicit'"
               >{{ m }}</button>
             </div>
@@ -96,7 +98,7 @@
             <label class="cs-label">PVC names</label>
             <div class="cs-tag-input" @click="focusTagInput('pvc')">
               <span v-for="(p, i) in pvcNames" :key="i" class="cs-tag">
-                {{ p }}<button class="cs-tag-remove" @click.stop="pvcNames.splice(i, 1)">×</button>
+                {{ p }}<button class="cs-tag-remove" :aria-label="`Remove PVC ${p}`" @click.stop="pvcNames.splice(i, 1)">×</button>
               </span>
               <input
                 ref="pvcInputEl"
@@ -114,7 +116,7 @@
             <label class="cs-label">Exclude PVCs <span class="cs-optional">(glob patterns)</span></label>
             <div class="cs-tag-input" @click="focusTagInput('excl')">
               <span v-for="(p, i) in excludePVCs" :key="i" class="cs-tag cs-tag--warn">
-                {{ p }}<button class="cs-tag-remove" @click.stop="excludePVCs.splice(i, 1)">×</button>
+                {{ p }}<button class="cs-tag-remove" :aria-label="`Remove exclude pattern ${p}`" @click.stop="excludePVCs.splice(i, 1)">×</button>
               </span>
               <input
                 ref="exclInputEl"
@@ -133,12 +135,13 @@
 
         <!-- Deletion Policy -->
         <div class="cs-section">
-          <div class="cs-section-title">Deletion Policy</div>
+          <div class="cs-section-title" id="deletion-policy-label">Deletion Policy</div>
           <div class="cs-field">
-            <div class="cs-chip-group">
+            <div class="cs-chip-group" role="radiogroup" aria-labelledby="deletion-policy-label">
               <button
                 v-for="p in deletionPolicies" :key="p.value"
                 class="cs-chip" :class="{ 'cs-chip--active': deletionPolicy === p.value }"
+                role="radio" :aria-checked="deletionPolicy === p.value"
                 @click="deletionPolicy = p.value as 'Cleanup' | 'Orphan'"
               >{{ p.label }}</button>
             </div>
@@ -158,40 +161,41 @@
           </button>
           <template v-if="showDefaults">
             <div class="cs-field">
-              <label class="cs-label">Explorer mode</label>
-              <div class="cs-chip-group">
+              <label class="cs-label" id="explorer-mode-label">Explorer mode</label>
+              <div class="cs-chip-group" role="radiogroup" aria-labelledby="explorer-mode-label">
                 <button
                   v-for="m in ['ScaledToZero', 'Running']" :key="m"
                   class="cs-chip" :class="{ 'cs-chip--active': defaultMode === m }"
+                  role="radio" :aria-checked="defaultMode === m"
                   @click="defaultMode = m as 'ScaledToZero' | 'Running'"
                 >{{ m }}</button>
               </div>
             </div>
             <div class="cs-field">
-              <label class="cs-label">Agent image <span class="cs-optional">(optional)</span></label>
-              <input v-model="image" class="cs-input" placeholder="ghcr.io/org/pvc-explorer-agent:latest" spellcheck="false" />
+              <label class="cs-label" for="agent-image">Agent image <span class="cs-optional">(optional)</span></label>
+              <input id="agent-image" v-model="image" class="cs-input" placeholder="ghcr.io/org/pvc-explorer-agent:latest" spellcheck="false" />
             </div>
             <div class="cs-field cs-field--row">
-              <label class="cs-label cs-label--inline">Force read-write mount</label>
-              <input type="checkbox" v-model="forceRW" class="cs-checkbox" />
+              <label class="cs-label cs-label--inline" for="force-rw">Force read-write mount</label>
+              <input id="force-rw" type="checkbox" v-model="forceRW" class="cs-checkbox" />
             </div>
             <div class="cs-field-row-2">
               <div class="cs-field">
-                <label class="cs-label">Idle timeout</label>
-                <input v-model="idleTimeout" class="cs-input" placeholder="10m" spellcheck="false" />
+                <label class="cs-label" for="idle-timeout">Idle timeout</label>
+                <input id="idle-timeout" v-model="idleTimeout" class="cs-input" placeholder="10m" spellcheck="false" />
               </div>
               <div class="cs-field">
-                <label class="cs-label">Startup timeout</label>
-                <input v-model="startupTimeout" class="cs-input" placeholder="60s" spellcheck="false" />
+                <label class="cs-label" for="startup-timeout">Startup timeout</label>
+                <input id="startup-timeout" v-model="startupTimeout" class="cs-input" placeholder="60s" spellcheck="false" />
               </div>
             </div>
             <div class="cs-field cs-field--row">
-              <label class="cs-label cs-label--inline">Allow node affinity</label>
-              <input type="checkbox" v-model="allowNodeAffinity" class="cs-checkbox" />
+              <label class="cs-label cs-label--inline" for="allow-node-affinity">Allow node affinity</label>
+              <input id="allow-node-affinity" type="checkbox" v-model="allowNodeAffinity" class="cs-checkbox" />
             </div>
             <div class="cs-field cs-field--row">
-              <label class="cs-label cs-label--inline">Set resource requests/limits</label>
-              <input type="checkbox" v-model="enableResources" class="cs-checkbox" />
+              <label class="cs-label cs-label--inline" for="enable-resources">Set resource requests/limits</label>
+              <input id="enable-resources" type="checkbox" v-model="enableResources" class="cs-checkbox" />
             </div>
             <template v-if="enableResources">
               <div class="cs-resources-grid">
@@ -240,7 +244,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, nextTick, type Ref } from 'vue'
+import { ref, computed, nextTick, onMounted, onUnmounted, type Ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuthStore } from '../stores/authStore'
 import { highlightYaml } from '../utils/yamlHighlight'
@@ -342,12 +346,12 @@ const generatedYaml = computed(() => {
   lines.push('  namespaces:')
   if (hasNsNames) {
     lines.push('    names:')
-    nsNames.value.forEach(ns => lines.push(`      - ${ns}`))
+    for (const ns of nsNames.value) { lines.push(`      - ${ns}`) }
   }
   if (hasLabelSel) {
     lines.push('    labelSelector:')
     lines.push('      matchLabels:')
-    validPairs.forEach(p => lines.push(`        ${p.key}: "${p.value}"`))
+    for (const p of validPairs) { lines.push(`        ${p.key}: "${p.value}"`) }
   }
   if (!hasNsNames && !hasLabelSel) {
     lines.push('    names: []')
@@ -358,11 +362,11 @@ const generatedYaml = computed(() => {
   lines.push(`    mode: ${discoveryMode.value}`)
   if (discoveryMode.value === 'Explicit' && pvcNames.value.length) {
     lines.push('    pvcNames:')
-    pvcNames.value.forEach(p => lines.push(`      - ${p}`))
+    for (const p of pvcNames.value) { lines.push(`      - ${p}`) }
   }
   if (excludePVCs.value.length) {
     lines.push('    excludePVCs:')
-    excludePVCs.value.forEach(p => lines.push(`      - "${p}"`))
+    for (const p of excludePVCs.value) { lines.push(`      - "${p}"`) }
   }
 
   // deletion policy
@@ -398,6 +402,10 @@ const generatedYaml = computed(() => {
 
 // ── Copy / Download ───────────────────────────────────────────────────
 const copied = ref(false)
+
+function onEscape(e: KeyboardEvent) { if (e.key === 'Escape') router.push('/scopes') }
+onMounted(() => document.addEventListener('keydown', onEscape))
+onUnmounted(() => document.removeEventListener('keydown', onEscape))
 
 async function copyYaml() {
   await navigator.clipboard.writeText(generatedYaml.value)

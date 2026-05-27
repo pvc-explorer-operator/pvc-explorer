@@ -1,5 +1,6 @@
 <template>
-  <div>
+  <main>
+    <h1 class="sr-only">Explorers</h1>
     <!-- Toolbar: view toggle, sort, page size, pagination -->
     <div class="list-toolbar mb-4">
       <div class="toolbar-left">
@@ -7,37 +8,39 @@
           <button
             :class="['btn-icon', { active: viewMode === 'cards' }]"
             title="Card view"
+            aria-label="Card view"
             @click="viewMode = 'cards'"
           >
-            <i class="pi pi-th-large"></i>
+            <i class="pi pi-th-large" aria-hidden="true"></i>
           </button>
           <button
             :class="['btn-icon', { active: viewMode === 'list' }]"
             title="List view"
+            aria-label="List view"
             @click="viewMode = 'list'"
           >
-            <i class="pi pi-list"></i>
+            <i class="pi pi-list" aria-hidden="true"></i>
           </button>
         </div>
 
         <div class="toolbar-separator"></div>
 
-        <label class="toolbar-label">Sort:</label>
-        <select v-model="sortBy" class="toolbar-select" @change="page = 1">
+        <label class="toolbar-label" for="sort-select">Sort:</label>
+        <select id="sort-select" v-model="sortBy" class="toolbar-select" @change="page = 1">
           <option value="name">Name</option>
           <option value="namespace">Namespace</option>
           <option value="phase">Phase</option>
           <option value="pvcName">PVC</option>
           <option value="createdAt">Created</option>
         </select>
-        <button class="btn-icon btn-sort-dir" @click="toggleSortDir" :title="sortDir === 'asc' ? 'Ascending' : 'Descending'">
-          <i :class="['pi', sortDir === 'asc' ? 'pi-sort-amount-up-alt' : 'pi-sort-amount-down']"></i>
+        <button class="btn-icon btn-sort-dir" @click="toggleSortDir" :title="sortDir === 'asc' ? 'Ascending' : 'Descending'" :aria-label="sortDir === 'asc' ? 'Sort ascending' : 'Sort descending'">
+          <i :class="['pi', sortDir === 'asc' ? 'pi-sort-amount-up-alt' : 'pi-sort-amount-down']" aria-hidden="true"></i>
         </button>
 
         <div class="toolbar-separator"></div>
 
-        <label class="toolbar-label">Items per page:</label>
-        <select v-model="pageSize" class="toolbar-select toolbar-select--small" @change="page = 1">
+        <label class="toolbar-label" for="page-size-select">Items per page:</label>
+        <select id="page-size-select" v-model="pageSize" class="toolbar-select toolbar-select--small" @change="page = 1">
           <option :value="10">10</option>
           <option :value="20">20</option>
           <option :value="50">50</option>
@@ -49,11 +52,11 @@
           {{ paginationRange.start + 1 }}–{{ paginationRange.end }} of {{ sorted.length }}
         </span>
         <div class="pagination-btns btn-group">
-          <button class="btn-icon" :disabled="page <= 1" @click="page--" title="Previous page">
-            <i class="pi pi-chevron-left"></i>
+          <button class="btn-icon" :disabled="page <= 1" @click="page--" title="Previous page" aria-label="Previous page">
+            <i class="pi pi-chevron-left" aria-hidden="true"></i>
           </button>
-          <button class="btn-icon" :disabled="page >= totalPages" @click="page++" title="Next page">
-            <i class="pi pi-chevron-right"></i>
+          <button class="btn-icon" :disabled="page >= totalPages" @click="page++" title="Next page" aria-label="Next page">
+            <i class="pi pi-chevron-right" aria-hidden="true"></i>
           </button>
         </div>
       </div>
@@ -62,7 +65,7 @@
     <!-- Cards or List -->
     <AppCardGrid v-if="viewMode === 'cards'" :explorers="paginated" />
     <AppListView v-else :explorers="paginated" />
-  </div>
+  </main>
 </template>
 
 <script setup lang="ts">
@@ -287,5 +290,16 @@ onMounted(() => {
 .pagination-btns .btn-icon {
   width: 2rem;
   height: 2rem;
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
 </style>

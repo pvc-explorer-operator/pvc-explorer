@@ -1,5 +1,22 @@
 <template>
   <div class="fea-layout">
+
+    <!-- Disconnected overlay -->
+    <div v-if="disconnected" class="fea-disconnected">
+      <div class="fea-disconnected__card">
+        <i class="pi pi-power-off fea-disconnected__icon" />
+        <p class="fea-disconnected__title">Disconnected</p>
+        <p class="fea-disconnected__sub">The agent went to sleep due to inactivity.</p>
+        <button
+          class="fea-disconnected__btn"
+          :disabled="reconnecting"
+          @click="emit('reconnect')"
+        >
+          <i v-if="reconnecting" class="pi pi-spin pi-spinner" style="margin-right:6px" />
+          {{ reconnecting ? 'Waking up…' : 'Reconnect' }}
+        </button>
+      </div>
+    </div>
     <!-- Left panel: recursive directory tree -->
     <FileTree
       :current-path="currentPath"
@@ -14,7 +31,7 @@
       <!-- Top bar: explorer label + idle timer -->
       <div class="fea-topbar">
         <span class="fea-label">{{ explorerLabel }}</span>
-        <IdleTimer :remaining-seconds="remainingSeconds" class="ml-auto" />
+        <IdleTimer v-if="remainingSeconds !== null" :remaining-seconds="remainingSeconds" class="ml-auto" />
       </div>
 
       <!-- Idle warning banner -->
@@ -87,11 +104,16 @@ const props = defineProps<{
   downloadUrl:  (path: string) => string
   readonly: boolean
   explorerLabel?: string
-  remainingSeconds: number
+  remainingSeconds: number | null
   idleWarning: boolean
+  disconnected?: boolean
+  reconnecting?: boolean
 }>()
 
-const emit = defineEmits<{ (e: 'heartbeat'): void }>()
+const emit = defineEmits<{
+  (e: 'heartbeat'): void
+  (e: 'reconnect'): void
+}>()
 
 // ── Shared state ────────────────────────────────────────────────────────────
 const currentPath = ref('')
@@ -271,6 +293,7 @@ onMounted(async () => {
   background: var(--bg);
   color: var(--text);
   font-family: var(--font);
+  position: relative;
 }
 
 .fea-tree { flex-shrink: 0; }
@@ -345,4 +368,63 @@ onMounted(async () => {
   flex: 1;
   min-height: 0;
 }
+
+/* ── Disconnected overlay ── */
+.fea-disconnected {
+  position: absolute;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(3px);
+}
+.fea-disconnected__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 2.5rem 3rem;
+  background: var(--surface-card);
+  border: 1px solid var(--surface-border);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  text-align: center;
+}
+.fea-disconnected__icon {
+  font-size: 2.5rem;
+  color: var(--p-red-400);
+  margin-bottom: 0.5rem;
+}
+.fea-disconnected__title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-color);
+  margin: 0;
+  font-family: Lato, sans-serif;
+}
+.fea-disconnected__sub {
+  font-size: 0.875rem;
+  color: var(--text-color-secondary);
+  margin: 0;
+  font-family: Lato, sans-serif;
+}
+.fea-disconnected__btn {
+  margin-top: 0.75rem;
+  padding: 8px 24px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  font-family: Lato, sans-serif;
+  background: var(--p-primary-500);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, opacity 0.15s;
+  display: flex;
+  align-items: center;
+}
+.fea-disconnected__btn:hover:not(:disabled) { background: var(--p-primary-600); }
+.fea-disconnected__btn:disabled { opacity: 0.6; cursor: not-allowed; }
 </style>

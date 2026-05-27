@@ -1,5 +1,9 @@
 <template>
-  <div class="sc-card" @click="$router.push(`/scopes/${encodeURIComponent(scope.name)}`)">
+  <a
+    class="sc-card"
+    :href="`/scopes/${encodeURIComponent(scope.name)}`"
+    @click.prevent="$router.push(`/scopes/${encodeURIComponent(scope.name)}`)"
+  >
     <div class="sc-card-top">
       <span class="sc-card-name">{{ scope.name }}</span>
       <span :class="['sc-card-badge', phaseClass]">{{ scope.phase }}</span>
@@ -14,7 +18,7 @@
         <span>{{ scope.explorerCount }} explorer{{ scope.explorerCount !== 1 ? 's' : '' }}</span>
       </div>
     </div>
-  </div>
+  </a>
 </template>
 
 <script setup lang="ts">

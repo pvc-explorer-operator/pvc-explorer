@@ -31,12 +31,19 @@
         @click="item.isDir ? emit('navigate', item.path) : emit('open-file', item.path, item.name)"
       >
         <!-- Expand toggle: dirs only -->
-        <i
+        <button
           v-if="item.isDir"
-          class="fe-tree__toggle pi"
-          :class="item.loading ? 'pi-spin pi-spinner' : item.expanded ? 'pi-chevron-down' : 'pi-chevron-right'"
+          class="fe-tree__toggle-btn"
+          :aria-expanded="item.expanded"
+          :aria-label="item.expanded ? `Collapse ${item.name}` : `Expand ${item.name}`"
           @click.stop="toggleExpand(item)"
-        />
+        >
+          <i
+            class="pi fe-tree__toggle"
+            :class="item.loading ? 'pi-spin pi-spinner' : item.expanded ? 'pi-chevron-down' : 'pi-chevron-right'"
+            aria-hidden="true"
+          />
+        </button>
         <span v-else class="fe-tree__toggle" />
         <!-- Icon -->
         <i class="pi fe-tree__icon" :class="item.isDir ? 'pi-folder' : 'pi-file'" />
@@ -205,6 +212,20 @@ onMounted(async () => {
   width: 14px;
   font-size: 10px;
   flex-shrink: 0;
+  color: var(--muted, #5a6490);
+}
+
+.fe-tree__toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  background: transparent;
+  border: none;
+  padding: 0;
+  cursor: pointer;
   color: var(--muted, #5a6490);
 }
 

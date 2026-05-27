@@ -89,8 +89,9 @@ onUnmounted(() => {
       class="layout-topbar-hamburger"
       @click="toggleMenu"
       title="Open menu"
+      aria-label="Open menu"
     >
-      <i class="pi pi-bars"></i>
+      <i class="pi pi-bars" aria-hidden="true"></i>
     </button>
     <!-- Breadcrumb navigation -->
     <div class="topbar-nav">
@@ -98,15 +99,17 @@ onUnmounted(() => {
         v-if="navInfo.back"
         class="topbar-back-btn"
         title="Go back"
+        aria-label="Go back"
         @click="router.push(navInfo.back)"
       >
-        <i class="pi pi-arrow-left" />
+        <i class="pi pi-arrow-left" aria-hidden="true" />
       </button>
       <span v-if="navInfo.segments.length" class="topbar-breadcrumb">
         <template v-for="(seg, i) in navInfo.segments" :key="i">
           <span v-if="i > 0" class="topbar-sep" aria-hidden="true">›</span>
           <span
             :class="i === navInfo.segments.length - 1 ? 'topbar-crumb topbar-crumb--current' : 'topbar-crumb topbar-crumb--parent'"
+            :aria-current="i === navInfo.segments.length - 1 ? 'page' : undefined"
           >{{ seg }}</span>
         </template>
       </span>
@@ -117,14 +120,14 @@ onUnmounted(() => {
         <select v-model="pollInterval" class="topbar-poll-picker" @change="onPollChange" title="Auto-refresh interval">
           <option v-for="opt in pollOptions" :key="opt.value" :value="opt.value">{{ opt.label }}</option>
         </select>
-        <button type="button" class="layout-topbar-action" @click="handleRefresh" title="Refresh now">
-          <i class="pi pi-refresh"></i>
+        <button type="button" class="layout-topbar-action" @click="handleRefresh" title="Refresh now" aria-label="Refresh now">
+          <i class="pi pi-refresh" aria-hidden="true"></i>
         </button>
         <span class="topbar-timestamp"><span class="topbar-sync-label">Last sync </span>{{ lastRefreshed || '—' }}</span>
       </div>
       <div class="topbar-divider"></div>
-      <button type="button" class="layout-topbar-action" @click="toggleDarkMode" :title="isDarkTheme ? 'Light mode' : 'Dark mode'">
-        <i :class="['pi', isDarkTheme ? 'pi-sun' : 'pi-moon']"></i>
+      <button type="button" class="layout-topbar-action" @click="toggleDarkMode" :title="isDarkTheme ? 'Light mode' : 'Dark mode'" :aria-label="isDarkTheme ? 'Switch to light mode' : 'Switch to dark mode'">
+        <i :class="['pi', isDarkTheme ? 'pi-sun' : 'pi-moon']" aria-hidden="true"></i>
       </button>
     </div>
   </div>

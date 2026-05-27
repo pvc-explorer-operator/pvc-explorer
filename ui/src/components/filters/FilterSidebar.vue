@@ -2,15 +2,22 @@
   <aside class="filter-sidebar">
     <!-- Search -->
     <div class="sidebar-section">
-      <IconField>
-        <InputIcon class="pi pi-search" />
-        <InputText
-          v-model="search"
-          placeholder="Search name, PVC..."
-          class="w-full"
-          @input="emit_()"
-        />
-      </IconField>
+      <span class="section-header">
+        <span>Search</span>
+      </span>
+      <div class="filter-search-wrap">
+        <IconField>
+          <InputIcon class="pi pi-search" />
+          <label for="filter-search" class="sr-only">Search explorers</label>
+          <InputText
+            id="filter-search"
+            v-model="search"
+            placeholder="Search name, PVC..."
+            class="w-full filter-search-input"
+            @input="emit_()"
+          />
+        </IconField>
+      </div>
     </div>
 
     <Divider class="sidebar-divider" />
@@ -566,19 +573,28 @@ watch(search, () => {
 .label-input-wrap {
   display: flex;
   align-items: center;
-  background: var(--surface-hover);
-  border: 1px solid var(--surface-border);
-  border-radius: 5px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-radius: 6px;
   padding: 0.3rem 0.5rem;
+  transition: background 0.15s, border-color 0.15s;
+}
+.label-input-wrap:focus-within {
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(255, 255, 255, 0.4);
+}
+.filter-search-wrap {
+  margin-top: 0.4rem;
 }
 .label-input {
   border: none;
   background: transparent;
-  color: var(--text-color);
+  color: #e2e8f0;
   font-size: var(--fs-sm);
   outline: none;
   width: 100%;
 }
+.label-input::placeholder { color: #94a3b8; }
 .label-chips {
   display: flex;
   flex-wrap: wrap;
@@ -616,5 +632,16 @@ watch(search, () => {
 .shown-count {
   font-size: var(--fs-sm);
   color: var(--text-color-secondary);
+}
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
 }
 </style>

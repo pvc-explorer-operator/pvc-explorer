@@ -209,6 +209,13 @@ export const useExplorerStore = defineStore('explorer', () => {
     if (!res.ok) throw new Error('Failed to sleep explorer');
   }
 
+  function teardown() {
+    if (countdownTimer) {
+      clearInterval(countdownTimer);
+      countdownTimer = null;
+    }
+  }
+
   return {
     explorers,
     scopes,
@@ -227,5 +234,6 @@ export const useExplorerStore = defineStore('explorer', () => {
     wakeExplorer,
     sleepExplorer,
     updatePhase,
+    teardown,
   };
 });

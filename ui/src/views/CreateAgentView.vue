@@ -23,7 +23,7 @@
           <label for="forceRW" class="font-medium text-sm">Force ReadWrite</label>
         </div>
         <div class="flex gap-2">
-          <Button type="submit" severity="primary" icon="pi pi-check" label="Create" rounded :disabled="loading" />
+          <Button type="submit" severity="primary" icon="pi pi-check" label="Create" rounded :disabled="loading" :loading="loading" />
           <Button type="button" severity="secondary" icon="pi pi-times" label="Cancel" rounded @click="router.push('/explorers')" />
         </div>
         <div v-if="error" class="error-msg">{{ error }}</div>
@@ -97,6 +97,7 @@ async function onSubmit() {
     body: JSON.stringify(body)
   })
   if (res.ok) {
+    loading.value = false
     router.push('/explorers')
   } else {
     error.value = 'Failed to create agent.'

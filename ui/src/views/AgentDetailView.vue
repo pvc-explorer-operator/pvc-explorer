@@ -1,9 +1,9 @@
 <template>
-  <div class="detail-view" v-if="explorer">
+  <main class="detail-view" v-if="explorer">
     <div class="detail-card">
       <div class="detail-header">
-        <span :class="['phase-dot', `dot-${(explorer.phase || '').toLowerCase()}`]" />
-        <span class="explorer-name">{{ explorer.name }}</span>
+        <span :class="['phase-dot', `dot-${(explorer.phase || '').toLowerCase()}`]" aria-hidden="true" />
+        <h1 class="explorer-name">{{ explorer.name }}</h1>
         <Tag v-if="explorer.phase" :value="explorer.phase" :severity="phaseSeverity(explorer.phase)" rounded />
         <MountStateBanner :state="explorer.mountState" />
       </div>
@@ -17,6 +17,7 @@
       </div>
       <div class="detail-actions">
         <Button v-if="explorer.phase === 'Running'" severity="success" icon="pi pi-folder-open" label="Browse Files" rounded @click="goToFiles" />
+        <Button v-if="explorer.phase === 'Running'" severity="warn" icon="pi pi-power-off" label="Disconnect" rounded :loading="disconnecting" @click="doDisconnect" />
         <Button v-else-if="explorer.phase === 'ScaledToZero'" severity="primary" icon="pi pi-plug" label="Connect" rounded @click="wake" />
         <Button v-else-if="explorer.phase === 'Waking'" severity="primary" icon="pi pi-spin pi-spinner" label="Waking..." rounded disabled />
         <Button v-else severity="secondary" icon="pi pi-ban" label="Unavailable" rounded disabled />
@@ -27,7 +28,7 @@
     <ConditionsTable v-if="explorer.conditions" :conditions="explorer.conditions" style="margin-top:1.2rem;" />
     <ConsumerList v-if="explorer.consumers" :consumers="explorer.consumers" style="margin-top:1.2rem;" />
     <WakeUpDialog v-if="showWakeDialog" :explorer="explorer" @close="onWakeDialogClose" />
-  </div>
+  </main>
   <div v-else class="loading-detail">Loading...</div>
 </template>
 
@@ -43,12 +44,14 @@ import ConsumerList from '../components/agents/ConsumerList.vue'
 import Button from 'primevue/button'
 import Tag from 'primevue/tag'
 import Chip from 'primevue/chip'
+import { useExplorerDetailShortcuts } from '../composables/useExplorerDetailShortcuts'
 
 const route = useRoute()
 const router = useRouter()
 const store = useExplorerStore()
 const explorer = ref<Explorer | null>(null)
 const showWakeDialog = ref(false)
+const disconnecting = ref(false)
 
 async function fetchExplorer() {
   const ns = route.params.ns as string
@@ -87,8 +90,36 @@ function onWakeDialogClose() {
   fetchExplorer()
 }
 
+async function doDisconnect() {
+  if (!explorer.value) return
+  disconnecting.value = true
+  try {
+    await store.sleepExplorer(explorer.value.namespace, explorer.value.name)
+    await pollPhase('ScaledToZero')
+  } catch {
+    // fetchExplorer already updated the store
+  }
+  disconnecting.value = false
+}
+
+async function pollPhase(target: string, timeout = 60000): Promise<void> {
+  if (!explorer.value) return
+  const deadline = Date.now() + timeout
+  while (Date.now() < deadline) {
+    await new Promise(r => setTimeout(r, 3000))
+    try {
+      const e = await store.fetchExplorer(explorer.value.namespace, explorer.value.name)
+      if (e.phase === target) return
+    } catch {
+      // retry
+    }
+  }
+}
+
 onMounted(fetchExplorer)
 watch(() => [route.params.ns, route.params.name], fetchExplorer)
+
+useExplorerDetailShortcuts({ explorer, goToFiles, wake, doDisconnect, refresh })
 </script>
 
 <style scoped>
