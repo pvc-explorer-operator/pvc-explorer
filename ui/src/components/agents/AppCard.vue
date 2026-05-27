@@ -250,6 +250,8 @@ function relativeTime(iso: string): string {
 
 <style scoped>
 .app-card {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 280px auto 160px;
   background: var(--surface-card);
   border: 1px solid var(--surface-border);
   border-radius: var(--content-border-radius);
@@ -259,6 +261,9 @@ function relativeTime(iso: string): string {
   gap: 0.5rem;
   cursor: pointer;
   transition: box-shadow 0.2s, border-color 0.2s;
+}
+@supports not (content-visibility: auto) {
+  .app-card { contain: layout style paint; }
 }
 .app-card:hover {
   border-color: var(--primary-color);

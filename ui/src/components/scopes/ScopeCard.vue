@@ -37,6 +37,8 @@ const phaseClass = computed(() => {
 
 <style scoped>
 .sc-card {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 280px auto 120px;
   background: var(--surface-card);
   border: 1px solid var(--surface-border);
   border-radius: 10px;
@@ -47,6 +49,9 @@ const phaseClass = computed(() => {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+}
+@supports not (content-visibility: auto) {
+  .sc-card { contain: layout style paint; }
 }
 .sc-card:hover {
   border-color: var(--p-primary-400);
