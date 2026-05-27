@@ -1,56 +1,58 @@
 <template>
   <div class="list-view">
-    <table v-if="explorers.length" class="explorer-table">
-      <thead>
-        <tr>
-          <th>Status</th>
-          <th>Name</th>
-          <th>Namespace</th>
-          <th>PVC</th>
-          <th>Mount</th>
-          <th>Consumers</th>
-          <th></th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr
-          v-for="explorer in explorers"
-          :key="`${explorer.namespace}/${explorer.name}`"
-          :class="{ 'row-in-use': !!explorer.consumerCount }"
-          @click="goToDetails(explorer)"
-        >
-          <td>
-            <div class="flex items-center gap-2">
-              <span :class="['phase-dot', `dot-${phaseCss(explorer.phase)}`]" />
-              <Tag
-                :value="explorer.phase"
-                :severity="phaseSeverity(explorer.phase)"
-                rounded
-              />
-            </div>
-          </td>
-          <td class="font-semibold">
-            {{ explorer.name }}
-            <span v-if="explorer.labels?.length" class="label-list">
-              <Chip v-for="label in explorer.labels" :key="label" :label="label" class="label-chip ml-1" size="small" />
-            </span>
-          </td>
-          <td class="text-muted-color">{{ explorer.namespace }}</td>
-          <td class="text-muted-color">{{ explorer.pvcName }}</td>
-          <td>
-            <span v-if="explorer.mountState" class="mount-label">{{ mountLabel(explorer.mountState) }}</span>
-            <span v-else class="text-muted-color">—</span>
-          </td>
-          <td>
-            <span v-if="explorer.consumerCount" class="consumer-badge">{{ explorer.consumerCount }}</span>
-            <span v-else class="text-muted-color">—</span>
-          </td>
-          <td class="text-right">
-            <i class="pi pi-chevron-right text-muted-color"></i>
-          </td>
-        </tr>
-      </tbody>
-    </table>
+    <template v-if="explorers.length">
+      <table class="explorer-table">
+        <thead>
+          <tr>
+            <th>Status</th>
+            <th>Name</th>
+            <th>Namespace</th>
+            <th>PVC</th>
+            <th>Mount</th>
+            <th>Consumers</th>
+            <th></th>
+          </tr>
+        </thead>
+        <TransitionGroup tag="tbody" name="card">
+          <tr
+            v-for="explorer in explorers"
+            :key="`${explorer.namespace}/${explorer.name}`"
+            :class="{ 'row-in-use': !!explorer.consumerCount }"
+            @click="goToDetails(explorer)"
+          >
+            <td>
+              <div class="flex items-center gap-2">
+                <span :class="['phase-dot', `dot-${phaseCss(explorer.phase)}`]" />
+                <Tag
+                  :value="explorer.phase"
+                  :severity="phaseSeverity(explorer.phase)"
+                  rounded
+                />
+              </div>
+            </td>
+            <td class="font-semibold">
+              {{ explorer.name }}
+              <span v-if="explorer.labels?.length" class="label-list">
+                <Chip v-for="label in explorer.labels" :key="label" :label="label" class="label-chip ml-1" size="small" />
+              </span>
+            </td>
+            <td class="text-muted-color">{{ explorer.namespace }}</td>
+            <td class="text-muted-color">{{ explorer.pvcName }}</td>
+            <td>
+              <span v-if="explorer.mountState" class="mount-label">{{ mountLabel(explorer.mountState) }}</span>
+              <span v-else class="text-muted-color">—</span>
+            </td>
+            <td>
+              <span v-if="explorer.consumerCount" class="consumer-badge">{{ explorer.consumerCount }}</span>
+              <span v-else class="text-muted-color">—</span>
+            </td>
+            <td class="text-right">
+              <i class="pi pi-chevron-right text-muted-color"></i>
+            </td>
+          </tr>
+        </TransitionGroup>
+      </table>
+    </template>
     <div v-else class="empty-state">
       <i class="pi pi-inbox empty-icon" />
       <div class="empty-msg">No explorers found.</div>
@@ -172,5 +174,13 @@ function mountLabel(strategy: string) {
 }
 .empty-msg {
   font-size: 1.08rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .card-enter-from,
+  .card-leave-to  { opacity: 0; }
+  .card-enter-active,
+  .card-leave-active { transition: opacity 0.2s ease; }
+  .card-move      { transition: transform 0.25s ease; }
 }
 </style>

@@ -1,18 +1,21 @@
 <template>
-  <div class="card-grid">
-    <template v-if="explorers.length">
-      <AppCard
-        v-for="explorer in explorers"
-        :key="`${explorer.namespace}/${explorer.name}`"
-        :explorer="explorer"
-      />
-    </template>
-    <template v-else>
-      <div class="empty-state">
-        <i class="pi pi-inbox empty-icon" />
-        <div class="empty-msg">No explorers found.</div>
-      </div>
-    </template>
+  <TransitionGroup
+    v-if="explorers.length"
+    name="card"
+    tag="div"
+    class="card-grid"
+  >
+    <AppCard
+      v-for="explorer in explorers"
+      :key="`${explorer.namespace}/${explorer.name}`"
+      :explorer="explorer"
+    />
+  </TransitionGroup>
+  <div v-else class="card-grid">
+    <div class="empty-state">
+      <i class="pi pi-inbox empty-icon" />
+      <div class="empty-msg">No explorers found.</div>
+    </div>
   </div>
 </template>
 
@@ -46,5 +49,14 @@ defineProps<{ explorers: Explorer[] }>()
 }
 .empty-msg {
   font-size: 1.08rem;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .card-enter-from,
+  .card-leave-to  { opacity: 0; translate: 0 12px; }
+  .card-enter-active,
+  .card-leave-active { transition: opacity 0.2s ease, translate 0.2s ease; }
+  .card-move      { transition: transform 0.25s ease; }
+  .card-leave-active { position: absolute; }
 }
 </style>
