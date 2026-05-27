@@ -53,3 +53,11 @@ html:not(.app-dark) .sy-key    { color: #2563eb; }
 html:not(.app-dark) .sy-string { color: #16a34a; }
 html:not(.app-dark) .sy-bool   { color: #9333ea; }
 html:not(.app-dark) .sy-number { color: #d97706; }
+
+/* ── View Transitions ── */
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) { animation: vt-out 0.2s ease; }
+  ::view-transition-new(root) { animation: vt-in  0.2s ease; }
+  @keyframes vt-out { to   { opacity: 0; translate: -20px 0; } }
+  @keyframes vt-in  { from { opacity: 0; translate:  20px 0; } }
+}
