@@ -2,6 +2,7 @@
    Sakai semantic aliases → PrimeVue tokens
    ───────────────────────────────────────────── */
 :root {
+  color-scheme: light dark;
   --primary-color:                  var(--p-primary-color);
   --primary-contrast-color:         var(--p-primary-contrast-color);
   --text-color:                     var(--p-text-color);
@@ -10,16 +11,12 @@
   --surface-card:                   var(--p-content-background);
   --surface-hover:                  var(--p-content-hover-background);
   --surface-overlay:                var(--p-overlay-popover-background);
-  --surface-ground:                 var(--p-surface-100);
+  --surface-ground:                 light-dark(var(--p-surface-100), var(--p-surface-950));
   --maskbg:                         var(--p-mask-background);
   --content-border-radius:          var(--p-content-border-radius);
   --transition-duration:            var(--p-transition-duration);
   --element-transition-duration:    var(--p-transition-duration);
   --layout-section-transition-duration: 0.2s;
-}
-
-:root[class*=app-dark] {
-  --surface-ground:                 var(--p-surface-950);
 }
 
 /* ─────────────────────────────────────────────

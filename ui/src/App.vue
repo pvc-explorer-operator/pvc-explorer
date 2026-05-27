@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, ref } from 'vue'
+import { onUnmounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { useExplorerStore } from '@/stores/explorerStore'
 import AppLayout from '@/layout/AppLayout.vue'
@@ -7,45 +7,7 @@ import AppLayout from '@/layout/AppLayout.vue'
 const route = useRoute()
 const explorerStore = useExplorerStore()
 
-// Set PrimeVue form-field tokens to match the topbar picker style.
-// Guarded so dark-mode values only apply in dark mode — light mode
-// lets the Lara preset handle its own (readable) defaults.
-const DARK_FORM_FIELD = [
-  ['--p-form-field-background',           'rgba(255,255,255,0.08)'],
-  ['--p-form-field-disabled-background',  'rgba(255,255,255,0.04)'],
-  ['--p-form-field-filled-background',    'rgba(255,255,255,0.08)'],
-  ['--p-form-field-border-color',         'rgba(255,255,255,0.2)'],
-  ['--p-form-field-hover-border-color',   'rgba(255,255,255,0.35)'],
-  ['--p-form-field-color',                '#e2e8f0'],
-  ['--p-form-field-placeholder-color',    '#94a3b8'],
-  ['--p-form-field-disabled-color',       '#64748b'],
-  ['--p-form-field-border-radius',        '6px'],
-  ['--p-form-field-shadow',               'none'],
-] as const
-
-const formFieldObserver = ref<MutationObserver | null>(null)
-
-function syncFormFieldTokens() {
-  const s = document.documentElement.style
-  const isDark = document.documentElement.classList.contains('app-dark')
-  for (const [prop, darkVal] of DARK_FORM_FIELD) {
-    if (isDark) {
-      s.setProperty(prop, darkVal)
-    } else {
-      s.removeProperty(prop)
-    }
-  }
-}
-
-onMounted(() => {
-  syncFormFieldTokens()
-  // Re-sync when the user toggles dark/light mode
-  const mo = new MutationObserver(syncFormFieldTokens)
-  mo.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
-  formFieldObserver.value = mo
-})
 onUnmounted(() => {
-  formFieldObserver.value?.disconnect()
   explorerStore.teardown()
 })
 </script>

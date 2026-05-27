@@ -72,6 +72,8 @@ export function useLayout() {
     layoutConfig.darkTheme = newDark
     document.documentElement.classList.toggle('app-dark')
     localStorage.setItem(THEME_STORAGE_KEY, newDark ? 'dark' : 'light')
+    const meta = document.querySelector('meta[name="color-scheme"]')
+    if (meta) meta.setAttribute('content', newDark ? 'dark' : 'light')
   }
 
   const isDesktop = () => window.innerWidth > 991

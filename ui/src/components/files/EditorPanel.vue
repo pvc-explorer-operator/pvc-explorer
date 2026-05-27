@@ -251,6 +251,7 @@
 <script setup lang="ts">
 import { ref, computed, reactive, watch, onMounted, onUnmounted } from 'vue'
 import { VueMonacoEditor } from '@guolao/vue-monaco-editor'
+import { useLayout } from '@/layout/composables/layout'
 import { detectLang } from '../../utils/lang'
 
 interface Tab {
@@ -277,21 +278,12 @@ const emit = defineEmits<{
 }>()
 
 // ── Dark mode detection ───────────────────────────────────────────────────────
-const isDark = ref(document.documentElement.classList.contains('app-dark'))
-let themeObserver: MutationObserver | null = null
-
-onMounted(() => {
-  themeObserver = new MutationObserver(() => {
-    isDark.value = document.documentElement.classList.contains('app-dark')
-  })
-  themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class'] })
-})
-onUnmounted(() => themeObserver?.disconnect())
+const { isDarkTheme } = useLayout()
 
 const monacoTheme = computed(() => {
   if (editorSettings.theme === 'dark')  return 'vs-dark'
   if (editorSettings.theme === 'light') return 'vs'
-  return isDark.value ? 'vs-dark' : 'vs'
+  return isDarkTheme.value ? 'vs-dark' : 'vs'
 })
 
 // ── Editor settings (hamburger menu) ─────────────────────────────────────────
