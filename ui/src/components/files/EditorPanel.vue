@@ -20,7 +20,15 @@
         <div class="ep-tabs__spacer" />
         <!-- Settings hamburger -->
         <div ref="settingsWrapEl" class="ep-settings-wrap">
-          <button ref="settingsBtnEl" class="ep-toolbar-btn" title="Editor settings" @click.stop="toggleSettings">
+          <button
+            ref="settingsBtnEl"
+            class="ep-toolbar-btn"
+            style="anchor-name: --ep-settings"
+            title="Editor settings"
+            :aria-expanded="settingsOpen"
+            aria-controls="ep-settings-menu"
+            @click.stop="toggleSettings"
+          >
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <line x1="3" y1="6"  x2="21" y2="6"/>
               <line x1="3" y1="12" x2="21" y2="12"/>
@@ -169,8 +177,9 @@
     <div
       v-if="settingsOpen"
       ref="settingsMenuEl"
+      id="ep-settings-menu"
       class="ep-settings-menu"
-      :style="{ top: menuY + 'px', right: menuRight + 'px' }"
+      :style="anchorSupported ? {} : { top: menuY + 'px', right: menuRight + 'px' }"
       @click.stop
     >
       <div class="ep-settings-title">Editor settings</div>
@@ -291,17 +300,19 @@ const settingsOpen   = ref(false)
 const settingsBtnEl  = ref<HTMLElement | null>(null)
 const settingsWrapEl = ref<HTMLElement | null>(null)
 const settingsMenuEl = ref<HTMLElement | null>(null)
-const menuY          = ref(0)
-const menuRight      = ref(0)
+const anchorSupported = CSS.supports('anchor-name', '--x')
+const menuY     = ref(0)
+const menuRight = ref(0)
 
 function toggleSettings() {
-  if (settingsOpen.value) { settingsOpen.value = false; return }
-  const rect = settingsBtnEl.value?.getBoundingClientRect()
-  if (rect) {
-    menuY.value     = rect.bottom + 4
-    menuRight.value = window.innerWidth - rect.right
+  if (!anchorSupported && !settingsOpen.value) {
+    const rect = settingsBtnEl.value?.getBoundingClientRect()
+    if (rect) {
+      menuY.value     = rect.bottom + 4
+      menuRight.value = window.innerWidth - rect.right
+    }
   }
-  settingsOpen.value = true
+  settingsOpen.value = !settingsOpen.value
 }
 
 const editorSettings = reactive({
@@ -629,6 +640,10 @@ defineExpose({ openFile, closeTab })
 <style>
 .ep-settings-menu {
   position: fixed;
+  position-anchor: --ep-settings;
+  position-area: block-end span-inline-end;
+  position-try-fallbacks: flip-block, flip-inline;
+  margin-block-start: 4px;
   z-index: 9999;
   min-width: 230px;
   background: var(--surface-card);
