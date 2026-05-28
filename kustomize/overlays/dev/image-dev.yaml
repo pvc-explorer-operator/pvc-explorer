@@ -8,3 +8,5 @@ spec:
       containers:
         - name: manager
           image: pvc-explorer:dev
+          # Never pull from registry — image is always loaded locally via kind load
+          imagePullPolicy: Never

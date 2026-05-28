@@ -161,7 +161,20 @@ kind_load() {
   if [ "$DOCKER" = "podman" ]; then
     local tmp
     tmp=$(mktemp /tmp/kind-img-XXXXXX.tar)
-    podman save "$img" -o "$tmp"
+
+    # Podman stores images as localhost/<name>. containerd (inside kind)
+    # resolves bare image names (e.g. pvc-explorer:dev) as
+    # docker.io/library/pvc-explorer:dev, so it can't find the locally
+    # loaded image and falls back to a registry pull (auth failure).
+    #
+    # Fix: strip any existing registry prefix, then re-tag with
+    # docker.io/library/ before saving so containerd finds the image locally.
+    local bare="${img##*/}"   # strip registry/org prefix if any
+    local full="docker.io/library/${bare}"
+    podman tag "$img" "$full"
+    podman save --format docker-archive "$full" -o "$tmp"
+    podman rmi "$full" >/dev/null 2>&1 || true
+
     kind load image-archive "$tmp" --name "$CLUSTER"
     rm -f "$tmp"
   else
