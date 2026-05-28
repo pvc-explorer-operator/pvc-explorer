@@ -26,7 +26,7 @@ if [[ "$TARGET" == "controller" || "$TARGET" == "both" ]]; then
     pvc-explorer-controller-manager \
     "manager=$SHA_TAG"
   kubectl rollout status deployment -n pvc-explorer-system \
-    pvc-explorer-controller-manager --timeout=60s
+    pvc-explorer-controller-manager --timeout=180s
 fi
 
 if [[ "$TARGET" == "agent" || "$TARGET" == "both" ]]; then
