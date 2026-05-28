@@ -2,9 +2,10 @@
 set -euo pipefail
 
 CLUSTER=pvc-explorer
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 # shellcheck source=kind/lib.sh
-source "$(dirname "$0")/lib.sh"
+source "$SCRIPT_DIR/lib.sh"
 
 ensure_tools kind
 

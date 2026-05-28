@@ -5,9 +5,10 @@ CLUSTER=pvc-explorer
 CONTROLLER_IMG=pvc-explorer:dev
 AGENT_IMG=${AGENT_IMG:-ghcr.io/pvc-explorer-operator/pvc-explorer-agent:dev}
 CONTROLLER_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 # shellcheck source=kind/lib.sh
-source "$(dirname "$0")/lib.sh"
+source "$SCRIPT_DIR/lib.sh"
 
 ensure_tools kind kubectl
 detect_container_runtime

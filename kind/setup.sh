@@ -6,9 +6,10 @@ CONTROLLER_IMG=pvc-explorer:dev
 AGENT_IMG=${AGENT_IMG:-ghcr.io/pvc-explorer-operator/pvc-explorer-agent:dev}
 CONTROLLER_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 KIND_DIR="$CONTROLLER_DIR/kind"
+SCRIPT_DIR="$KIND_DIR"
 
 # shellcheck source=kind/lib.sh
-source "$KIND_DIR/lib.sh"
+source "$SCRIPT_DIR/lib.sh"
 
 ensure_tools kind kubectl make go
 detect_container_runtime
