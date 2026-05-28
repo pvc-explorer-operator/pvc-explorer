@@ -42,15 +42,15 @@ Then the following obligations would apply:
 #### 1. Cybersecurity Policy
 
 A documented policy fostering secure development practices:
-- Secure coding guidelines ([docs/development.md](development.md))
-- Vulnerability management process ([SECURITY.md](../SECURITY.md))
+- Secure coding guidelines ([docs/development.md](../development.md))
+- Vulnerability management process ([SECURITY.md](../../SECURITY.md))
 - Security review practices for contributions
-- Dependency management and license compliance ([docs/LICENSE_COMPLIANCE.md](LICENSE_COMPLIANCE.md))
+- Dependency management and license compliance ([LICENSE_COMPLIANCE.md](LICENSE_COMPLIANCE.md))
 
 **pvc-explorer currently has:**
-- ✅ Contribution guidelines ([CONTRIBUTING.md](../CONTRIBUTING.md)) with security focus
-- ✅ Vulnerability disclosure policy ([SECURITY.md](../SECURITY.md))
-- ✅ License compliance tracking ([docs/LICENSE_COMPLIANCE.md](LICENSE_COMPLIANCE.md))
+- ✅ Contribution guidelines ([CONTRIBUTING.md](../../CONTRIBUTING.md)) with security focus
+- ✅ Vulnerability disclosure policy ([SECURITY.md](../../SECURITY.md))
+- ✅ License compliance tracking ([LICENSE_COMPLIANCE.md](LICENSE_COMPLIANCE.md))
 - ✅ Code review requirements (PR-based development)
 
 #### 2. Vulnerability Handling
@@ -60,7 +60,7 @@ A documented policy fostering secure development practices:
 - Coordinate disclosure of actively exploited vulnerabilities
 
 **pvc-explorer currently has:**
- - ✅ Private vulnerability reporting ([SECURITY.md](../SECURITY.md))
+ - ✅ Private vulnerability reporting ([SECURITY.md](../../SECURITY.md))
  - ⚠️ Best-effort response to vulnerability reports (no guaranteed timeline; this is a no-cost, community-supported project with no warranty or responsibility)
  - ✅ Security advisory process
  - ✅ Explicit coordination of releases for fixes (as maintainers are able)
@@ -90,12 +90,12 @@ A documented policy fostering secure development practices:
 
 | Requirement                 | Status   | Evidence                                            |
 | --------------------------- | -------- | --------------------------------------------------- |
-| Contributor agreements      | ✅ Ready | [CONTRIBUTING.md](../CONTRIBUTING.md) with DCO      |
-| Cybersecurity policy        | ✅ Ready | [SECURITY.md](../SECURITY.md)                       |
-| License compliance tracking | ✅ Ready | [docs/LICENSE_COMPLIANCE.md](LICENSE_COMPLIANCE.md) |
+| Contributor agreements      | ✅ Ready | [CONTRIBUTING.md](../../CONTRIBUTING.md) with DCO   |
+| Cybersecurity policy        | ✅ Ready | [SECURITY.md](../../SECURITY.md)                    |
+| License compliance tracking | ✅ Ready | [LICENSE_COMPLIANCE.md](LICENSE_COMPLIANCE.md) |
 | SBOM generation             | ✅ Ready | `make sbom` target                                  |
 | Transparent development     | ✅ Ready | Public GitHub repository                            |
-| Vulnerability handling      | ✅ Ready | [SECURITY.md](../SECURITY.md)                       |
+| Vulnerability handling      | ✅ Ready | [SECURITY.md](../../SECURITY.md)                    |
 
 ## Preparing for Steward Status
 
@@ -115,7 +115,7 @@ pvc-explorer uses [Grype](https://github.com/anchore/grype) to scan for vulnerab
 - Grype scans are run on the built container image and/or SBOM to ensure all shipped dependencies are checked for known vulnerabilities.
 - Vulnerability reports are generated and stored as release artifacts and/or in CI logs.
 - All vulnerabilities with available fixes are tracked and remediated before release.
-- The process is automated in CI/CD and documented in the [MIGRATION_CHECKLIST.md](MIGRATION_CHECKLIST.md).
+- The process is automated in CI/CD and release workflows.
 
 **Known limitations:**
 - Some vulnerabilities may be reported due to upstream or ecosystem issues (e.g., incomplete SBOM data, false positives). These are documented and tracked for due diligence.
@@ -129,7 +129,7 @@ grype ghcr.io/<org>/pvc-explorer:latest
 grype sbom:dist/sbom.cyclonedx.json
 ```
 
-See also: [docs/MIGRATION_CHECKLIST.md](MIGRATION_CHECKLIST.md) for the full compliance workflow.
+See also: [docs/releases.md](../releases.md) for release workflow details.
 
 ## Resources for FOSS Projects
 
@@ -143,7 +143,7 @@ See also: [docs/MIGRATION_CHECKLIST.md](MIGRATION_CHECKLIST.md) for the full com
 
 For questions regarding CRA compliance or security practices:
 
-1. **Security vulnerabilities**: [SECURITY.md](../SECURITY.md) (private reporting)
+1. **Security vulnerabilities**: [SECURITY.md](../../SECURITY.md) (private reporting)
 2. **General questions**: Open a GitHub discussion or issue
 3. **Maintainers**: Contact via GitHub or repository contact info
 

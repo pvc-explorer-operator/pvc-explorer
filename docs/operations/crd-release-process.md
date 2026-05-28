@@ -518,7 +518,7 @@ pvc-explorer/
 │   ├── manager/                        # Controller deployment
 │   └── rbac/                           # RBAC configuration
 ├── docs/
-│   ├── crd-installation.md             # Installation guide
+│   ├── operations/crd-installation.md  # Installation guide
 │   ├── getting-started.md
 │   ├── architecture.md
 │   └── releases.md
@@ -599,7 +599,7 @@ git push origin v1.0.0                     # Push tag (triggers workflow)
 ## Related Documentation
 
 - [CRD Installation Guide](./crd-installation.md) - User-facing installation instructions
-- [Getting Started Guide](./getting-started.md) - First steps with PVC-Explorer
-- [Architecture Guide](./architecture.md) - How PVC-Explorer works
+- [Getting Started Guide](../getting-started.md) - First steps with PVC-Explorer
+- [Architecture Guide](../architecture.md) - How PVC-Explorer works
 - [Kubernetes CRD Documentation](https://kubernetes.io/docs/concepts/extend-kubernetes/api-extension/custom-resources/)
 - [Kustomize Documentation](https://kustomize.io/)
