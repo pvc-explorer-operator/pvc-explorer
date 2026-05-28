@@ -26,8 +26,9 @@ detect_os() {
   else
     OS=unknown; PKG=unknown
   fi
-  [ "${OS:-}" = "macos" ] && PKG=brew
-  [ "${OS:-}" = "wsl" ]   && OS=wsl
+  if [ "${OS:-}" = "macos" ]; then PKG=brew; fi
+  # (OS=wsl already set above; this is a no-op safety reassignment)
+  if [ "${OS:-}" = "wsl" ]; then OS=wsl; fi
 }
 
 _arch() {
