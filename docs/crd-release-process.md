@@ -94,14 +94,14 @@ on:
 
 **Workflow Steps:**
 
-| Step | Action | Output |
-|------|--------|--------|
-| 1. Checkout | Clone repo at tag | Full source code |
-| 2. Kustomize Setup | Install kustomize binary | `/usr/local/bin/kustomize` |
-| 3. Build CRDs | `kustomize build config/crd` | `build/release/pvc-explorer-crds.yaml` |
+| Step                | Action                           | Output                                    |
+| ------------------- | -------------------------------- | ----------------------------------------- |
+| 1. Checkout         | Clone repo at tag                | Full source code                          |
+| 2. Kustomize Setup  | Install kustomize binary         | `/usr/local/bin/kustomize`                |
+| 3. Build CRDs       | `kustomize build config/crd`     | `build/release/pvc-explorer-crds.yaml`    |
 | 4. Build Full Stack | `kustomize build config/default` | `build/release/pvc-explorer-install.yaml` |
-| 5. Verify | Check manifest integrity | Line counts, resource counts |
-| 6. Release | Upload to GitHub Release | Release assets, notes |
+| 5. Verify           | Check manifest integrity         | Line counts, resource counts              |
+| 6. Release          | Upload to GitHub Release         | Release assets, notes                     |
 
 #### 3. Manual Verification
 
@@ -130,6 +130,7 @@ kubectl apply -f https://github.com/pvc-explorer-operator/pvc-explorer/releases/
 ```
 
 **What gets installed:**
+
 - PVCExplorer CRD
 - PVCExplorerScope CRD
 - RBAC roles and role bindings
@@ -159,6 +160,7 @@ kubectl apply -f https://github.com/pvc-explorer-operator/pvc-explorer/releases/
 ```
 
 **What gets installed:**
+
 - PVCExplorer CRD definition
 - PVCExplorerScope CRD definition
 
@@ -204,6 +206,7 @@ kubectl apply -k config/default
 **Customization Example:**
 
 Edit `config/default/kustomization.yaml` to customize:
+
 - Resource limits
 - Replica count
 - Environment variables
@@ -309,6 +312,7 @@ kind delete cluster
 ### GitHub Actions Workflow (`.github/workflows/release-crds.yaml`)
 
 **Triggers:**
+
 - On git tag push matching `v*.*.*` (semver)
 - Manual trigger via `workflow_dispatch`
 
@@ -381,6 +385,7 @@ patches: []
 **Solutions:**
 
 1. **Check tag format** - Must match `v*.*.*`
+
    ```bash
    # ✓ Correct
    git tag v1.0.0
@@ -392,17 +397,20 @@ patches: []
    ```
 
 2. **Verify tag pushed** - Tags must be explicitly pushed
+
    ```bash
    git push origin v1.0.0
    # NOT: git push (doesn't push tags)
    ```
 
 3. **Check workflow file exists** - Must be in default branch
+
    ```bash
    git show main:.github/workflows/release-crds.yaml
    ```
 
 4. **Verify permissions** - Need `contents: write` permission
+
    ```yaml
    permissions:
      contents: write
@@ -415,16 +423,19 @@ patches: []
 **Solutions:**
 
 1. **Install kustomize locally** and test build
+
    ```bash
    ./scripts/build-crds.sh
    ```
 
 2. **Check kustomization.yaml syntax**
+
    ```bash
    kustomize build config/crd > /dev/null
    ```
 
 3. **Verify file paths** - All referenced files must exist
+
    ```bash
    ls config/crd/bases/pvcexplorer.io_*.yaml
    ```
@@ -436,17 +447,20 @@ patches: []
 **Solutions:**
 
 1. **Verify manifest was applied**
+
    ```bash
    kubectl apply -f pvc-explorer-crds.yaml --dry-run=client
    ```
 
 2. **Check for errors**
+
    ```bash
    kubectl apply -f pvc-explorer-crds.yaml
    kubectl get events --all-namespaces | grep -i error
    ```
 
 3. **Inspect CRD object**
+
    ```bash
    kubectl get crd pvcexplorers.pvcexplorer.io -o yaml
    kubectl describe crd pvcexplorers.pvcexplorer.io
@@ -459,21 +473,25 @@ patches: []
 **Solutions:**
 
 1. **Verify CRD installed**
+
    ```bash
    kubectl api-resources | grep -i pvcexplorer
    ```
 
 2. **Check schema validation**
+
    ```bash
    kubectl explain pvcexplorer.spec
    ```
 
 3. **Validate resource YAML**
+
    ```bash
    kubectl apply -f resource.yaml --dry-run=client -o yaml
    ```
 
 4. **View validation errors**
+
    ```bash
    kubectl apply -f resource.yaml -v=8  # Verbose output
    ```
@@ -522,6 +540,7 @@ pvc-explorer/
 - **Status Subresource:** Yes
 
 **Key Spec Fields:**
+
 - `pvcName` (required) - Name of PVC to explore
 - `mode` - Scale-to-zero or always running
 - `port` - HTTP port (default: 8081)
