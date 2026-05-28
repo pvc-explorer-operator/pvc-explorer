@@ -7,39 +7,11 @@ AGENT_IMG=${AGENT_IMG:-ghcr.io/pvc-explorer-operator/pvc-explorer-agent:dev}
 CONTROLLER_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 KIND_DIR="$CONTROLLER_DIR/kind"
 
-log() { echo "==> $*"; }
+# shellcheck source=kind/lib.sh
+source "$KIND_DIR/lib.sh"
 
-need() {
-  for cmd in "$@"; do
-    command -v "$cmd" >/dev/null 2>&1 || { echo "Missing: $cmd" >&2; exit 1; }
-  done
-}
-
-if command -v docker >/dev/null 2>&1; then
-  DOCKER=docker
-elif command -v podman >/dev/null 2>&1; then
-  DOCKER=podman
-  log "docker not found — using podman"
-else
-  echo "Neither docker nor podman found" >&2; exit 1
-fi
-
-need kind kubectl
-
-# kind load docker-image only works with Docker's image store.
-# For Podman, export the image to a tarball and use image-archive.
-kind_load() {
-  local img="$1"
-  if [ "$DOCKER" = "podman" ]; then
-    local tmp
-    tmp=$(mktemp /tmp/kind-img-XXXXXX.tar)
-    podman save "$img" -o "$tmp"
-    kind load image-archive "$tmp" --name "$CLUSTER"
-    rm -f "$tmp"
-  else
-    kind load docker-image "$img" --name "$CLUSTER"
-  fi
-}
+ensure_tools kind kubectl make go
+detect_container_runtime
 
 if kind get clusters 2>/dev/null | grep -q "^${CLUSTER}$"; then
   log "Cluster '${CLUSTER}' already exists — skipping creation"
