@@ -1,5 +1,4 @@
-# Ignore everything by default and re-include only needed files
-# NOTE: Podman uses .containerignore — keep it in sync with this file.
+# Podman uses .containerignore — keep in sync with .dockerignore
 **
 
 # Re-include Go source directories and files (but not *_test.go)
