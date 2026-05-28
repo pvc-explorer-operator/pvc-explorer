@@ -36,6 +36,8 @@
 
 ## 🚀 Getting Started
 
+See the docs index at [docs/README.md](docs/README.md) for a guided map of all documentation.
+
 Start with the short guide in [docs/getting-started.md](docs/getting-started.md).
 
 If you want the implementation details, read [docs/architecture.md](docs/architecture.md).
@@ -58,12 +60,13 @@ See [docs/getting-started.md](docs/getting-started.md) for the full guide, dev-m
 
 | Topic                             | Location                                           |
 | --------------------------------- | -------------------------------------------------- |
+| Documentation index               | [docs/README.md](docs/README.md)                   |
 | Contributor workflow              | [CONTRIBUTING.md](CONTRIBUTING.md)                 |
 | Development workflow              | [docs/development.md](docs/development.md)         |
 | Local setup and first run         | [docs/getting-started.md](docs/getting-started.md) |
 | Overview and runtime architecture | [docs/architecture.md](docs/architecture.md)       |
 | UI component & contributor docs   | [docs/ui/](docs/ui/)                               |
-| UI accessibility & UX improvements | [docs/modern-web-improvements.md](docs/modern-web-improvements.md) |
+| UI accessibility guide            | [docs/ui/accessibility.md](docs/ui/accessibility.md) |
 | Release and versioning            | [docs/releases.md](docs/releases.md)               |
 | Security reporting                | [SECURITY.md](SECURITY.md)                         |
 

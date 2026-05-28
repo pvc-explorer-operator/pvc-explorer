@@ -23,7 +23,11 @@ npm run dev
 
 The mock plugin only runs during `npm run dev`.
 
-See [`docs/ui/`](ui/) for component documentation, keyboard shortcuts, and the accessibility guide.
+## UI docs map
+
+- UI local run and auth bypass: [`ui/README.md`](../ui/README.md)
+- UI documentation landing page: [`docs/ui/index.md`](ui/index.md)
+- UI accessibility guide: [`docs/ui/accessibility.md`](ui/accessibility.md)
 
 ## Versioning
 

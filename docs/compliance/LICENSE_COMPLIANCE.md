@@ -11,7 +11,7 @@ This document describes how pvc-explorer manages third-party dependencies and en
 - Requires preservation of copyright notices and license text
 - Provides no warranty or liability protection to users
 
-See [LICENSE](../LICENSE) for the full text.
+See [LICENSE](../../LICENSE) for the full text.
 
 ## Dependency License Requirements
 
@@ -173,7 +173,7 @@ If you believe a dependency violates Apache 2.0 compatibility:
    - Incompatible license
    - Potential impact
 
-See [SECURITY.md](../SECURITY.md) for details.
+See [SECURITY.md](../../SECURITY.md) for details.
 
 ## References
 

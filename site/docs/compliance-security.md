@@ -6,5 +6,5 @@
 
 ## Compliance references
 
-- CRA compliance: https://github.com/pvc-explorer-operator/pvc-explorer/blob/main/docs/CRA_COMPLIANCE.md
-- License compliance: https://github.com/pvc-explorer-operator/pvc-explorer/blob/main/docs/LICENSE_COMPLIANCE.md
+- CRA compliance: https://github.com/pvc-explorer-operator/pvc-explorer/blob/main/docs/compliance/CRA_COMPLIANCE.md
+- License compliance: https://github.com/pvc-explorer-operator/pvc-explorer/blob/main/docs/compliance/LICENSE_COMPLIANCE.md

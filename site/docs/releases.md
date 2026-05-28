@@ -1,6 +1,6 @@
 # Releases
 
-This project uses a release workflow for OCI images and versioned tags.
+Canonical release documentation is maintained in the main repository docs.
 
 ## References
 

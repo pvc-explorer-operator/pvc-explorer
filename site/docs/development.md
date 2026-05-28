@@ -1,5 +1,7 @@
 # Development
 
+Canonical development documentation is maintained in the main repository docs.
+
 ## Common commands
 
 ```bash
