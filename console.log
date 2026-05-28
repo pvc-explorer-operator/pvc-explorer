@@ -1,0 +1,9 @@
+Total messages: 7 (Errors: 7, Warnings: 0)
+
+[ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://demo.pvc-explorer-operator.ricardoleal.me/explorers/team-alpha/alpha-data-explorer:0
+[ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://demo.pvc-explorer-operator.ricardoleal.me/api/v1/theme:0
+[ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://demo.pvc-explorer-operator.ricardoleal.me/api/v1/explorers:0
+[ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://demo.pvc-explorer-operator.ricardoleal.me/api/v1/explorers/team-alpha/alpha-data-explorer:0
+[ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://demo.pvc-explorer-operator.ricardoleal.me/api/v1/explorers:0
+[ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://demo.pvc-explorer-operator.ricardoleal.me/api/v1/explorers:0
+[ERROR] Failed to load resource: the server responded with a status of 404 (Not Found) @ http://demo.pvc-explorer-operator.ricardoleal.me/api/v1/explorers:0
