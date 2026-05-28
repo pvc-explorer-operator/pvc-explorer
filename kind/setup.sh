@@ -55,7 +55,7 @@ kubectl rollout restart deployment -n pvc-explorer-system pvc-explorer-controlle
 
 log "Waiting for controller rollout"
 kubectl rollout status deployment -n pvc-explorer-system \
-  pvc-explorer-controller-manager --timeout=120s
+  pvc-explorer-controller-manager --timeout=300s
 
 # Password hash is bcrypt of "admin". Regenerate with:
 #   htpasswd -nbB admin admin | cut -d: -f2
