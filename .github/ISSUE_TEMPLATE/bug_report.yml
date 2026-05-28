@@ -6,6 +6,18 @@ body:
     attributes:
       value: |
         Thanks for taking the time to report this bug.
+        
+        For security vulnerabilities, do not open a public issue. Use the Security Advisory flow from the issue chooser.
+
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Preflight checklist
+      options:
+        - label: I searched existing issues and did not find a duplicate
+          required: true
+        - label: I can reproduce this with current main or the latest release
+          required: false
 
   - type: input
     id: summary
@@ -28,6 +40,21 @@ body:
     validations:
       required: true
 
+  - type: dropdown
+    id: area
+    attributes:
+      label: Affected area
+      options:
+        - Controller (reconciliation)
+        - API (REST/WebSocket)
+        - UI
+        - Auth/Security
+        - Docs
+        - CI/Release
+        - Other
+    validations:
+      required: true
+
   - type: textarea
     id: expected
     attributes:
@@ -42,12 +69,30 @@ body:
     validations:
       required: true
 
+  - type: textarea
+    id: impact
+    attributes:
+      label: Impact
+      description: What is blocked or degraded? Include severity if known.
+      placeholder: Browsing is unavailable for all explorers in one namespace.
+    validations:
+      required: false
+
   - type: input
     id: version
     attributes:
       label: pvc-explorer version
       description: Output from Settings page (or /api/version)
       placeholder: v0.1.0-5-gabcdef1
+    validations:
+      required: false
+
+  - type: input
+    id: install_method
+    attributes:
+      label: Install method
+      description: How is pvc-explorer installed?
+      placeholder: kustomize config/default, Helm chart, install bundle, make deploy
     validations:
       required: false
 
@@ -73,9 +118,23 @@ body:
     validations:
       required: false
 
+  - type: input
+    id: browser
+    attributes:
+      label: Browser and version (UI bugs)
+      placeholder: Chrome 137, Firefox 129
+    validations:
+      required: false
+
   - type: textarea
     id: logs
     attributes:
       label: Relevant logs
       render: shell
-      description: Include controller logs or events if available
+      description: Include controller logs/events if available. Redact secrets and tokens.
+
+  - type: textarea
+    id: extra
+    attributes:
+      label: Additional context
+      description: Anything else that helps reproduce or triage this issue.
