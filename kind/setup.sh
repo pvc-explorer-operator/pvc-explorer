@@ -26,6 +26,21 @@ fi
 
 need kind kubectl
 
+# kind load docker-image only works with Docker's image store.
+# For Podman, export the image to a tarball and use image-archive.
+kind_load() {
+  local img="$1"
+  if [ "$DOCKER" = "podman" ]; then
+    local tmp
+    tmp=$(mktemp /tmp/kind-img-XXXXXX.tar)
+    podman save "$img" -o "$tmp"
+    kind load image-archive "$tmp" --name "$CLUSTER"
+    rm -f "$tmp"
+  else
+    kind load docker-image "$img" --name "$CLUSTER"
+  fi
+}
+
 if kind get clusters 2>/dev/null | grep -q "^${CLUSTER}$"; then
   log "Cluster '${CLUSTER}' already exists — skipping creation"
 else
@@ -49,8 +64,8 @@ if ! $DOCKER pull "$AGENT_IMG"; then
 fi
 
 log "Loading images into kind"
-kind load docker-image "$CONTROLLER_IMG" --name "$CLUSTER"
-kind load docker-image "$AGENT_IMG"      --name "$CLUSTER"
+kind_load "$CONTROLLER_IMG"
+kind_load "$AGENT_IMG"
 
 log "Installing CRDs"
 make -C "$CONTROLLER_DIR" manifests
