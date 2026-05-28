@@ -1,3 +1,5 @@
+# yamllint disable rule:line-length
+---
 name: Release CRDs
 
 on:
@@ -18,10 +20,10 @@ jobs:
               with:
                   fetch-depth: 0
 
-            - name: Set up Kustomize
-              run: |
-                  curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
-                  sudo mv kustomize /usr/local/bin/
+                        - name: Set up Kustomize
+                            run: |
+                                curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/release-kustomize-v5.8.1/hack/install_kustomize.sh" | bash
+                                sudo mv kustomize /usr/local/bin/
 
             - name: Build CRD manifests
               run: |
@@ -48,12 +50,12 @@ jobs:
                   echo "version=${VERSION}" >> $GITHUB_OUTPUT
                   echo "Release version: ${VERSION}"
 
-            - name: Create Release Assets
-              uses: softprops/action-gh-release@v1
-              if: startsWith(github.ref, 'refs/tags/')
-                    permissions:
-                        contents: write
-              with:
+                        - name: Create Release Assets
+                            uses: softprops/action-gh-release@403a5240f3837fa857f642062e05aad6bb3391ca
+                            if: startsWith(github.ref, 'refs/tags/')
+                            permissions:
+                                contents: write
+                            with:
                   files: |
                       build/release/pvc-explorer-crds.yaml
                       build/release/pvc-explorer-install.yaml
