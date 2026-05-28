@@ -19,7 +19,14 @@ COPY go.mod go.mod
 COPY go.sum go.sum
 RUN go mod download
 
-COPY . .
+# Copy source explicitly — avoids Podman path-ambiguity with broad COPY . .
+COPY api/ ./api/
+COPY cmd/ ./cmd/
+COPY internal/ ./internal/
+COPY hack/ ./hack/
+COPY ui/embed.go ./ui/embed.go
+
+# Overlay built UI assets from the ui-builder stage
 COPY --from=ui-builder /ui/dist ./ui/dist
 
 RUN CGO_ENABLED=0 GOOS=${TARGETOS:-linux} GOARCH=${TARGETARCH} go build -a -ldflags "-X main.Version=${VERSION}" -o manager cmd/main.go
