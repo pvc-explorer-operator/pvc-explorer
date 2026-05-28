@@ -6,7 +6,7 @@ body:
     attributes:
       value: |
         Thanks for taking the time to report this bug.
-        
+
         For security vulnerabilities, do not open a public issue. Use the Security Advisory flow from the issue chooser.
 
   - type: checkboxes
