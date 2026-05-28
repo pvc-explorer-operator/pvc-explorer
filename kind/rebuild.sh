@@ -6,31 +6,11 @@ CONTROLLER_IMG=pvc-explorer:dev
 AGENT_IMG=${AGENT_IMG:-ghcr.io/pvc-explorer-operator/pvc-explorer-agent:dev}
 CONTROLLER_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 
-log() { echo "==> $*"; }
+# shellcheck source=kind/lib.sh
+source "$(dirname "$0")/lib.sh"
 
-# kind load docker-image only works with Docker's image store.
-# For Podman, export the image to a tarball and use image-archive.
-kind_load() {
-  local img="$1"
-  if [ "$DOCKER" = "podman" ]; then
-    local tmp
-    tmp=$(mktemp /tmp/kind-img-XXXXXX.tar)
-    podman save "$img" -o "$tmp"
-    kind load image-archive "$tmp" --name "$CLUSTER"
-    rm -f "$tmp"
-  else
-    kind load docker-image "$img" --name "$CLUSTER"
-  fi
-}
-
-if command -v docker >/dev/null 2>&1; then
-  DOCKER=docker
-elif command -v podman >/dev/null 2>&1; then
-  DOCKER=podman
-  log "docker not found — using podman"
-else
-  echo "Neither docker nor podman found" >&2; exit 1
-fi
+ensure_tools kind kubectl
+detect_container_runtime
 
 TARGET="${1:-both}"
 
