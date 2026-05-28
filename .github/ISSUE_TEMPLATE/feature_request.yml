@@ -7,12 +7,37 @@ body:
       value: |
         Thanks for sharing your idea.
 
+  - type: checkboxes
+    id: preflight
+    attributes:
+      label: Preflight checklist
+      options:
+        - label: I searched existing issues and discussions for similar requests
+          required: true
+        - label: This request is specific enough to guide implementation
+          required: false
+
   - type: textarea
     id: problem
     attributes:
       label: Problem statement
       description: What problem are you trying to solve?
       placeholder: It is hard to audit who woke an explorer and when.
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: Area
+      options:
+        - Controller
+        - API
+        - UI
+        - Auth/Security
+        - Docs
+        - Release/Operations
+        - Other
     validations:
       required: true
 
@@ -23,6 +48,18 @@ body:
       description: What would you like to happen?
     validations:
       required: true
+
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: How will we know this is done?
+      placeholder: |
+        - [ ] New endpoint returns X
+        - [ ] UI displays Y state
+        - [ ] Docs updated with examples
+    validations:
+      required: false
 
   - type: textarea
     id: alternatives
@@ -37,5 +74,16 @@ body:
     attributes:
       label: Additional context
       description: Links, examples, screenshots, design notes
+    validations:
+      required: false
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      options:
+        - Nice to have
+        - Important
+        - Critical for current workflow
     validations:
       required: false
