@@ -31,3 +31,19 @@ We will acknowledge receipt within 72 hours and provide a status update as triag
 - We prepare and test a fix
 - We coordinate a release
 - We publish an advisory with mitigation details
+
+## Preventing Secret Leakage
+
+This repository must not store real secrets or credentials in version control.
+
+Policy:
+
+- Do not commit tokens, passwords, API keys, kubeconfigs, private keys, or session secrets.
+- Use placeholders or mock values for examples and local development fixtures.
+- Keep operational secrets in environment variables, GitHub secrets, or Kubernetes Secrets, not in tracked files.
+
+Automated enforcement:
+
+- CI runs automated secret scanning on pull requests and pushes to `main`.
+- Pull requests that introduce suspected secrets must be fixed before merge.
+- If a scan reports a false positive, update the scanner allowlist with a narrow, file-specific exception and explain why it is safe.
