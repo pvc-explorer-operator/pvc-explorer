@@ -1,0 +1,17 @@
+name: DCO
+
+on:
+    pull_request:
+        branches: [main]
+
+permissions:
+    contents: read
+    pull-requests: read
+
+jobs:
+    dco:
+        name: DCO
+        runs-on: ubuntu-latest
+        steps:
+            - name: Check DCO sign-off
+              uses: tisonkun/actions-dco@f1024cd563550b5632e754df11b7d30b73be54a5 # v1.1
