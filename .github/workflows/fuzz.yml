@@ -1,8 +1,12 @@
 name: Fuzzing
 
 on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
   schedule:
-    - cron: '30 5 * * 1' # weekly on Monday
+    - cron: "30 5 * * 1" # weekly on Monday
   workflow_dispatch:
 
 permissions:
@@ -12,14 +16,12 @@ jobs:
   fuzz:
     name: Fuzz
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
       - uses: actions/setup-go@4a3601121dd01d1626a1e23e37211e3254c1c06c # v6.4.0
         with:
           go-version: stable
       - name: Run fuzz tests
-        run: go test -fuzz=. -fuzztime=5m ./...
+        run: go test ./internal/auth -run=^$ -fuzz=FuzzSplitTrim -fuzztime=5m
         env:
           GOTOOLCHAIN: go
