@@ -29,7 +29,9 @@ jobs:
           results_format: sarif
           publish_results: true
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Prefer a dedicated token that can read branch protection settings.
+          # Expected secret name: SCORECARD_TOKEN
+          GITHUB_TOKEN: ${{ secrets.SCORECARD_TOKEN != '' && secrets.SCORECARD_TOKEN || secrets.GITHUB_TOKEN }}
       - name: Upload Scorecard results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@7211b7c8077ea37d8641b6271f6a365a22a5fbfa # v4
         with:
