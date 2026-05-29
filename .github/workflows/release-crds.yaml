@@ -3,115 +3,115 @@
 name: Release CRDs
 
 on:
-  push:
-    tags:
-      - "v*.*.*"
-  workflow_dispatch:
+    push:
+        tags:
+            - "v*.*.*"
+    workflow_dispatch:
 
 permissions:
-  contents: read
+    contents: read
 
 jobs:
-  build-and-release-crds:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
-        with:
-          fetch-depth: 0
+    build-and-release-crds:
+        runs-on: ubuntu-latest
+        permissions:
+            contents: write
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+              with:
+                  fetch-depth: 0
 
-      - name: Set up Kustomize
-        run: |
-          curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/release-kustomize-v5.8.1/hack/install_kustomize.sh" | bash
-          sudo mv kustomize /usr/local/bin/
+            - name: Set up Kustomize
+              run: |
+                  curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/release-kustomize-v5.8.1/hack/install_kustomize.sh" | bash
+                  sudo mv kustomize /usr/local/bin/
 
-      - name: Build CRD manifests
-        run: |
-          mkdir -p build/release
-          # Build standalone CRDs
-          kustomize build config/crd > build/release/pvc-explorer-crds.yaml
-          # Build full install bundle (CRDs + RBAC + deployment)
-          kustomize build config/default > build/release/pvc-explorer-install.yaml
+            - name: Build CRD manifests
+              run: |
+                  mkdir -p build/release
+                  # Build standalone CRDs
+                  kustomize build config/crd > build/release/pvc-explorer-crds.yaml
+                  # Build full install bundle (CRDs + RBAC + deployment)
+                  kustomize build config/default > build/release/pvc-explorer-install.yaml
 
-      - name: Verify manifests
-        run: |
-          echo "=== CRD Manifest ==="
-          wc -l build/release/pvc-explorer-crds.yaml
-          grep -c "kind: CustomResourceDefinition" build/release/pvc-explorer-crds.yaml || echo "CRDs not found"
-          echo ""
-          echo "=== Full Install Manifest ==="
-          wc -l build/release/pvc-explorer-install.yaml
-          grep "kind:" build/release/pvc-explorer-install.yaml | sort | uniq -c
+            - name: Verify manifests
+              run: |
+                  echo "=== CRD Manifest ==="
+                  wc -l build/release/pvc-explorer-crds.yaml
+                  grep -c "kind: CustomResourceDefinition" build/release/pvc-explorer-crds.yaml || echo "CRDs not found"
+                  echo ""
+                  echo "=== Full Install Manifest ==="
+                  wc -l build/release/pvc-explorer-install.yaml
+                  grep "kind:" build/release/pvc-explorer-install.yaml | sort | uniq -c
 
-      - name: Get release version
-        id: version
-        run: |
-          VERSION=${GITHUB_REF#refs/tags/}
-          echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
-          echo "Release version: ${VERSION}"
+            - name: Get release version
+              id: version
+              run: |
+                  VERSION=${GITHUB_REF#refs/tags/}
+                  echo "version=${VERSION}" >> "$GITHUB_OUTPUT"
+                  echo "Release version: ${VERSION}"
 
-      - name: Create Release Assets
-        if: startsWith(github.ref, 'refs/tags/')
-        uses: softprops/action-gh-release@403a5240f3837fa857f642062e05aad6bb3391ca
-        with:
-          files: |
-            build/release/pvc-explorer-crds.yaml
-            build/release/pvc-explorer-install.yaml
-          body: |
-            # PVC-Explorer Release ${{ steps.version.outputs.version }}
+            - name: Create Release Assets
+              if: startsWith(github.ref, 'refs/tags/')
+              uses: softprops/action-gh-release@403a5240f3837fa857f642062e05aad6bb3391ca
+              with:
+                  files: |
+                      build/release/pvc-explorer-crds.yaml
+                      build/release/pvc-explorer-install.yaml
+                  body: |
+                      # PVC-Explorer Release ${{ steps.version.outputs.version }}
 
-            ## Installation
+                      ## Installation
 
-            ### Option 1: Full Installation (Recommended)
-            Installs CRDs, RBAC roles, and the controller:
+                      ### Option 1: Full Installation (Recommended)
+                      Installs CRDs, RBAC roles, and the controller:
 
-            ```bash
-            kubectl apply -f https://github.com/pvc-explorer-operator/pvc-explorer/releases/download/${{ steps.version.outputs.version }}/pvc-explorer-install.yaml
-            ```
+                      ```bash
+                      kubectl apply -f https://github.com/pvc-explorer-operator/pvc-explorer/releases/download/${{ steps.version.outputs.version }}/pvc-explorer-install.yaml
+                      ```
 
-            ### Option 2: CRDs Only
-            Install just the Custom Resource Definitions:
+                      ### Option 2: CRDs Only
+                      Install just the Custom Resource Definitions:
 
-            ```bash
-            kubectl apply -f https://github.com/pvc-explorer-operator/pvc-explorer/releases/download/${{ steps.version.outputs.version }}/pvc-explorer-crds.yaml
-            ```
+                      ```bash
+                      kubectl apply -f https://github.com/pvc-explorer-operator/pvc-explorer/releases/download/${{ steps.version.outputs.version }}/pvc-explorer-crds.yaml
+                      ```
 
-            ### Option 3: Using Kustomize
-            Clone the repository and use Kustomize:
+                      ### Option 3: Using Kustomize
+                      Clone the repository and use Kustomize:
 
-            ```bash
-            git clone https://github.com/pvc-explorer-operator/pvc-explorer.git
-            cd pvc-explorer
-            git checkout ${{ steps.version.outputs.version }}
-            kubectl apply -k config/default
-            ```
+                      ```bash
+                      git clone https://github.com/pvc-explorer-operator/pvc-explorer.git
+                      cd pvc-explorer
+                      git checkout ${{ steps.version.outputs.version }}
+                      kubectl apply -k config/default
+                      ```
 
-            ## What's Included
+                      ## What's Included
 
-            - **pvc-explorer-crds.yaml**: CustomResourceDefinitions (PVCExplorer, PVCExplorerScope)
-            - **pvc-explorer-install.yaml**: Complete deployment bundle
+                      - **pvc-explorer-crds.yaml**: CustomResourceDefinitions (PVCExplorer, PVCExplorerScope)
+                      - **pvc-explorer-install.yaml**: Complete deployment bundle
 
-            ## Verify Installation
+                      ## Verify Installation
 
-            Check that the CRDs are installed:
+                      Check that the CRDs are installed:
 
-            ```bash
-            kubectl get crd | grep pvcexplorer.io
-            ```
+                      ```bash
+                      kubectl get crd | grep pvcexplorer.io
+                      ```
 
-            Check controller deployment:
+                      Check controller deployment:
 
-            ```bash
-            kubectl get deployment -n pvc-explorer-system
-            kubectl logs -n pvc-explorer-system deployment/controller-manager
-            ```
+                      ```bash
+                      kubectl get deployment -n pvc-explorer-system
+                      kubectl logs -n pvc-explorer-system deployment/controller-manager
+                      ```
 
-            ## Next Steps
+                      ## Next Steps
 
-            See the [Getting Started Guide](https://github.com/pvc-explorer-operator/pvc-explorer/blob/main/docs/getting-started.md) for how to use PVC-Explorer.
-          draft: false
-          prerelease: false
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+                      See the [Getting Started Guide](https://github.com/pvc-explorer-operator/pvc-explorer/blob/main/docs/getting-started.md) for how to use PVC-Explorer.
+                  draft: false
+                  prerelease: false
+              env:
+                  GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
