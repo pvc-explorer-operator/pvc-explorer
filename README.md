@@ -82,6 +82,8 @@ Contributions are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md) and loo
 
 This project is maintained in public. If you need help, open an issue or start a discussion in the repository.
 
+Maintainer roles, responsibilities, and sensitive-access scope are documented in [MAINTAINERS.md](MAINTAINERS.md).
+
 ## 🎨 Branding
 
 Logo variants and branding assets are available in [`docs/branding/`](docs/branding/):
