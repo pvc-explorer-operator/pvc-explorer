@@ -58,17 +58,18 @@ See [docs/getting-started.md](docs/getting-started.md) for the full guide, dev-m
 
 ## 📚 Documentation
 
-| Topic                             | Location                                           |
-| --------------------------------- | -------------------------------------------------- |
-| Documentation index               | [docs/README.md](docs/README.md)                   |
-| Contributor workflow              | [CONTRIBUTING.md](CONTRIBUTING.md)                 |
-| Development workflow              | [docs/development.md](docs/development.md)         |
-| Local setup and first run         | [docs/getting-started.md](docs/getting-started.md) |
-| Overview and runtime architecture | [docs/architecture.md](docs/architecture.md)       |
-| UI component & contributor docs   | [docs/ui/](docs/ui/)                               |
-| UI accessibility guide            | [docs/ui/accessibility.md](docs/ui/accessibility.md) |
-| Release and versioning            | [docs/releases.md](docs/releases.md)               |
-| Security reporting                | [SECURITY.md](SECURITY.md)                         |
+| Topic                                 | Location                                             |
+| ------------------------------------- | ---------------------------------------------------- |
+| API reference (CRDs, REST, WebSocket) | [site/docs/api/](site/docs/api/index.md)             |
+| Contributor workflow                  | [CONTRIBUTING.md](CONTRIBUTING.md)                   |
+| Development workflow                  | [docs/development.md](docs/development.md)           |
+| Documentation index                   | [docs/README.md](docs/README.md)                     |
+| Local setup and first run             | [docs/getting-started.md](docs/getting-started.md)   |
+| Overview and runtime architecture     | [docs/architecture.md](docs/architecture.md)         |
+| Release and versioning                | [docs/releases.md](docs/releases.md)                 |
+| Security reporting                    | [SECURITY.md](SECURITY.md)                           |
+| UI accessibility guide                | [docs/ui/accessibility.md](docs/ui/accessibility.md) |
+| UI component & contributor docs       | [docs/ui/](docs/ui/)                                 |
 
 ## 🤝 Contributing
 
