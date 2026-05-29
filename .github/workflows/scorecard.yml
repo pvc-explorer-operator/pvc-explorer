@@ -21,42 +21,14 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
-      - name: Detect Scorecard token availability
-        id: tokencheck
-        env:
-          SCORECARD_TOKEN: ${{ secrets.SCORECARD_TOKEN }}
-        run: |
-          if [ -n "$SCORECARD_TOKEN" ]; then
-            echo "has_token=true" >> "$GITHUB_OUTPUT"
-          else
-            echo "has_token=false" >> "$GITHUB_OUTPUT"
-          fi
-
-      - name: Run OpenSSF Scorecard analysis (admin token)
-        if: steps.tokencheck.outputs.has_token == 'true'
+      - name: Run OpenSSF Scorecard analysis
         uses: ossf/scorecard-action@4eaacf0543bb3f2c246792bd56e8cdeffafb205a # v2.4.3
         with:
           results_file: results.sarif
           results_format: sarif
           publish_results: true
         env:
-          GITHUB_TOKEN: ${{ secrets.SCORECARD_TOKEN }}
-
-      - name: Warn about reduced branch-protection visibility
-        if: steps.tokencheck.outputs.has_token != 'true'
-        run: |
-          echo "SCORECARD_TOKEN is not configured."
-          echo "Running Scorecard with GITHUB_TOKEN; Branch-Protection may report limited data."
-
-      - name: Run OpenSSF Scorecard analysis (fallback token)
-        if: steps.tokencheck.outputs.has_token != 'true'
-        uses: ossf/scorecard-action@4eaacf0543bb3f2c246792bd56e8cdeffafb205a # v2.4.3
-        with:
-          results_file: results.sarif
-          results_format: sarif
-          publish_results: true
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.SCORECARD_TOKEN != '' && secrets.SCORECARD_TOKEN || github.token }}
 
       - name: Upload Scorecard results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@7211b7c8077ea37d8641b6271f6a365a22a5fbfa # v4
