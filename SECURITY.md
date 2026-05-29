@@ -13,6 +13,8 @@ Security fixes are applied to the latest release on `main`.
 
 Please do **not** report security vulnerabilities in public GitHub issues.
 
+Maintainer roles and sensitive-resource access are documented in [MAINTAINERS.md](MAINTAINERS.md).
+
 Use GitHub's private vulnerability reporting:
 
 1. Go to the repository's **Security** tab

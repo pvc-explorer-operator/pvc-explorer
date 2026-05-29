@@ -24,6 +24,8 @@ This project follows the [Contributor Covenant Code of Conduct](CODE_OF_CONDUCT.
 
 Not sure where to start? Look for issues labelled **`good first issue`** — these are intentionally scoped to be approachable without deep knowledge of the codebase.
 
+Maintainer roles, responsibilities, and sensitive-access scope are documented in [MAINTAINERS.md](MAINTAINERS.md).
+
 For larger changes, **open an issue first** to discuss the idea before writing code. This avoids wasted effort if the direction doesn't fit the project's scope.
 
 ---
@@ -108,7 +110,7 @@ The `-s` flag adds a `Signed-off-by` line to your commit message. This indicates
 
 We use [Conventional Commits](https://www.conventionalcommits.org/):
 
-```
+```text
 feat: add idle timeout override per PVCExplorer
 fix: handle RWO PVC on multi-node consumers correctly
 docs: clarify mount policy matrix
