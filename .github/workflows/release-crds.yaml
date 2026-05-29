@@ -23,9 +23,9 @@ jobs:
                   fetch-depth: 0
 
             - name: Set up Kustomize
-              run: |
-                  curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/release-kustomize-v5.8.1/hack/install_kustomize.sh" | bash
-                  sudo mv kustomize /usr/local/bin/
+              uses: imranismail/setup-kustomize@2ba527d4d055ab63514ba50a99456fc35684947f # v2.1.0
+              with:
+                  kustomize-version: v5.8.1
 
             - name: Build CRD manifests
               run: |
