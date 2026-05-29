@@ -11,6 +11,7 @@
 	<a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/typescript-6.0+-3178C6.svg" alt="TypeScript"></a>
 	<a href="https://scorecard.dev/viewer/?uri=github.com/pvc-explorer-operator/pvc-explorer"><img src="https://api.scorecard.dev/projects/github.com/pvc-explorer-operator/pvc-explorer/badge" alt="OpenSSF Scorecard"></a>
 	<a href="https://github.com/pvc-explorer-operator/pvc-explorer/actions/workflows/scorecard.yml"><img src="https://github.com/pvc-explorer-operator/pvc-explorer/actions/workflows/scorecard.yml/badge.svg?branch=main" alt="OpenSSF Scorecard Workflow"></a>
+	<a href="https://www.bestpractices.dev/projects/13031"><img src="https://www.bestpractices.dev/projects/13031/baseline"></a>
 </p>
 
 <p align="center">
