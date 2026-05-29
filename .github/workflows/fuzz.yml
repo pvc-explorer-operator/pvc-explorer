@@ -23,5 +23,3 @@ jobs:
           go-version: stable
       - name: Run fuzz tests
         run: go test ./internal/auth -run=^$ -fuzz=FuzzSplitTrim -fuzztime=5m
-        env:
-          GOTOOLCHAIN: go
