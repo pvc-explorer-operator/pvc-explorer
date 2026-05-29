@@ -9,6 +9,8 @@
 	<a href="https://book.kubebuilder.io"><img src="https://img.shields.io/badge/kubebuilder-v4.14+-FF6B6B.svg" alt="Kubebuilder"></a>
 	<a href="https://vuejs.org"><img src="https://img.shields.io/badge/vue-3.5+-4FC08D.svg" alt="Vue.js"></a>
 	<a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/typescript-6.0+-3178C6.svg" alt="TypeScript"></a>
+	<a href="https://scorecard.dev/viewer/?uri=github.com/pvc-explorer-operator/pvc-explorer"><img src="https://api.scorecard.dev/projects/github.com/pvc-explorer-operator/pvc-explorer/badge" alt="OpenSSF Scorecard"></a>
+	<a href="https://github.com/pvc-explorer-operator/pvc-explorer/actions/workflows/scorecard.yml"><img src="https://github.com/pvc-explorer-operator/pvc-explorer/actions/workflows/scorecard.yml/badge.svg?branch=main" alt="OpenSSF Scorecard Workflow"></a>
 </p>
 
 <p align="center">
