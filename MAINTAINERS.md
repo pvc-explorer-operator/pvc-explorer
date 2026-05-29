@@ -27,8 +27,8 @@ Responsibilities:
 
 ## Current Maintainers
 
-| Name | GitHub | Role | Sensitive resource access |
-| --- | --- | --- | --- |
+| Name         | GitHub                                         | Role       | Sensitive resource access                                                                                              |
+| ------------ | ---------------------------------------------- | ---------- | ---------------------------------------------------------------------------------------------------------------------- |
 | Ricardo Leal | [@ricardoleal](https://github.com/ricardoleal) | Maintainer | Repository admin settings, branch protection and rulesets, GitHub Actions settings and secrets, release/tag publishing |
 
 ## Sensitive Resources
