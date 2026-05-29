@@ -58,6 +58,8 @@ Use the **Feature request** issue template. Explain the problem you're trying to
 5. If you changed `api/v1alpha1/*_types.go`, run `make manifests generate`.
 6. Open a pull request against `main`. Fill in the PR template.
 
+The `main` branch is protected by repository rulesets. Merges require the required CI checks (`Lint`, `Test`, `DCO`, `Trivy SCA`) and at least one approving review (including CODEOWNERS review when applicable). Force pushes and branch deletion are blocked on protected branches. See [docs/operations/branch-protection.md](docs/operations/branch-protection.md).
+
 A maintainer will review within a reasonable time. If you haven't heard back in a week, feel free to ping the thread.
 
 ---

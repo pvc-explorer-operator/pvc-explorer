@@ -29,6 +29,7 @@
 - [Contributing guide](CONTRIBUTING.md)
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 - [Security policy](SECURITY.md)
+- [Repository protection policy](docs/operations/branch-protection.md)
 
 ## Highlights
 

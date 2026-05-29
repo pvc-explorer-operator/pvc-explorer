@@ -18,6 +18,7 @@ This directory contains the canonical project documentation for PVC Explorer.
 
 ## Operations
 
+- [Branch Protection and Rulesets](operations/branch-protection.md)
 - [CRD Installation](operations/crd-installation.md)
 - [CRD Release Process](operations/crd-release-process.md)
 - [Releases](releases.md)
