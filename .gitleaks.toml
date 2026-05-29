@@ -1,0 +1,9 @@
+title = "pvc-explorer gitleaks config"
+
+[allowlist]
+description = "Allow known mock/dev artifacts that are not production credentials"
+paths = [
+  '''^site/docs/\.vitepress/dist/''',
+  '''^ui/dist/''',
+  '''^ui/dev-mock/wsPlugin\.ts$'''
+]
