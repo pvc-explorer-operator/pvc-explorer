@@ -4,8 +4,6 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-  pull_request:
-    branches: [main]
   schedule:
     - cron: "30 1 * * 0"
 
@@ -22,6 +20,15 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+      - name: Verify Scorecard token is configured
+        env:
+          SCORECARD_TOKEN: ${{ secrets.SCORECARD_TOKEN }}
+        run: |
+          if [ -z "$SCORECARD_TOKEN" ]; then
+            echo "SCORECARD_TOKEN is required for branch protection evaluation."
+            echo "Create a repository secret named SCORECARD_TOKEN with branch-protection read permissions."
+            exit 1
+          fi
       - name: Run OpenSSF Scorecard analysis
         uses: ossf/scorecard-action@4eaacf0543bb3f2c246792bd56e8cdeffafb205a # v2.4.3
         with:
@@ -29,9 +36,7 @@ jobs:
           results_format: sarif
           publish_results: true
         env:
-          # Prefer a dedicated token that can read branch protection settings.
-          # Expected secret name: SCORECARD_TOKEN
-          GITHUB_TOKEN: ${{ secrets.SCORECARD_TOKEN != '' && secrets.SCORECARD_TOKEN || secrets.GITHUB_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.SCORECARD_TOKEN }}
       - name: Upload Scorecard results to GitHub Security tab
         uses: github/codeql-action/upload-sarif@7211b7c8077ea37d8641b6271f6a365a22a5fbfa # v4
         with:
