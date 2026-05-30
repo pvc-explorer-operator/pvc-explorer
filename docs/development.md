@@ -49,6 +49,12 @@ Use Make targets instead of committing generated binaries:
 make controller-gen envtest golangci-lint kustomize
 ```
 
+Periodically audit the repository for committed binary blobs:
+
+```bash
+make audit-binaries
+```
+
 ## CI metadata validation guardrails
 
 GitHub Actions event metadata is treated as untrusted input in shell steps.
