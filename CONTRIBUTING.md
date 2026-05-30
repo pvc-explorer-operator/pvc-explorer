@@ -6,6 +6,7 @@ Thank you for taking the time to contribute! Every bug report, feature idea, and
 
 - [Code of Conduct](#code-of-conduct)
 - [Getting started](#getting-started)
+- [Collaborator access and least privilege](#collaborator-access-and-least-privilege)
 - [How to report a bug](#how-to-report-a-bug)
 - [How to suggest a feature](#how-to-suggest-a-feature)
 - [How to submit a pull request](#how-to-submit-a-pull-request)
@@ -27,6 +28,18 @@ Not sure where to start? Look for issues labelled **`good first issue`** — the
 Maintainer roles, responsibilities, and sensitive-access scope are documented in [MAINTAINERS.md](MAINTAINERS.md).
 
 For larger changes, **open an issue first** to discuss the idea before writing code. This avoids wasted effort if the direction doesn't fit the project's scope.
+
+## Collaborator access and least privilege
+
+This project applies least-privilege access by default.
+
+- New people contribute through pull requests from forks or branches without repository admin permissions.
+- Collaborator access is granted by maintainers based on project need and scope of responsibility.
+- The default collaborator posture is the lowest practical privilege required to do the work.
+- Maintainer and sensitive-access roles are documented in [MAINTAINERS.md](MAINTAINERS.md).
+- Branch protections and required checks enforce reviewed changes through pull requests on protected branches. See [docs/operations/branch-protection.md](docs/operations/branch-protection.md).
+
+Maintainer-level or sensitive access (for example repository admin settings, secrets, or release controls) is only granted to trusted maintainers and must be reflected in [MAINTAINERS.md](MAINTAINERS.md).
 
 ---
 
