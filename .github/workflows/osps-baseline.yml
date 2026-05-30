@@ -1,0 +1,40 @@
+name: OpenSSF Baseline Scan
+
+"on":
+    push:
+        branches: [main]
+    schedule:
+        - cron: "0 9 * * 1"
+    workflow_dispatch:
+
+permissions:
+    contents: read
+
+jobs:
+    osps-assessment:
+        name: OSPS Assessment
+        runs-on: ubuntu-latest
+        permissions:
+            contents: read
+            security-events: write
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+            - name: Run Open Source Project Security Baseline Scanner
+              uses: revanite-io/osps-baseline-action@v1.3.3
+              with:
+                  owner: ${{ github.repository_owner }}
+                  repo: ${{ github.event.repository.name }}
+                  token: ${{ secrets.PVTR_GITHUB_TOKEN }}
+                  catalog: osps-baseline-2026-02
+                  upload-sarif: "true"
+                  fail-on-error: "false"
+
+            - name: Upload assessment results artifact
+              if: always()
+              uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+              with:
+                  name: osps-assessment-results-${{ github.run_number }}
+                  path: evaluation_results/
+                  retention-days: 30

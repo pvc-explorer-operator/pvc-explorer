@@ -18,6 +18,7 @@ The following status checks are required before merge:
 - `Test`
 - `DCO`
 - `Trivy SCA`
+- `OSPS Assessment`
 
 The ruleset requires branches to be up to date with the base branch before merge.
 
