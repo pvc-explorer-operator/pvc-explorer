@@ -120,7 +120,7 @@ func (h *Handler) handleLogout(w http.ResponseWriter, r *http.Request) {
 		Path:     "/",
 		HttpOnly: true,
 		MaxAge:   -1,
-		Secure: true,
+		Secure:   true,
 	})
 	w.WriteHeader(http.StatusNoContent)
 }
