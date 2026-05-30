@@ -10,6 +10,14 @@ pvc-explorer is a single binary that embeds:
 
 Everything runs inside one pod in `pvc-explorer-system`. The binary has no external database; all state is in Kubernetes objects and a short in-memory event ring buffer.
 
+## Codebase Inventory Scope (OSPS-QA-04.01)
+
+This project is currently maintained as a single repository (`pvc-explorer`).
+For the current structure, a cross-repository codebase inventory is not applicable (N/A).
+
+If the project later splits into multiple repositories, the canonical inventory page will be maintained at:
+`docs/operations/codebase-inventory.md`.
+
 ---
 
 ## Components
