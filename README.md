@@ -27,6 +27,7 @@
 ## Community
 
 - [Contributing guide](CONTRIBUTING.md)
+- [Collaborator access and least-privilege policy](CONTRIBUTING.md#collaborator-access-and-least-privilege)
 - [Code of Conduct](CODE_OF_CONDUCT.md)
 - [Security policy](SECURITY.md)
 - [Repository protection policy](docs/operations/branch-protection.md)
