@@ -35,6 +35,20 @@ The binary version is injected via Go linker flags from the build system and exp
 
 Local builds use `git describe --tags --always --dirty`, which makes the version reflect the exact checkout you tested.
 
+## Tool binaries and generated executables
+
+Generated executables are not tracked in git.
+
+- Local tool binaries are stored under `bin/` and ignored by `.gitignore`.
+- Build outputs such as `bin/manager` and `dist/` artifacts are local-only outputs.
+- Required tools (`controller-gen`, `setup-envtest`, `golangci-lint`, `kustomize`) are fetched reproducibly through pinned Makefile targets in this repository.
+
+Use Make targets instead of committing generated binaries:
+
+```bash
+make controller-gen envtest golangci-lint kustomize
+```
+
 ## CI metadata validation guardrails
 
 GitHub Actions event metadata is treated as untrusted input in shell steps.
