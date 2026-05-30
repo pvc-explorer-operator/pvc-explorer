@@ -114,10 +114,11 @@ func (h *Handler) handleLogout(w http.ResponseWriter, r *http.Request) {
 		h.sessions.Delete(cookie.Value)
 	}
 	http.SetCookie(w, &http.Cookie{
-		Name:   auth.SessionCookieName,
-		Value:  "",
-		Path:   "/",
-		MaxAge: -1,
+		Name:     auth.SessionCookieName,
+		Value:    "",
+		Path:     "/",
+		HttpOnly: true,
+		MaxAge:   -1,
 	})
 	w.WriteHeader(http.StatusNoContent)
 }
