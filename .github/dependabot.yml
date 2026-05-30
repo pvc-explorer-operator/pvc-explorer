@@ -23,7 +23,7 @@ updates:
       interval: "weekly"
       day: "monday"
       time: "03:30"
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 20
     reviewers:
       - "pvc-explorer-operator/maintainers"
     labels:
