@@ -48,3 +48,17 @@ Current examples in this repository:
 - `.github/workflows/oci-image.yml` validates release tags and package path components before release/package API operations.
 - `.github/workflows/release-crds.yaml` validates tag metadata before constructing release assets.
 - `.github/workflows/docs-pages.yml` validates repository name before composing `DOCS_BASE_PATH`.
+
+## CI credential boundaries (OSPS-BR-01.03)
+
+Fork and pull-request workflows are treated as untrusted execution contexts.
+
+- PR workflows use read-only permissions where possible (`contents: read`).
+- PR workflows do not use privileged repository secrets.
+- PR workflows use the built-in `${{ github.token }}` only for read operations required by tooling.
+
+Privileged credentials and write-capability jobs are restricted to trusted contexts:
+
+- Release and publishing workflows run on protected events (for example version tag pushes, scheduled jobs, and maintainer-triggered `workflow_dispatch`).
+- Jobs that write packages/releases or use OIDC/signing are isolated to those trusted workflows.
+- Branch protections require reviews and required checks before merge.
