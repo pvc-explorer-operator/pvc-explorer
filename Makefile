@@ -213,6 +213,18 @@ undeploy: kustomize ## Undeploy controller from the K8s cluster specified in ~/.
 .PHONY: check
 check: fmt vet test lint ## Run local quality checks.
 
+.PHONY: audit-binaries
+audit-binaries: ## Fail if tracked binary blobs/executables are present in git.
+	@echo "Auditing tracked files for binary artifacts..."
+	@bad=$$(git ls-files -z | xargs -0 file -b --mime-type 2>/dev/null | \
+		rg "application/octet-stream|application/x-mach-binary|application/x-executable|application/x-pie-executable|application/vnd.microsoft.portable-executable|application/x-dosexec" || true); \
+	if [ -n "$$bad" ]; then \
+		echo "Found tracked binary artifacts:"; \
+		echo "$$bad"; \
+		exit 1; \
+	fi; \
+	echo "No tracked binary artifacts found"
+
 .PHONY: vuln-check
 vuln-check: ## Run govulncheck across Go packages.
 	@command -v govulncheck >/dev/null 2>&1 || { echo "govulncheck is not installed. Run: go install golang.org/x/vuln/cmd/govulncheck@latest"; exit 1; }
