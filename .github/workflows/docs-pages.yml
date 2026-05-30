@@ -37,10 +37,22 @@ jobs:
               working-directory: site
               run: npm ci
 
+            - name: Validate docs base path metadata
+              id: docs_base
+              shell: bash
+              run: |
+                  set -euo pipefail
+                  repo_name="${{ github.event.repository.name }}"
+                  if [[ ! "${repo_name}" =~ ^[A-Za-z0-9._-]+$ ]]; then
+                      echo "Invalid repository name: ${repo_name}" >&2
+                      exit 1
+                  fi
+                  echo "value=/${repo_name}/" >> "$GITHUB_OUTPUT"
+
             - name: Build docs
               working-directory: site
               env:
-                  DOCS_BASE_PATH: /${{ github.event.repository.name }}/
+                  DOCS_BASE_PATH: ${{ steps.docs_base.outputs.value }}
               run: npm run docs:build
 
             - name: Upload artifact

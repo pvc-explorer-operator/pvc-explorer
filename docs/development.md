@@ -34,3 +34,17 @@ The mock plugin only runs during `npm run dev`.
 The binary version is injected via Go linker flags from the build system and exposed at `GET /api/version`.
 
 Local builds use `git describe --tags --always --dirty`, which makes the version reflect the exact checkout you tested.
+
+## CI metadata validation guardrails
+
+GitHub Actions event metadata is treated as untrusted input in shell steps.
+
+- Validate branch/tag/repository-derived values against an allowlist regex before use.
+- Use validated outputs (`$GITHUB_OUTPUT`) in later commands instead of raw event fields.
+- Quote shell variables when passing them to commands, paths, or API routes.
+
+Current examples in this repository:
+
+- `.github/workflows/oci-image.yml` validates release tags and package path components before release/package API operations.
+- `.github/workflows/release-crds.yaml` validates tag metadata before constructing release assets.
+- `.github/workflows/docs-pages.yml` validates repository name before composing `DOCS_BASE_PATH`.
