@@ -157,11 +157,13 @@ build-installer: manifests generate kustomize ## Generate a consolidated YAML wi
 .PHONY: sbom
 sbom: ## Generate Software Bill of Materials (SBOM) for Go and npm dependencies.
 	@command -v syft >/dev/null 2>&1 || { echo "syft is not installed. Install from: https://github.com/anchore/syft"; exit 1; }
+	@command -v jq >/dev/null 2>&1 || { echo "jq is not installed. Install jq to generate normalized SPDX output."; exit 1; }
 	@mkdir -p dist
 	@echo "Generating SBOM for Go dependencies..."
 	@syft scan ./ -o cyclonedx-json > dist/sbom.cyclonedx.json
 	@syft scan ./ -o spdx-json > dist/sbom.spdx.json
-	@echo "SBOM generated: dist/sbom.cyclonedx.json (CycloneDX), dist/sbom.spdx.json (SPDX)"
+	@jq '(.packages // []) |= map(if .licenseConcluded == "NOASSERTION" and (.licenseDeclared // "") != "" and .licenseDeclared != "NOASSERTION" then . + {licenseConcluded: .licenseDeclared} else . end)' dist/sbom.spdx.json > dist/sbom.normalized.spdx.json
+	@echo "SBOM generated: dist/sbom.cyclonedx.json (CycloneDX), dist/sbom.spdx.json (raw SPDX), dist/sbom.normalized.spdx.json (normalized SPDX)"
 
 .PHONY: license-check
 license-check: ## Check Go dependencies for Apache 2.0 license compatibility.

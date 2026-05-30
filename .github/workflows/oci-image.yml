@@ -191,6 +191,12 @@ jobs:
         run: |
           docker run --rm -v "$PWD:/work" -w /work anchore/syft:latest "$IMAGE_REF" -o spdx-json=sbom-dev-${{ github.sha }}.spdx.json
 
+      - name: Normalize dev SPDX SBOM license conclusions
+        if: steps.changes.outputs.should_build == 'true'
+        run: |
+          jq '(.packages // []) |= map(if .licenseConcluded == "NOASSERTION" and (.licenseDeclared // "") != "" and .licenseDeclared != "NOASSERTION" then . + {licenseConcluded: .licenseDeclared} else . end)' \
+            "sbom-dev-${{ github.sha }}.spdx.json" > "sbom-dev-${{ github.sha }}.normalized.spdx.json"
+
       - name: Prune old dev OCI images
         if: steps.changes.outputs.should_build == 'true'
         env:
@@ -244,7 +250,7 @@ jobs:
         env:
           IMAGE_REF: ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}
         run: |
-          cosign attach sbom --sbom sbom-dev-${{ github.sha }}.spdx.json "$IMAGE_REF"
+          cosign attach sbom --sbom sbom-dev-${{ github.sha }}.normalized.spdx.json "$IMAGE_REF"
 
       - name: Add dev SBOM summary
         if: steps.changes.outputs.should_build == 'true'
@@ -354,30 +360,36 @@ jobs:
         env:
           IMAGE_REF: ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}
         run: |
-          docker run --rm -v "$PWD:/work" -w /work anchore/syft:latest "$IMAGE_REF" -o spdx-json=${{ steps.release_tag.outputs.sbom_file }}
+          docker run --rm -v "$PWD:/work" -w /work anchore/syft:latest "$IMAGE_REF" -o spdx-json=sbom-${{ github.ref_name }}.spdx.json
+
+      - name: Normalize release SPDX SBOM license conclusions
+        run: |
+          jq '(.packages // []) |= map(if .licenseConcluded == "NOASSERTION" and (.licenseDeclared // "") != "" and .licenseDeclared != "NOASSERTION" then . + {licenseConcluded: .licenseDeclared} else . end)' \
+            "sbom-${{ github.ref_name }}.spdx.json" > "sbom-${{ github.ref_name }}.normalized.spdx.json"
 
       - name: Upload release SBOM workflow artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: ${{ steps.release_tag.outputs.sbom_file }}
-          path: ${{ steps.release_tag.outputs.sbom_file }}
+          name: sbom-${{ github.ref_name }}
+          path: |
+            sbom-${{ github.ref_name }}.spdx.json
+            sbom-${{ github.ref_name }}.normalized.spdx.json
           if-no-files-found: error
 
       - name: Attach release SBOM to image with cosign
         env:
           IMAGE_REF: ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}
         run: |
-          cosign attach sbom --sbom ${{ steps.release_tag.outputs.sbom_file }} "$IMAGE_REF"
+          cosign attach sbom --sbom sbom-${{ github.ref_name }}.normalized.spdx.json "$IMAGE_REF"
 
       - name: Attach assets to GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
           RELEASE_TAG: ${{ steps.release_tag.outputs.value }}
         run: |
-          set -euo pipefail
-
-          gh release upload "${RELEASE_TAG}" \
-            "${{ steps.release_tag.outputs.sbom_file }}" \
+          gh release upload "${GITHUB_REF#refs/tags/}" \
+            "sbom-${{ github.ref_name }}.spdx.json" \
+            "sbom-${{ github.ref_name }}.normalized.spdx.json" \
             "crds.yaml" \
             --clobber
 
@@ -387,8 +399,8 @@ jobs:
             echo "### OCI Image Output"
             echo ""
             echo "- Image digest: \`ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}\`"
-            echo "- Download SBOM: \`cosign download sbom ghcr.io/${{ github.repository }}:${{ steps.release_tag.outputs.value }}\`"
-            echo "- Release asset: \`${{ steps.release_tag.outputs.sbom_file }}\`"
+            echo "- Download SBOM: \`cosign download sbom ghcr.io/${{ github.repository }}:${{ github.ref_name }}\` (normalized SPDX attached)"
+            echo "- Release assets: \`sbom-${{ github.ref_name }}.spdx.json\`, \`sbom-${{ github.ref_name }}.normalized.spdx.json\`"
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Update GitHub release notes

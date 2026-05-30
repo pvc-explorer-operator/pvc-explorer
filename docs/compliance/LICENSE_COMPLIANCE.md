@@ -90,12 +90,25 @@ make sbom
 
 Outputs:
 - `dist/sbom.cyclonedx.json` — CycloneDX JSON (NIST/enterprise standard)
-- `dist/sbom.spdx.json` — SPDX JSON (Linux Foundation standard)
+- `dist/sbom.spdx.json` — SPDX JSON (raw Syft output)
+- `dist/sbom.normalized.spdx.json` — SPDX JSON with normalized license conclusions for audit tooling
+
+### NOASSERTION Interpretation
+
+Some scanners populate SPDX fields such as `licenseConcluded`, `supplier`, or `copyrightText`
+with `NOASSERTION` when upstream metadata is incomplete. This does not automatically mean the
+package uses a non-approved license.
+
+For compliance decisions in this project:
+
+- The raw SPDX output is retained as evidence (`dist/sbom.spdx.json`).
+- A normalized SPDX variant is generated for audit compatibility (`dist/sbom.normalized.spdx.json`).
+- The authoritative compatibility gate is `go-licenses check` with the allowlist below.
 
 ### SBOM in Releases
 
 Each release includes:
-- SBOM files in the release artifacts
+- SBOM files in the release artifacts (raw and normalized SPDX)
 - Reference in release notes: _"SBOM available in release assets"_
 - Can be used by organizations for compliance scanning
 
