@@ -21,6 +21,30 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
+            - name: Validate OSPS scanner token
+              env:
+                  OSPS_TOKEN: ${{ secrets.PVTR_GITHUB_TOKEN }}
+              run: |
+                  set -euo pipefail
+
+                  if [ -z "${OSPS_TOKEN:-}" ]; then
+                      echo "Missing required secret: PVTR_GITHUB_TOKEN" >&2
+                      echo "Create a classic PAT with repo/public_repo scope and store it as PVTR_GITHUB_TOKEN." >&2
+                      exit 1
+                  fi
+
+                  http_code="$(curl -sS -o /tmp/osps-token-check.json -w '%{http_code}' \
+                      -H "Authorization: Bearer ${OSPS_TOKEN}" \
+                      -H "Accept: application/vnd.github+json" \
+                      https://api.github.com/rate_limit)"
+
+                  if [ "${http_code}" != "200" ]; then
+                      echo "PVTR_GITHUB_TOKEN authentication failed (HTTP ${http_code})." >&2
+                      echo "Regenerate the token and ensure it has repo/public_repo access and is not expired." >&2
+                      cat /tmp/osps-token-check.json >&2 || true
+                      exit 1
+                  fi
+
             - name: Run Open Source Project Security Baseline Scanner
               uses: revanite-io/osps-baseline-action@v1.3.3
               with:
