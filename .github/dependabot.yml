@@ -7,7 +7,7 @@ updates:
       interval: "weekly"
       day: "monday"
       time: "03:00"
-    open-pull-requests-limit: 10
+    open-pull-requests-limit: 20
     reviewers:
       - "pvc-explorer-operator/maintainers"
     labels:
@@ -37,9 +37,39 @@ updates:
       interval: "weekly"
       day: "monday"
       time: "04:00"
-    open-pull-requests-limit: 5
+    open-pull-requests-limit: 20
     reviewers:
       - "pvc-explorer-operator/maintainers"
     labels:
       - "dependencies"
       - "github-actions"
+
+  # Enable version updates for UI npm dependencies
+  - package-ecosystem: "npm"
+    directory: "/ui"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:30"
+    open-pull-requests-limit: 20
+    reviewers:
+      - "pvc-explorer-operator/maintainers"
+    labels:
+      - "dependencies"
+      - "npm"
+      - "ui"
+
+  # Enable version updates for docs site npm dependencies
+  - package-ecosystem: "npm"
+    directory: "/site"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:45"
+    open-pull-requests-limit: 20
+    reviewers:
+      - "pvc-explorer-operator/maintainers"
+    labels:
+      - "dependencies"
+      - "npm"
+      - "docs"
