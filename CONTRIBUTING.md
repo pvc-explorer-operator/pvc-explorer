@@ -10,6 +10,7 @@ Thank you for taking the time to contribute! Every bug report, feature idea, and
 - [How to report a bug](#how-to-report-a-bug)
 - [How to suggest a feature](#how-to-suggest-a-feature)
 - [How to submit a pull request](#how-to-submit-a-pull-request)
+- [CI and metadata safety](#ci-and-metadata-safety)
 - [Development setup](#development-setup)
 - [Commit style](#commit-style)
 
@@ -74,6 +75,20 @@ Use the **Feature request** issue template. Explain the problem you're trying to
 The `main` branch is protected by repository rulesets. Merges require the required CI checks (`Lint`, `Test`, `DCO`, `Trivy SCA`) and at least one approving review (including CODEOWNERS review when applicable). Force pushes and branch deletion are blocked on protected branches. See [docs/operations/branch-protection.md](docs/operations/branch-protection.md).
 
 A maintainer will review within a reasonable time. If you haven't heard back in a week, feel free to ping the thread.
+
+---
+
+## CI and metadata safety
+
+Workflow inputs are treated as untrusted unless proven otherwise. In particular, branch names, tag names, pull request metadata, and event payload fields must be validated before they are used in shell commands, filenames, API paths, or release operations.
+
+Project policy for CI scripts:
+
+- Validate untrusted metadata using an allowlist before use.
+- Quote shell variables and avoid direct interpolation of unchecked event values.
+- Fail fast when metadata does not match the expected format.
+
+The release workflow enforces this by validating tag names against an allowlist pattern before creating releases and publishing release assets.
 
 ---
 

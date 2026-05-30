@@ -24,11 +24,29 @@ jobs:
     steps:
       - name: Check out source
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+
+      - name: Validate release tag metadata
+        id: release_tag
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          raw_tag="${GITHUB_REF#refs/tags/}"
+          # Allowlist SemVer-like tags with optional prerelease/build suffixes.
+          if [[ ! "${raw_tag}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z]+)*$ ]]; then
+            echo "Invalid release tag: ${raw_tag}" >&2
+            exit 1
+          fi
+
+          echo "value=${raw_tag}" >> "$GITHUB_OUTPUT"
+
       - name: Create GitHub Release for version tags
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          tag="${GITHUB_REF#refs/tags/}"
+          set -euo pipefail
+
+          tag="${{ steps.release_tag.outputs.value }}"
           title="Release ${tag}"
 
           if [[ "${tag}" == *-* ]]; then
@@ -60,6 +78,16 @@ jobs:
           PACKAGE_NAME: ${{ github.event.repository.name }}
         run: |
           set -euo pipefail
+
+          # Validate event-derived metadata before using it in API paths.
+          if [[ ! "${OWNER}" =~ ^[A-Za-z0-9-]+$ ]]; then
+            echo "Invalid repository owner: ${OWNER}" >&2
+            exit 1
+          fi
+          if [[ ! "${PACKAGE_NAME}" =~ ^[A-Za-z0-9._-]+$ ]]; then
+            echo "Invalid package name: ${PACKAGE_NAME}" >&2
+            exit 1
+          fi
 
           mapfile -t watched_paths < <(cat <<'EOF'
           Dockerfile
@@ -248,6 +276,22 @@ jobs:
       - name: Check out source
         uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
 
+      - name: Validate release tag metadata
+        id: release_tag
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          raw_tag="${GITHUB_REF#refs/tags/}"
+          # Allowlist SemVer-like tags with optional prerelease/build suffixes.
+          if [[ ! "${raw_tag}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+([.-][0-9A-Za-z]+)*$ ]]; then
+            echo "Invalid release tag: ${raw_tag}" >&2
+            exit 1
+          fi
+
+          echo "value=${raw_tag}" >> "$GITHUB_OUTPUT"
+          echo "sbom_file=sbom-${raw_tag}.spdx.json" >> "$GITHUB_OUTPUT"
+
       - name: Set up QEMU
         uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4
 
@@ -310,27 +354,30 @@ jobs:
         env:
           IMAGE_REF: ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}
         run: |
-          docker run --rm -v "$PWD:/work" -w /work anchore/syft:latest "$IMAGE_REF" -o spdx-json=sbom-${{ github.ref_name }}.spdx.json
+          docker run --rm -v "$PWD:/work" -w /work anchore/syft:latest "$IMAGE_REF" -o spdx-json=${{ steps.release_tag.outputs.sbom_file }}
 
       - name: Upload release SBOM workflow artifact
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
-          name: sbom-${{ github.ref_name }}
-          path: sbom-${{ github.ref_name }}.spdx.json
+          name: ${{ steps.release_tag.outputs.sbom_file }}
+          path: ${{ steps.release_tag.outputs.sbom_file }}
           if-no-files-found: error
 
       - name: Attach release SBOM to image with cosign
         env:
           IMAGE_REF: ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}
         run: |
-          cosign attach sbom --sbom sbom-${{ github.ref_name }}.spdx.json "$IMAGE_REF"
+          cosign attach sbom --sbom ${{ steps.release_tag.outputs.sbom_file }} "$IMAGE_REF"
 
       - name: Attach assets to GitHub release
         env:
           GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ steps.release_tag.outputs.value }}
         run: |
-          gh release upload "${GITHUB_REF#refs/tags/}" \
-            "sbom-${{ github.ref_name }}.spdx.json" \
+          set -euo pipefail
+
+          gh release upload "${RELEASE_TAG}" \
+            "${{ steps.release_tag.outputs.sbom_file }}" \
             "crds.yaml" \
             --clobber
 
@@ -340,15 +387,15 @@ jobs:
             echo "### OCI Image Output"
             echo ""
             echo "- Image digest: \`ghcr.io/${{ github.repository }}@${{ steps.build.outputs.digest }}\`"
-            echo "- Download SBOM: \`cosign download sbom ghcr.io/${{ github.repository }}:${{ github.ref_name }}\`"
-            echo "- Release asset: \`sbom-${{ github.ref_name }}.spdx.json\`"
+            echo "- Download SBOM: \`cosign download sbom ghcr.io/${{ github.repository }}:${{ steps.release_tag.outputs.value }}\`"
+            echo "- Release asset: \`${{ steps.release_tag.outputs.sbom_file }}\`"
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Update GitHub release notes
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
-          TAG: ${{ github.ref_name }}
+          TAG: ${{ steps.release_tag.outputs.value }}
           PACKAGE_NAME: ${{ github.event.repository.name }}
         run: |
           set -euo pipefail
