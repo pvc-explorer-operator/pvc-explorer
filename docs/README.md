@@ -16,6 +16,10 @@ This directory contains the canonical project documentation for PVC Explorer.
 - [Development](development.md)
 - [UI Docs](ui/index.md)
 
+## Security
+
+- [Security Policy and Vulnerability Reporting](../SECURITY.md)
+
 ## Operations
 
 - [Branch Protection and Rulesets](operations/branch-protection.md)

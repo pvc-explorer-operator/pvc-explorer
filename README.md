@@ -32,6 +32,9 @@
 - [Security policy](SECURITY.md)
 - [Repository protection policy](docs/operations/branch-protection.md)
 
+> [!WARNING]
+> To report a security vulnerability, do not open a public issue. Use the private reporting flow in [SECURITY.md](SECURITY.md).
+
 ## Highlights
 
 - Scale-to-zero by default, with on-demand wake-up for interactive sessions
