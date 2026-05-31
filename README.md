@@ -19,10 +19,6 @@
   <a href="https://www.bestpractices.dev/projects/13031"><img src="https://www.bestpractices.dev/projects/13031/baseline" alt="OpenSSF Best Practices Badge"></a>
 </p>
 
-<p align="center">
-  <strong>PVC-Explorer</strong> is an open-source <strong>Kubernetes</strong> controller for browsing <strong>PersistentVolumeClaims</strong> on demand. It keeps agents scaled to zero until someone needs them, then wakes them up for a short interactive session.
-</p>
-
 # PVC Explorer Operator
 
 PVC Explorer is a Kubernetes-native operator for platform teams to inspect, debug, and explore files on idle or active Persistent Volume Claims (PVCs) safely, without disrupting running workloads.
