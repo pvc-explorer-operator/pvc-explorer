@@ -22,6 +22,7 @@ This directory contains the canonical project documentation for PVC Explorer.
 
 ## Operations
 
+- [AI Collaboration Insights](operations/ai-collaboration-insights.md)
 - [Branch Protection and Rulesets](operations/branch-protection.md)
 - [Codebase Inventory (Current N/A, Future Multi-Repo)](operations/codebase-inventory.md)
 - [CRD Installation](operations/crd-installation.md)

@@ -26,7 +26,9 @@ PVC Explorer is a Kubernetes-native operator for platform engineering and DevOps
 > This project never creates, deletes, or modifies PVCs. It only manages the ephemeral agent pods that mount them.
 
 > [!NOTE]
-> This project was developed with heavy use of AI-based coding tools from its inception — it's an experiment in human-AI collaboration as much as a Kubernetes operator.
+> **Development philosophy:** This project was engineered with heavy utilization of AI-based pair-programming tools from its inception. It is a practical experiment in human-AI collaboration: AI accelerates prototyping and boilerplate generation, while humans retain architectural ownership, validation, and guardrail verification.
+>
+> We publish methodology and outcomes in [docs/operations/ai-collaboration-insights.md](docs/operations/ai-collaboration-insights.md).
 
 ## Community
 
@@ -95,6 +97,10 @@ spec:
 | Automation           | Declarative via CRDs and reconciliation               | Manual pod creation and volume wiring          |
 | Data safety controls | Mount strategy and read-only fallback enforcement     | Operator discipline only; easy to misconfigure |
 | Multi-tenant fit     | Namespace-scoped workflows with project auth controls | Often requires elevated cluster-level access   |
+
+## AI Collaboration Insights
+
+To keep this experiment transparent and useful to the community, we document how AI-assisted development is measured and reviewed in [docs/operations/ai-collaboration-insights.md](docs/operations/ai-collaboration-insights.md).
 
 See [docs/architecture.md](docs/architecture.md) for the full runtime design.
 
