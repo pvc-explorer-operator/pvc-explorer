@@ -18,6 +18,10 @@
 	<strong>PVC-Explorer</strong> is an open-source <strong>Kubernetes</strong> controller for browsing <strong>PersistentVolumeClaims</strong> on demand. It keeps agents scaled to zero until someone needs them, then wakes them up for a short interactive session.
 </p>
 
+# PVC Explorer Operator
+
+PVC Explorer is a Kubernetes-native operator for platform engineering and DevOps teams to safely inspect files in Persistent Volume Claims (PVCs) without manually creating debug pods, changing application pod specs, or disrupting running workloads.
+
 > [!IMPORTANT]
 > This project never creates, deletes, or modifies PVCs. It only manages the ephemeral agent pods that mount them.
 
@@ -44,11 +48,53 @@
 
 ## How it Works
 
-PVC Explorer watches Kubernetes PersistentVolumeClaims and creates on-demand explorer agents that scale to zero when idle.
+1. Submit the Custom Resource:
+Create and apply a `PVCExplorer` resource in the namespace that contains the target PVC.
 
-- A Kubernetes controller reconciles PVC explorer resources and agent lifecycle.
-- Agents wake up on demand for interactive browsing, then scale down after inactivity.
-- The web UI and API provide secure access for browsing and operations.
+2. Reconciliation and Validation:
+The controller validates the target PVC and computes a safe mount strategy based on current consumers and access mode.
+
+3. Ephemeral Agent Lifecycle:
+An explorer agent is created and managed by the controller, then scaled to zero after inactivity (or kept running in deployment mode).
+
+4. Storage Exploration:
+Use the UI/API to inspect file structures and metadata while the operator enforces lifecycle and mount guardrails.
+
+### Production Safety Guardrails
+
+> Read-only safety fallback:
+> When active PVC consumers are detected, explorer mounts are forced read-only.
+>
+> Workload-preserving design:
+> The operator manages dedicated explorer agents and does not mutate existing application pod specs.
+>
+> Namespace and RBAC boundaries:
+> Access is mediated by Kubernetes namespace scope and project auth controls.
+
+## PVCExplorer Custom Resource Example
+
+```yaml
+apiVersion: pvcexplorer.io/v1alpha1
+kind: PVCExplorer
+metadata:
+  name: inspect-legacy-data
+  namespace: production
+spec:
+  pvcName: active-assets-pvc
+  mode: ScaledToZero
+  forceRW: false
+  scaling:
+    idleTimeout: "10m"
+```
+
+## Capability Comparison
+
+| Capability           | PVC Explorer Operator                                 | Manual kubectl debug pods                      |
+| -------------------- | ----------------------------------------------------- | ---------------------------------------------- |
+| Auditability         | Kubernetes resources, events, and controller logs     | Ad hoc terminal history and ephemeral commands |
+| Automation           | Declarative via CRDs and reconciliation               | Manual pod creation and volume wiring          |
+| Data safety controls | Mount strategy and read-only fallback enforcement     | Operator discipline only; easy to misconfigure |
+| Multi-tenant fit     | Namespace-scoped workflows with project auth controls | Often requires elevated cluster-level access   |
 
 See [docs/architecture.md](docs/architecture.md) for the full runtime design.
 
