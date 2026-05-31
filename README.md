@@ -1,28 +1,35 @@
 <p align="center">
-	<img src="logo.svg" alt="pvc-explorer logo" width="280">
+  <img src="logo.svg" alt="pvc-explorer logo" width="280">
 </p>
 
 <p align="center">
-	<a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg" alt="License"></a>
-	<a href="https://go.dev"><img src="https://img.shields.io/badge/go-1.25+-00ADD8.svg" alt="Go"></a>
-	<a href="https://kubernetes.io"><img src="https://img.shields.io/badge/kubernetes-v1.35+-326CE5.svg" alt="Kubernetes"></a>
-	<a href="https://book.kubebuilder.io"><img src="https://img.shields.io/badge/kubebuilder-v4.14+-FF6B6B.svg" alt="Kubebuilder"></a>
-	<a href="https://vuejs.org"><img src="https://img.shields.io/badge/vue-3.5+-4FC08D.svg" alt="Vue.js"></a>
-	<a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/typescript-6.0+-3178C6.svg" alt="TypeScript"></a>
-	<a href="https://scorecard.dev/viewer/?uri=github.com/pvc-explorer-operator/pvc-explorer"><img src="https://api.scorecard.dev/projects/github.com/pvc-explorer-operator/pvc-explorer/badge" alt="OpenSSF Scorecard"></a>
-	<a href="https://github.com/pvc-explorer-operator/pvc-explorer/actions/workflows/scorecard.yml"><img src="https://github.com/pvc-explorer-operator/pvc-explorer/actions/workflows/scorecard.yml/badge.svg?branch=main" alt="OpenSSF Scorecard Workflow"></a>
-	<a href="https://www.bestpractices.dev/projects/13031"><img src="https://www.bestpractices.dev/projects/13031/baseline"></a>
+  <strong>Core Stack</strong><br>
+  <a href="https://go.dev"><img src="https://img.shields.io/badge/go-1.25+-00ADD8.svg" alt="Go"></a>
+  <a href="https://kubernetes.io"><img src="https://img.shields.io/badge/kubernetes-v1.35+-326CE5.svg" alt="Kubernetes"></a>
+  <a href="https://book.kubebuilder.io"><img src="https://img.shields.io/badge/kubebuilder-v4.14+-FF6B6B.svg" alt="Kubebuilder"></a>
+  <a href="https://vuejs.org"><img src="https://img.shields.io/badge/vue-3.5+-4FC08D.svg" alt="Vue.js"></a>
+  <a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/typescript-6.0+-3178C6.svg" alt="TypeScript"></a>
 </p>
 
 <p align="center">
-	<strong>PVC-Explorer</strong> is an open-source <strong>Kubernetes</strong> controller for browsing <strong>PersistentVolumeClaims</strong> on demand. It keeps agents scaled to zero until someone needs them, then wakes them up for a short interactive session.
+  <strong>Security &amp; Compliance</strong><br>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg" alt="Apache-2.0 License"></a>
+  <a href="https://scorecard.dev/viewer/?uri=github.com/pvc-explorer-operator/pvc-explorer"><img src="https://api.scorecard.dev/projects/github.com/pvc-explorer-operator/pvc-explorer/badge" alt="OpenSSF Scorecard"></a>
+  <a href="https://github.com/pvc-explorer-operator/pvc-explorer/actions/workflows/scorecard.yml"><img src="https://github.com/pvc-explorer-operator/pvc-explorer/actions/workflows/scorecard.yml/badge.svg?branch=main" alt="OpenSSF Scorecard Workflow"></a>
+  <a href="https://www.bestpractices.dev/projects/13031"><img src="https://www.bestpractices.dev/projects/13031/baseline" alt="OpenSSF Best Practices Badge"></a>
 </p>
+
+# PVC Explorer Operator
+
+PVC Explorer is a Kubernetes-native operator for platform teams to inspect, debug, and explore files on idle or active Persistent Volume Claims (PVCs) safely, without disrupting running workloads.
 
 > [!IMPORTANT]
 > This project never creates, deletes, or modifies PVCs. It only manages the ephemeral agent pods that mount them.
 
 > [!NOTE]
-> This project was developed with heavy use of AI-based coding tools from its inception — it's an experiment in human-AI collaboration as much as a Kubernetes operator.
+> **Development philosophy:** This project was engineered with heavy utilization of AI-based pair-programming tools from its inception. It is a practical experiment in human-AI collaboration: AI accelerates prototyping and boilerplate generation, while humans retain architectural ownership, validation, and guardrail verification.
+>
+> We publish methodology and outcomes in [docs/operations/ai-collaboration-insights.md](docs/operations/ai-collaboration-insights.md).
 
 ## Community
 
@@ -44,11 +51,57 @@
 
 ## How it Works
 
-PVC Explorer watches Kubernetes PersistentVolumeClaims and creates on-demand explorer agents that scale to zero when idle.
+1. Submit the Custom Resource:
+Create and apply a `PVCExplorer` resource in the namespace that contains the target PVC.
 
-- A Kubernetes controller reconciles PVC explorer resources and agent lifecycle.
-- Agents wake up on demand for interactive browsing, then scale down after inactivity.
-- The web UI and API provide secure access for browsing and operations.
+2. Reconciliation and Validation:
+The controller validates the target PVC and computes a safe mount strategy based on current consumers and access mode.
+
+3. Ephemeral Agent Lifecycle:
+An explorer agent is created and managed by the controller, then scaled to zero after inactivity (or kept running in deployment mode).
+
+4. Storage Exploration:
+Use the UI/API to inspect file structures and metadata while the operator enforces lifecycle and mount guardrails.
+
+### Production Safety Guardrails
+
+> Read-only safety fallback:
+> When active PVC consumers are detected, explorer mounts are forced read-only.
+>
+> Workload-preserving design:
+> The operator manages dedicated explorer agents and does not mutate existing application pod specs.
+>
+> Namespace and RBAC boundaries:
+> Access is mediated by Kubernetes namespace scope and project auth controls.
+
+## PVCExplorer Custom Resource Example
+
+```yaml
+apiVersion: pvcexplorer.io/v1alpha1
+kind: PVCExplorer
+metadata:
+  name: inspect-legacy-data
+  namespace: production
+spec:
+  pvcName: active-assets-pvc
+  mode: ScaledToZero
+  forceRW: false
+  scaling:
+    idleTimeout: "10m"
+```
+
+## Capability Comparison
+
+| Capability           | PVC Explorer Operator                                 | Manual kubectl debug pods                      |
+| -------------------- | ----------------------------------------------------- | ---------------------------------------------- |
+| Auditability         | Kubernetes resources, events, and controller logs     | Ad hoc terminal history and ephemeral commands |
+| Automation           | Declarative via CRDs and reconciliation               | Manual pod creation and volume wiring          |
+| Data safety controls | Mount strategy and read-only fallback enforcement     | Operator discipline only; easy to misconfigure |
+| Multi-tenant fit     | Namespace-scoped workflows with project auth controls | Often requires elevated cluster-level access   |
+
+## AI Collaboration Insights
+
+To keep this experiment transparent and useful to the community, we document how AI-assisted development is measured and reviewed in [docs/operations/ai-collaboration-insights.md](docs/operations/ai-collaboration-insights.md).
 
 See [docs/architecture.md](docs/architecture.md) for the full runtime design.
 
