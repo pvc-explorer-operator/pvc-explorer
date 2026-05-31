@@ -1,26 +1,31 @@
 <p align="center">
-	<img src="logo.svg" alt="pvc-explorer logo" width="280">
+  <img src="logo.svg" alt="pvc-explorer logo" width="280">
 </p>
 
 <p align="center">
-	<a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg" alt="License"></a>
-	<a href="https://go.dev"><img src="https://img.shields.io/badge/go-1.25+-00ADD8.svg" alt="Go"></a>
-	<a href="https://kubernetes.io"><img src="https://img.shields.io/badge/kubernetes-v1.35+-326CE5.svg" alt="Kubernetes"></a>
-	<a href="https://book.kubebuilder.io"><img src="https://img.shields.io/badge/kubebuilder-v4.14+-FF6B6B.svg" alt="Kubebuilder"></a>
-	<a href="https://vuejs.org"><img src="https://img.shields.io/badge/vue-3.5+-4FC08D.svg" alt="Vue.js"></a>
-	<a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/typescript-6.0+-3178C6.svg" alt="TypeScript"></a>
-	<a href="https://scorecard.dev/viewer/?uri=github.com/pvc-explorer-operator/pvc-explorer"><img src="https://api.scorecard.dev/projects/github.com/pvc-explorer-operator/pvc-explorer/badge" alt="OpenSSF Scorecard"></a>
-	<a href="https://github.com/pvc-explorer-operator/pvc-explorer/actions/workflows/scorecard.yml"><img src="https://github.com/pvc-explorer-operator/pvc-explorer/actions/workflows/scorecard.yml/badge.svg?branch=main" alt="OpenSSF Scorecard Workflow"></a>
-	<a href="https://www.bestpractices.dev/projects/13031"><img src="https://www.bestpractices.dev/projects/13031/baseline"></a>
+  <strong>Core Stack</strong><br>
+  <a href="https://go.dev"><img src="https://img.shields.io/badge/go-1.25+-00ADD8.svg" alt="Go"></a>
+  <a href="https://kubernetes.io"><img src="https://img.shields.io/badge/kubernetes-v1.35+-326CE5.svg" alt="Kubernetes"></a>
+  <a href="https://book.kubebuilder.io"><img src="https://img.shields.io/badge/kubebuilder-v4.14+-FF6B6B.svg" alt="Kubebuilder"></a>
+  <a href="https://vuejs.org"><img src="https://img.shields.io/badge/vue-3.5+-4FC08D.svg" alt="Vue.js"></a>
+  <a href="https://www.typescriptlang.org"><img src="https://img.shields.io/badge/typescript-6.0+-3178C6.svg" alt="TypeScript"></a>
 </p>
 
 <p align="center">
-	<strong>PVC-Explorer</strong> is an open-source <strong>Kubernetes</strong> controller for browsing <strong>PersistentVolumeClaims</strong> on demand. It keeps agents scaled to zero until someone needs them, then wakes them up for a short interactive session.
+  <strong>Security &amp; Compliance</strong><br>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache%202.0-blue.svg" alt="Apache-2.0 License"></a>
+  <a href="https://scorecard.dev/viewer/?uri=github.com/pvc-explorer-operator/pvc-explorer"><img src="https://api.scorecard.dev/projects/github.com/pvc-explorer-operator/pvc-explorer/badge" alt="OpenSSF Scorecard"></a>
+  <a href="https://github.com/pvc-explorer-operator/pvc-explorer/actions/workflows/scorecard.yml"><img src="https://github.com/pvc-explorer-operator/pvc-explorer/actions/workflows/scorecard.yml/badge.svg?branch=main" alt="OpenSSF Scorecard Workflow"></a>
+  <a href="https://www.bestpractices.dev/projects/13031"><img src="https://www.bestpractices.dev/projects/13031/baseline" alt="OpenSSF Best Practices Badge"></a>
+</p>
+
+<p align="center">
+  <strong>PVC-Explorer</strong> is an open-source <strong>Kubernetes</strong> controller for browsing <strong>PersistentVolumeClaims</strong> on demand. It keeps agents scaled to zero until someone needs them, then wakes them up for a short interactive session.
 </p>
 
 # PVC Explorer Operator
 
-PVC Explorer is a Kubernetes-native operator for platform engineering and DevOps teams to safely inspect files in Persistent Volume Claims (PVCs) without manually creating debug pods, changing application pod specs, or disrupting running workloads.
+PVC Explorer is a Kubernetes-native operator for platform teams to inspect, debug, and explore files on idle or active Persistent Volume Claims (PVCs) safely, without disrupting running workloads.
 
 > [!IMPORTANT]
 > This project never creates, deletes, or modifies PVCs. It only manages the ephemeral agent pods that mount them.
