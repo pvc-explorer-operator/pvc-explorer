@@ -23,7 +23,7 @@ jobs:
                   fetch-depth: 0
 
             - name: Set up Kustomize
-              uses: imranismail/setup-kustomize@2ba527d4d055ab63514ba50a99456fc35684947f # v2.1.0
+              uses: imranismail/setup-kustomize@53f941b41dca13ed61874bbc6b4b6e1562877530 # v3.0.0
               with:
                   kustomize-version: v5.8.1
 
@@ -64,7 +64,7 @@ jobs:
 
             - name: Create Release Assets
               if: startsWith(github.ref, 'refs/tags/')
-              uses: softprops/action-gh-release@403a5240f3837fa857f642062e05aad6bb3391ca
+              uses: softprops/action-gh-release@3efcac8951299998593f871640ea8059d6818655
               with:
                   files: |
                       build/release/pvc-explorer-crds.yaml
