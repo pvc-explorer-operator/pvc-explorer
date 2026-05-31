@@ -35,12 +35,22 @@
 > [!WARNING]
 > To report a security vulnerability, do not open a public issue. Use the private reporting flow in [SECURITY.md](SECURITY.md).
 
-## Highlights
+## Why PVC Explorer?
 
 - Scale-to-zero by default, with on-demand wake-up for interactive sessions
 - Safe read-only fallback when other workloads are using the PVC
 - Web dashboard, file browser, and agent lifecycle managed from a single controller
 - Kubernetes-native auth, theming, and release automation
+
+## How it Works
+
+PVC Explorer watches Kubernetes PersistentVolumeClaims and creates on-demand explorer agents that scale to zero when idle.
+
+- A Kubernetes controller reconciles PVC explorer resources and agent lifecycle.
+- Agents wake up on demand for interactive browsing, then scale down after inactivity.
+- The web UI and API provide secure access for browsing and operations.
+
+See [docs/architecture.md](docs/architecture.md) for the full runtime design.
 
 ## 🚀 Getting Started
 
@@ -63,6 +73,22 @@ kubectl apply -k config/samples/
 ```
 
 See [docs/getting-started.md](docs/getting-started.md) for the full guide, dev-mode workflow and `kind/` helper scripts.
+
+## Installation via Helm / kubectl
+
+### Installation via kubectl (Kustomize)
+
+```bash
+kubectl apply -k config/default
+```
+
+### Installation via Helm
+
+```bash
+helm install pvc-explorer ./helm/pvc-explorer --namespace pvc-explorer-system --create-namespace
+```
+
+For full installation options and environment-specific setup, see [docs/getting-started.md](docs/getting-started.md).
 
 ## 📚 Documentation
 

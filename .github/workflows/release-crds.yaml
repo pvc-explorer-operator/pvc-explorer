@@ -23,7 +23,7 @@ jobs:
                   fetch-depth: 0
 
             - name: Set up Kustomize
-              uses: imranismail/setup-kustomize@2ba527d4d055ab63514ba50a99456fc35684947f # v2.1.0
+              uses: imranismail/setup-kustomize@53f941b41dca13ed61874bbc6b4b6e1562877530 # v3.0.0
               with:
                   kustomize-version: v5.8.1
 
