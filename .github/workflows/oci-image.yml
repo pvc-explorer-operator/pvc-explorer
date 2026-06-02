@@ -23,7 +23,7 @@ jobs:
       contents: write
     steps:
       - name: Check out source
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Validate release tag metadata
         id: release_tag
@@ -66,7 +66,7 @@ jobs:
       packages: write
     steps:
       - name: Check out source
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
         with:
           fetch-depth: 0
 
@@ -133,7 +133,7 @@ jobs:
 
       - name: Set up QEMU
         if: steps.changes.outputs.should_build == 'true'
-        uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4
+        uses: docker/setup-qemu-action@06116385d9baf250c9f4dcb4858b16962ea869c3 # v4
 
       - name: Set up Docker Buildx
         if: steps.changes.outputs.should_build == 'true'
@@ -280,7 +280,7 @@ jobs:
       packages: write
     steps:
       - name: Check out source
-        uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
 
       - name: Validate release tag metadata
         id: release_tag
@@ -299,7 +299,7 @@ jobs:
           echo "sbom_file=sbom-${raw_tag}.spdx.json" >> "$GITHUB_OUTPUT"
 
       - name: Set up QEMU
-        uses: docker/setup-qemu-action@ce360397dd3f832beb865e1373c09c0e9f86d70a # v4
+        uses: docker/setup-qemu-action@06116385d9baf250c9f4dcb4858b16962ea869c3 # v4
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@d7f5e7f509e45cec5c76c4d5afdd7de93d0b3df5 # v4
@@ -368,7 +368,7 @@ jobs:
             "sbom-${{ github.ref_name }}.spdx.json" > "sbom-${{ github.ref_name }}.normalized.spdx.json"
 
       - name: Upload release SBOM workflow artifact
-        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
           name: sbom-${{ github.ref_name }}
           path: |
