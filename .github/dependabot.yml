@@ -14,7 +14,7 @@ updates:
       - "dependencies"
       - "go"
     allow:
-      - dependency-type: "all"
+      - dependency-type: "direct"
 
   # Enable version updates for Docker base images
   - package-ecosystem: "docker"
