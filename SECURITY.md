@@ -17,6 +17,10 @@ Maintainer roles and sensitive-resource access are documented in [MAINTAINERS.md
 
 Use GitHub's private vulnerability reporting:
 
+- Repository security page: [github.com/pvc-explorer-operator/pvc-explorer/security](https://github.com/pvc-explorer-operator/pvc-explorer/security)
+- Private report form: [github.com/pvc-explorer-operator/pvc-explorer/security/advisories/new](https://github.com/pvc-explorer-operator/pvc-explorer/security/advisories/new)
+- Published advisories: [github.com/pvc-explorer-operator/pvc-explorer/security/advisories](https://github.com/pvc-explorer-operator/pvc-explorer/security/advisories)
+
 1. Go to the repository's **Security** tab
 2. Click **Report a vulnerability**
 3. Provide reproduction steps and impact details

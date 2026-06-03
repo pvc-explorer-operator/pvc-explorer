@@ -2,24 +2,25 @@
 # Order matters: the last matching pattern takes precedence.
 
 # Default owners for everything
-* @ricardoleal
+* @pvc-explorer-operator/reviewers
 
 # Go source code and module files
-*.go @ricardoleal
-go.mod @ricardoleal
-go.sum @ricardoleal
-Makefile @ricardoleal
+*.go @ricardoleal @pvc-explorer-operator/reviewers
+go.mod @ricardoleal @pvc-explorer-operator/reviewers
+go.sum @ricardoleal @pvc-explorer-operator/reviewers
+Makefile @ricardoleal @pvc-explorer-operator/reviewers
 
 # CI/CD and GitHub configuration
-.github/ @ricardoleal
+.github/ @pvc-explorer-operator/reviewers
+.github/CODEOWNERS @ricardoleal
 
 # Docker
-Dockerfile @ricardoleal
-Dockerfile.* @ricardoleal
+Dockerfile @ricardoleal @pvc-explorer-operator/reviewers
+Dockerfile.* @ricardoleal @pvc-explorer-operator/reviewers
 
 # Documentation
-docs/ @ricardoleal
-README.md @ricardoleal
+docs/ @ricardoleal @pvc-explorer-operator/reviewers
+README.md @ricardoleal @pvc-explorer-operator/reviewers
 
 # Security and compliance
-SECURITY.md @ricardoleal
+SECURITY.md @ricardoleal @pvc-explorer-operator/reviewers
