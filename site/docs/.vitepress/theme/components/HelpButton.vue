@@ -15,7 +15,7 @@
 
 <script setup lang="ts">
 function toggle() {
-  document.dispatchEvent(new CustomEvent("opencode:toggle-keyboard-help"))
+  document.dispatchEvent(new CustomEvent("ui:toggle-keyboard-help"))
 }
 </script>
 
