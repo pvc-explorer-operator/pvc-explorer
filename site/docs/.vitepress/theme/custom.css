@@ -10,6 +10,78 @@
   --space-xl: 2rem;
   --space-2xl: 3rem;
   --space-3xl: 4rem;
+
+  --alpha-banner-height: 2.25rem;
+}
+
+/* ─── Alpha Banner ─── */
+.alpha-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: var(--alpha-banner-height);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+  background: linear-gradient(135deg, #d97706, #f59e0b);
+  color: #1c1917;
+  font-size: 0.72rem;
+  font-weight: 650;
+  letter-spacing: 0.03em;
+}
+
+.alpha-banner-icon {
+  width: 0.85rem;
+  height: 0.85rem;
+  flex-shrink: 0;
+  opacity: 0.8;
+}
+
+.alpha-banner-text {
+  text-transform: uppercase;
+}
+
+.alpha-banner-dot {
+  opacity: 0.45;
+}
+
+.alpha-banner-sub {
+  font-weight: 500;
+  opacity: 0.75;
+  text-transform: none;
+  letter-spacing: 0;
+  font-size: 0.68rem;
+}
+
+/* Offset VitePress nav bar to sit below the banner */
+.VPNav {
+  top: var(--alpha-banner-height) !important;
+}
+
+.VPContent.has-sidebar {
+  padding-top: calc(var(--vp-nav-height) + var(--alpha-banner-height)) !important;
+}
+
+.VPContent:not(.has-sidebar) {
+  padding-top: calc(var(--vp-nav-height) + var(--alpha-banner-height)) !important;
+}
+
+/* Offset sidebar */
+.VPSidebar {
+  padding-top: calc(var(--vp-nav-height) + var(--alpha-banner-height)) !important;
+}
+
+/* Offset local nav (mobile) */
+.VPLocalNav {
+  top: calc(var(--vp-nav-height) + var(--alpha-banner-height)) !important;
+}
+
+/* Adjust backdrop for translucent nav */
+.VPNavBar.has-sidebar~div {
+  padding-top: 0 !important;
 }
 
 /* ---- Logo-matched light mode ---- */
