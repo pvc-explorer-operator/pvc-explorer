@@ -51,7 +51,10 @@ ui/dist/
 ui/dist-demo/
 
 # VitePress docs build/cache
-site/docs/.vitepress/
+site/docs/.vitepress/dist/
+site/docs/.vitepress/cache/
+site/node_modules/
+site/package-lock.json
 
 # Playwright MCP session artifacts
 .playwright-mcp/

@@ -4,20 +4,20 @@
 
 1. Install dependencies:
 
-```bash
+```shell
 cd site
 npm install
 ```
 
 2. Run local docs server:
 
-```bash
+```shell
 npm run docs:dev
 ```
 
 3. Build static site:
 
-```bash
+```shell
 npm run docs:build
 ```
 

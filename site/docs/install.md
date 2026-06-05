@@ -10,7 +10,7 @@ This page summarizes the installation paths and links to the source documentatio
 
 ## Quick install on kind
 
-```bash
+```shell
 kind create cluster --config kind/cluster.yaml
 make docker-build IMG=pvc-explorer:dev
 kind load docker-image pvc-explorer:dev --name pvc-explorer
@@ -20,7 +20,7 @@ kubectl apply -k config/samples/
 
 Open dashboard:
 
-```bash
+```shell
 kubectl -n pvc-explorer-system port-forward svc/pvc-explorer-controller-manager 8080:8080
 ```
 
@@ -28,7 +28,7 @@ Then visit `http://localhost:8080`
 
 ## Fast dev loop (out-of-cluster manager)
 
-```bash
+```shell
 make install
 make run
 ```

@@ -11,7 +11,7 @@ This guide covers two local workflows:
 
 Use this workflow for screens, layout, state handling, and UI behavior without a cluster.
 
-```bash
+```shell
 cd ui
 npm install
 npm run dev
@@ -25,14 +25,14 @@ Use this workflow to test the login page against a live backend instead of the d
 
 Terminal 1:
 
-```bash
+```shell
 cd ui
 VITE_DEV_AUTH_BYPASS=false npm run dev
 ```
 
 Terminal 2:
 
-```bash
+```shell
 make run
 ```
 
@@ -55,7 +55,7 @@ Make sure these tools are installed and available on your `PATH`:
 
 From the repository root:
 
-```bash
+```shell
 kind/setup.sh
 ```
 
@@ -86,7 +86,7 @@ Demo namespaces and scopes created by the script:
 
 Useful checks:
 
-```bash
+```shell
 kubectl get pvcexplorerscope,pvcexplorer -A
 kubectl logs -n pvc-explorer-system -l control-plane=controller-manager -f
 ```
@@ -97,19 +97,19 @@ Use the rebuild helper instead of recreating the whole cluster.
 
 Rebuild controller only:
 
-```bash
+```shell
 kind/rebuild.sh controller
 ```
 
 Reload agent image only:
 
-```bash
+```shell
 kind/rebuild.sh agent
 ```
 
 Rebuild both:
 
-```bash
+```shell
 kind/rebuild.sh
 ```
 
@@ -122,13 +122,13 @@ Notes:
 
 If the default GHCR image is not accessible, provide a different agent image explicitly:
 
-```bash
+```shell
 AGENT_IMG=<your-agent-image> kind/setup.sh
 ```
 
 or:
 
-```bash
+```shell
 AGENT_IMG=<your-agent-image> kind/rebuild.sh agent
 ```
 
@@ -136,7 +136,7 @@ AGENT_IMG=<your-agent-image> kind/rebuild.sh agent
 
 To remove the kind cluster and its local data:
 
-```bash
+```shell
 kind/teardown.sh
 ```
 

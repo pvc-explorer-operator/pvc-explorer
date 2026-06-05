@@ -6,7 +6,7 @@ Reference for contributors working on the UI codebase.
 
 ### Run UI only with mock data
 
-```bash
+```shell
 cd ui
 npm install
 npm run dev
@@ -18,14 +18,14 @@ This uses the Vite mock plugin so you can develop without a running cluster.
 
 Terminal 1:
 
-```bash
+```shell
 cd ui
 VITE_DEV_AUTH_BYPASS=false npm run dev
 ```
 
 Terminal 2:
 
-```bash
+```shell
 make run
 ```
 

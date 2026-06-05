@@ -1,27 +1,40 @@
 # Overview
 
-PVC Explorer is a Kubernetes operator that gives controlled, on-demand access to PersistentVolumeClaims through an embedded API server and web UI.
+**PVC Explorer Operator** is a suite of open-source Kubernetes tools for browsing, managing, and exploring PersistentVolumeClaims — safely, scoped, and on demand.
 
-## What it does
+The suite consists of three projects that work together:
 
-- Discovers PVCs in the cluster through `PVCExplorerScope` CRDs
-- Creates and manages `PVCExplorer` resources for each discovered PVC
-- Keeps explorer workloads scaled to zero when idle
-- Wakes explorers on demand by deploying a [`pvc-explorer-agent`](https://github.com/pvc-explorer-operator/pvc-explorer-agent) pod that mounts and exposes the PVC
-- Proxies file-browser traffic from the UI to the running agent pod
-- Exposes REST and WebSocket APIs used by the UI
+## Projects
 
-> **Note:** The operator manages the agent lifecycle but does not contain the agent implementation. See the [`pvc-explorer-agent`](https://github.com/pvc-explorer-operator/pvc-explorer-agent) repository for the file-browser implementation.
+### pvc-explorer (Operator)
 
-## Start here
+A Kubernetes-native operator (Kubebuilder v4) that manages ephemeral agent pods for browsing PVCs. It validates PVCs, computes safe mount strategies, enforces read-only fallback when workloads are active, and scales agents to zero when idle.
 
-- Install and first run: [Install](/install)
-- Fast local workflow: [Run Local](/guide/local-run)
-- Runtime internals: [Architecture](/architecture)
-- API contract: [API](/api/)
-- Frontend product docs: [UI](/ui/)
+- [Getting Started](/guide/getting-started) — install and first run
+- [Architecture](/architecture) — runtime internals
+- [API Reference](/api/rest) — REST, WebSocket, and CRD APIs
 
-## Source references
+### pvc-explorer-agent
 
-- Main project entry: https://github.com/pvc-explorer-operator/pvc-explorer
-- Existing docs folder: https://github.com/pvc-explorer-operator/pvc-explorer/tree/main/docs
+A lightweight HTTP file-browser that mounts a PVC and exposes its contents over a REST API. It has an embedded Vue UI and automatically detects conflicts — if another workload is using the same PVC, write endpoints are disabled.
+
+This is the container image deployed by the operator. You don't run it directly — the operator creates agent pods from this image.
+
+- [Agent Overview](/pvc-explorer-agent/overview)
+
+### kubectl-pvc-explorer
+
+A kubectl plugin for exploring PVCs from the command line. List files, view contents, upload/download, execute commands, and even FUSE-mount PVCs — all without the web UI.
+
+- [CLI Overview](/kubectl-pvc-explorer/overview)
+
+## How They Fit Together
+
+<ArchitectureDiagram />
+
+## Getting Started
+
+1. **Install the operator** in your cluster: [Install Guide](/install)
+2. **Define scopes** to control which PVCs are accessible
+3. **Use the web UI** or **install the CLI plugin** to browse PVCs
+4. **Let the operator handle lifecycle** — agents scale to zero when idle
