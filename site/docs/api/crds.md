@@ -9,10 +9,10 @@ PVC Explorer uses two CRDs in API group `pvcexplorer.io/v1alpha1`.
 
 ## API Specification
 
-| Resource | Version | Scope | Short name | Status subresource |
-| --- | --- | --- | --- | --- |
-| PVCExplorer | pvcexplorer.io/v1alpha1 | Namespaced | pvcexp | Enabled |
-| PVCExplorerScope | pvcexplorer.io/v1alpha1 | Cluster | pvcs | Enabled |
+| Resource         | Version                 | Scope      | Short name | Status subresource |
+| ---------------- | ----------------------- | ---------- | ---------- | ------------------ |
+| PVCExplorer      | pvcexplorer.io/v1alpha1 | Namespaced | pvcexp     | Enabled            |
+| PVCExplorerScope | pvcexplorer.io/v1alpha1 | Cluster    | pvcs       | Enabled            |
 
 ## Responsibility split
 
@@ -26,10 +26,10 @@ PVC Explorer uses two CRDs in API group `pvcexplorer.io/v1alpha1`.
 
 ## Quick comparison
 
-| Kind | Scope | Primary role |
-| --- | --- | --- |
-| PVCExplorer | Namespaced | Manages one explorer agent for one PVC |
-| PVCExplorerScope | Cluster | Registers namespaces and defaults, then manages many PVCExplorer objects |
+| Kind             | Scope      | Primary role                                                             |
+| ---------------- | ---------- | ------------------------------------------------------------------------ |
+| PVCExplorer      | Namespaced | Manages one explorer agent for one PVC                                   |
+| PVCExplorerScope | Cluster    | Registers namespaces and defaults, then manages many PVCExplorer objects |
 
 ## Example relationships
 

@@ -32,7 +32,7 @@ spec:
       storage: 1Gi
 ```
 
-```bash
+```shell
 kubectl apply -f namespace-and-pvc.yaml
 ```
 
@@ -68,7 +68,7 @@ spec:
         memory: "256Mi"
 ```
 
-```bash
+```shell
 kubectl apply -f scope.yaml
 ```
 
@@ -76,7 +76,7 @@ kubectl apply -f scope.yaml
 
 The scope reconciler finds `my-app` in `spec.namespaces.names` and creates a `PVCExplorer` resource for `my-app-data`. The explorer starts in `ScaledToZero` phase. Use the UI or the REST API to wake it on demand.
 
-```bash
+```shell
 kubectl get pvcexplorer -n my-app
 ```
 
@@ -109,7 +109,7 @@ spec:
       storage: 2Gi
 ```
 
-```bash
+```shell
 kubectl apply -f namespace-and-pvc.yaml
 ```
 
@@ -150,7 +150,7 @@ spec:
         memory: "256Mi"
 ```
 
-```bash
+```shell
 kubectl apply -f scope.yaml
 ```
 
@@ -158,7 +158,7 @@ kubectl apply -f scope.yaml
 
 The scope reconciler watches all namespaces. When it finds `my-team` (labelled `pvc-explorer: enabled`), it creates a `PVCExplorer` for `my-team-data`. Add the same label to any new namespace and it is enrolled automatically — no scope update required.
 
-```bash
+```shell
 # Opt a new namespace in at any time
 kubectl label namespace another-team pvc-explorer=enabled
 
@@ -170,7 +170,7 @@ kubectl get pvcexplorer -A
 
 ## Verify the full picture
 
-```bash
+```shell
 kubectl get pvcexplorerscope
 kubectl get pvcexplorer -A
 ```

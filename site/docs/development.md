@@ -4,7 +4,7 @@ Canonical development documentation is maintained in the main repository docs.
 
 ## Common commands
 
-```bash
+```shell
 make test
 make manifests
 make generate
