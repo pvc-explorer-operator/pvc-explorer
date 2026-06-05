@@ -18,15 +18,10 @@
           </div>
           <div class="card-text">
             <div class="card-label">kubectl pvc</div>
-            <div class="card-sub-label">CLI plugin</div>
+            <div class="card-sub-label">CLI plugin · kubeconfig</div>
           </div>
         </div>
-        <div class="arch-connector conn-sm">
-          <svg viewBox="0 0 36 16" fill="none" class="conn-arrow">
-            <path d="M2 8h28M28 4l4 4-4 4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-          <span class="conn-label-sm">kubeconfig</span>
-        </div>
+
         <div class="arch-card card-sm">
           <div class="card-icon-wrap">
             <svg class="card-icon-svg" viewBox="0 0 40 40" fill="none">
