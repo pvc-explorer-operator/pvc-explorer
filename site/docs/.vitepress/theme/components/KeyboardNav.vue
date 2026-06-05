@@ -192,13 +192,13 @@ function onDialogClick(e: MouseEvent) {
 
 onMounted(() => {
   document.addEventListener("keydown", onKeydown, { capture: true })
-  document.addEventListener("opencode:toggle-keyboard-help", toggleHelp)
+  document.addEventListener("ui:toggle-keyboard-help", toggleHelp)
   dialogRef.value?.addEventListener("click", onDialogClick)
 })
 
 onUnmounted(() => {
   document.removeEventListener("keydown", onKeydown, { capture: true })
-  document.removeEventListener("opencode:toggle-keyboard-help", toggleHelp)
+  document.removeEventListener("ui:toggle-keyboard-help", toggleHelp)
   cancelG()
 })
 
