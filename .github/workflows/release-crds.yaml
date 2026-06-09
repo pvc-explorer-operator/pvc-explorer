@@ -64,7 +64,7 @@ jobs:
 
             - name: Create Release Assets
               if: startsWith(github.ref, 'refs/tags/')
-              uses: softprops/action-gh-release@3efcac8951299998593f871640ea8059d6818655
+              uses: softprops/action-gh-release@9ed3cf9a6863b31f005d951c8d19de20628cf4eb
               with:
                   files: |
                       build/release/pvc-explorer-crds.yaml
