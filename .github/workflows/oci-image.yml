@@ -215,9 +215,9 @@ jobs:
               --jq '.[]
                 | select(.name != env.CURRENT_DIGEST)
                 | select(
-                    ((.metadata.container.tags // []) | map(startswith("dev-")) | any)
-                    or ((.metadata.container.tags // []) | map(test("\\.(sig|sbom)$")) | any)
-                    or (((.metadata.container.tags // []) | length) == 0)
+                    (.metadata.container.tags // []) as $tags |
+                    ($tags | length > 0) and
+                    ($tags | map(startswith("dev-") or . == "dev") | all)
                   )
                 | [.id, .name, ((.metadata.container.tags // []) | join(","))]
                 | @tsv'
