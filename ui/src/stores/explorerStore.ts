@@ -60,6 +60,7 @@ export interface Scope {
   phase: string;
   namespaceCount: number;
   explorerCount: number;
+  labels?: string[];
 }
 
 function explorerFromK8s(raw: Record<string, unknown>): Explorer {
@@ -95,11 +96,15 @@ function scopeFromK8s(raw: Record<string, unknown>): Scope {
   const status = (raw.status ?? {}) as Record<string, unknown>;
   const conditions = (status.conditions ?? []) as Array<Record<string, unknown>>;
   const ready = conditions.find(c => c.type === 'Ready');
+  const labels = (meta.labels ?? {}) as Record<string, string>;
   return {
     name: meta.name as string,
     phase: ready ? (ready.reason as string ?? '') : 'Unknown',
     namespaceCount: status.namespaceCount as number ?? 0,
     explorerCount: status.explorerCount as number ?? 0,
+    labels: Object.entries(labels)
+      .filter(([k]) => !k.startsWith('pvcexplorer.io/'))
+      .map(([k, v]) => `${k}=${v}`),
   };
 }
 

@@ -5,9 +5,13 @@
       <Button v-if="authStore.isAdmin" severity="primary" icon="pi pi-plus" label="Create Scope" rounded @click="router.push('/scopes/create')" />
     </div>
 
-    <!-- Toolbar: view toggle, sort, page size, pagination -->
+    <!-- Toolbar: filter, view toggle, sort, page size, pagination -->
     <div class="list-toolbar mb-4">
       <div class="toolbar-left">
+        <LabelAutocomplete v-model="labelFilter" class="scope-label-filter" />
+
+        <div class="toolbar-separator"></div>
+
         <div class="view-toggle btn-group">
           <button
             :class="['btn-icon', { active: viewMode === 'cards' }]"
@@ -52,7 +56,7 @@
 
       <div class="toolbar-right">
         <span class="pagination-info">
-          {{ paginationRange.start + 1 }}–{{ paginationRange.end }} of {{ sorted.length }}
+          {{ paginationRange.start + 1 }}–{{ paginationRange.end }} of {{ filtered.length }}
         </span>
         <div class="pagination-btns btn-group">
           <button class="btn-icon" :disabled="page <= 1" @click="page--" title="Previous page" aria-label="Previous page">
@@ -79,12 +83,24 @@ import { useAuthStore } from '../stores/authStore'
 import Button from 'primevue/button'
 import ScopeCardGrid from '../components/scopes/ScopeCardGrid.vue'
 import ScopeListViewTable from '../components/scopes/ScopeListViewTable.vue'
+import LabelAutocomplete from '../components/filters/LabelAutocomplete.vue'
 
 const router = useRouter()
 const store = useExplorerStore()
 const authStore = useAuthStore()
 
 const scopes = computed(() => store.scopes)
+
+/* ── Label filter ── */
+const labelFilter = ref<string[]>([])
+
+const filtered = computed(() => {
+  if (!labelFilter.value.length) return scopes.value
+  return scopes.value.filter(s => {
+    if (!s.labels?.length) return false
+    return labelFilter.value.every(l => s.labels!.includes(l))
+  })
+})
 
 /* ── View mode ── */
 const viewMode = ref<'cards' | 'list'>('cards')
@@ -102,7 +118,7 @@ const pageSize = ref(10)
 const page = ref(1)
 
 const sorted = computed(() => {
-  const list = scopes.value
+  const list = filtered.value
   const dir = sortDir.value === 'asc' ? 1 : -1
   const by = sortBy.value
   return [...list].sort((a, b) => {

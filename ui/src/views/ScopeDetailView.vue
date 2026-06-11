@@ -34,6 +34,15 @@
               <span class="sd-row-label">Created</span>
               <span class="sd-row-value">{{ scope.metadata.creationTimestamp ? new Date(scope.metadata.creationTimestamp).toLocaleString() : '—' }}</span>
             </div>
+            <div v-if="scope.metadata.labels && Object.keys(scope.metadata.labels).length" class="sd-row">
+              <span class="sd-row-label">Labels</span>
+              <div class="sd-labels-wrap">
+                <span
+                  v-for="(v, k) in scope.metadata.labels" :key="k"
+                  class="sd-label-tag"
+                >{{ k }}={{ v }}</span>
+              </div>
+            </div>
             <div class="sd-row">
               <span class="sd-row-label">Deletion policy</span>
               <span class="sd-row-chip">{{ scope.spec.deletionPolicy || 'Cleanup' }}</span>
@@ -554,6 +563,23 @@ onMounted(() => { store.fetchExplorers(); fetchScope() })
   text-align: right;
 }
 .sd-row-value.mono { font-family: 'JetBrains Mono', monospace; font-size: 0.78rem; }
+.sd-labels-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  justify-content: flex-end;
+}
+.sd-label-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 1px 7px;
+  background: rgba(168,85,247,0.1);
+  color: #a855f7;
+  border: 1px solid rgba(168,85,247,0.25);
+  border-radius: 4px;
+  font-size: 0.72rem;
+  font-family: 'JetBrains Mono', monospace;
+}
 .sd-row-chip {
   display: inline-block;
   padding: 1px 8px;
