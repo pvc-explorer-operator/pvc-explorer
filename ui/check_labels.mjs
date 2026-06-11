@@ -4,54 +4,32 @@ const browser = await chromium.launch({ headless: true, args: ['--ignore-certifi
 const page = await browser.newPage();
 
 // Go to login page
-await page.goto('https://pvc-explorer.hafas-analytics.internal/login', { timeout: 15000 });
+await page.goto('http://localhost:8080/login', { timeout: 15000 });
 await page.waitForTimeout(1000);
 
-// Dump login page HTML
-const loginHtml = await page.content();
-console.log('=== LOGIN HTML snippet:');
-console.log(loginHtml.substring(0, 3000));
-
-// Fill login form
-const inputs = await page.$$('input');
-console.log(`Found ${inputs.length} inputs`);
-for (const input of inputs) {
-  const placeholder = await input.getAttribute('placeholder');
-  const type = await input.getAttribute('type');
-  const id = await input.getAttribute('id');
-  console.log(`  input: placeholder="${placeholder}" type="${type}" id="${id}"`);
-}
-
-// Try various selectors
-const usernameInput = await page.$('input[type="text"], input[name="username"], input[placeholder="Username"], input[id="username"]');
-if (usernameInput) {
-  await usernameInput.fill('admin');
-  console.log('Filled username');
-}
-
-const passwordInput = await page.$('input[type="password"], input[name="password"], input[placeholder="Password"]');
-if (passwordInput) {
-  await passwordInput.fill('admin');
-  console.log('Filled password');
-}
-
-const submitBtn = await page.$('button[type="submit"], button:has-text("Sign In"), button:has-text("Login")');
-if (submitBtn) {
-  await submitBtn.click();
-  console.log('Clicked submit');
-  await page.waitForTimeout(3000);
-}
+await page.fill('input[id="username"]', 'admin');
+await page.fill('input[type="password"]', 'admin');
+await page.click('button[type="submit"]');
+await page.waitForTimeout(2000);
 
 console.log('=== URL after login:', page.url());
 
 // Go to scopes
-await page.goto('https://pvc-explorer.hafas-analytics.internal/scopes', { timeout: 15000 });
+await page.goto('http://localhost:8080/scopes', { timeout: 15000 });
 await page.waitForTimeout(3000);
-await page.screenshot({ path: '/tmp/scopes.png', fullPage: true });
+await page.screenshot({ path: '/tmp/scopes-kind.png', fullPage: true });
 console.log('=== SCOPES URL:', page.url());
 
 const body = await page.textContent('body');
-console.log('=== PAGE BODY (first 2000 chars):');
-console.log(body.substring(0, 2000));
+console.log('=== PAGE BODY (first 3000 chars):');
+console.log(body.substring(0, 3000));
+
+// Also check API
+const apiRes = await (await page.request).get('http://localhost:8080/api/v1/scopes');
+const apiData = await apiRes.json();
+console.log(`=== API returned ${apiData.length} scopes`);
+for (const s of apiData) {
+  console.log(`  ${s.metadata.name}: labels=`, JSON.stringify(s.metadata.labels));
+}
 
 await browser.close();

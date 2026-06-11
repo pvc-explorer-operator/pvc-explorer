@@ -414,15 +414,22 @@ func (h *RestHandler) proxyDispatch(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *RestHandler) listLabels(w http.ResponseWriter, r *http.Request) {
-	var list pvcv1.PVCExplorerList
-	if err := h.client.List(r.Context(), &list); err != nil {
+	var explorers pvcv1.PVCExplorerList
+	if err := h.client.List(r.Context(), &explorers); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	var scopes pvcv1.PVCExplorerScopeList
+	if err := h.client.List(r.Context(), &scopes); err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 
 	labels := map[string]map[string]struct{}{}
-	for _, e := range list.Items {
-		for k, v := range e.Labels {
+
+	addLabels := func(obj metav1.Object) {
+		for k, v := range obj.GetLabels() {
 			if strings.HasPrefix(k, "pvcexplorer.io/") {
 				continue
 			}
@@ -431,6 +438,13 @@ func (h *RestHandler) listLabels(w http.ResponseWriter, r *http.Request) {
 			}
 			labels[k][v] = struct{}{}
 		}
+	}
+
+	for i := range explorers.Items {
+		addLabels(&explorers.Items[i])
+	}
+	for i := range scopes.Items {
+		addLabels(&scopes.Items[i])
 	}
 
 	result := map[string][]string{}

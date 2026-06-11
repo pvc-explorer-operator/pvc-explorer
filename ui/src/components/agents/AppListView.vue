@@ -31,10 +31,12 @@
               </div>
             </td>
             <td class="font-semibold">
-              {{ explorer.name }}
-              <span v-if="explorer.labels?.length" class="label-list">
-                <Chip v-for="label in explorer.labels" :key="label" :label="label" class="label-chip ml-1" size="small" />
-              </span>
+              <div class="name-cell-wrap">
+                <span>{{ explorer.name }}</span>
+                <span v-if="explorer.labels?.length" class="label-list">
+                  <LabelChip v-for="label in [...explorer.labels].sort()" :key="label" :label="label" />
+                </span>
+              </div>
             </td>
             <td class="text-muted-color">{{ explorer.namespace }}</td>
             <td class="text-muted-color">{{ explorer.pvcName }}</td>
@@ -64,6 +66,7 @@
 import { useRouter } from 'vue-router'
 import Tag from 'primevue/tag'
 import type { Explorer } from '../../stores/explorerStore'
+import LabelChip from '../filters/LabelChip.vue'
 
 defineProps<{ explorers: Explorer[] }>()
 
@@ -159,6 +162,16 @@ function mountLabel(strategy: string) {
   font-size: 0.8125rem;
 }
 
+.name-cell-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+.label-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem;
+}
 .empty-state {
   display: flex;
   flex-direction: column;

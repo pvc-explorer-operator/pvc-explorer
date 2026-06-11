@@ -22,13 +22,13 @@
             <span :class="['sc-phase-tag', phaseClass(scope)]">{{ scope.phase }}</span>
           </td>
           <td class="font-semibold sc-name">{{ scope.name }}</td>
-          <td>
-            <div v-if="scope.labels?.length" class="sc-labels-cell">
-              <span v-for="l in scope.labels.slice(0, 3)" :key="l" class="sc-lbl">{{ l }}</span>
-              <span v-if="scope.labels.length > 3" class="sc-lbl-overflow">+{{ scope.labels.length - 3 }}</span>
-            </div>
-            <span v-else class="text-muted-color text-sm">—</span>
-          </td>
+            <td>
+              <div v-if="displayLabels.length" class="sc-labels-cell">
+                <LabelChip v-for="l in displayLabels" :key="l" :label="l" />
+                <span v-if="(scope.labels?.length ?? 0) > 3" class="sc-lbl-overflow">+{{ scope.labels!.length - 3 }}</span>
+              </div>
+              <span v-else class="text-muted-color text-sm">—</span>
+            </td>
           <td class="text-muted-color">{{ scope.namespaceCount }}</td>
           <td class="text-muted-color">{{ scope.explorerCount }}</td>
           <td class="text-right"><i class="pi pi-chevron-right text-muted-color" /></td>
@@ -44,8 +44,14 @@
 
 <script setup lang="ts">
 import type { Scope } from '../../stores/explorerStore'
+import LabelChip from '../filters/LabelChip.vue'
 
-defineProps<{ scopes: Scope[] }>()
+const props = defineProps<{ scopes: Scope[] }>()
+
+function displayLabels(scope: Scope) {
+  const labels = [...(scope.labels ?? [])].sort()
+  return labels.slice(0, 3)
+}
 
 function phaseClass(s: Scope) {
   const p = s.phase?.toLowerCase() ?? ''
@@ -114,17 +120,7 @@ function phaseClass(s: Scope) {
   display: flex;
   flex-wrap: wrap;
   gap: 0.25rem;
-}
-.sc-lbl {
-  display: inline-flex;
   align-items: center;
-  padding: 1px 6px;
-  background: rgba(168,85,247,0.1);
-  color: #a855f7;
-  border: 1px solid rgba(168,85,247,0.2);
-  border-radius: 4px;
-  font-size: 0.68rem;
-  font-family: 'JetBrains Mono', monospace;
 }
 .sc-lbl-overflow {
   font-size: 0.68rem;

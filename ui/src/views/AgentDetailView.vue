@@ -13,7 +13,7 @@
         <div v-if="explorer.accessMode || explorer.mode"><span class="meta-label">Mode:</span> <Tag :value="explorer.accessMode || explorer.mode" severity="info" rounded /></div>
       </div>
       <div v-if="explorer.labels?.length" class="labels-row">
-        <Chip v-for="label in explorer.labels" :key="label" :label="label" class="label-chip" />
+        <LabelChip v-for="label in explorer.labels" :key="label" :label="label" />
       </div>
       <div class="detail-actions">
         <Button v-if="explorer.phase === 'Running'" severity="success" icon="pi pi-folder-open" label="Browse Files" rounded @click="goToFiles" />
@@ -63,7 +63,7 @@ import ConditionsTable from '../components/agents/ConditionsTable.vue'
 import ConsumerList from '../components/agents/ConsumerList.vue'
 import Button from 'primevue/button'
 import Tag from 'primevue/tag'
-import Chip from 'primevue/chip'
+import LabelChip from '@/components/filters/LabelChip.vue'
 import Skeleton from 'primevue/skeleton'
 import { useExplorerDetailShortcuts } from '../composables/useExplorerDetailShortcuts'
 
@@ -196,13 +196,6 @@ useExplorerDetailShortcuts({ explorer, goToFiles, wake, doDisconnect, refresh })
 .meta-label { color: var(--text-color-secondary); }
 .meta-value { color: var(--text-color-secondary); }
 .labels-row { display: flex; flex-wrap: wrap; gap: 0.25rem; }
-.label-chip {
-  background: var(--surface-hover);
-  color: var(--text-color-secondary);
-  border-radius: 4px;
-  padding: 0.1em 0.5em;
-  font-size: 0.875rem;
-}
 .detail-actions {
   margin-top: 0.5rem;
   display: flex;

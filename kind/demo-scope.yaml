@@ -2,6 +2,10 @@ apiVersion: pvcexplorer.io/v1alpha1
 kind: PVCExplorerScope
 metadata:
   name: demo
+  labels:
+    app: pvc-explorer
+    environment: development
+    team: platform
 spec:
   namespaces:
     names:

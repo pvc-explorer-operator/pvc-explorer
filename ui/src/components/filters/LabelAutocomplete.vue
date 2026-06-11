@@ -1,13 +1,15 @@
 <template>
   <div class="autocomplete">
-    <div class="chips">
-      <LabelFilter
+    <div class="chips" @click="focusInput">
+      <LabelChip
         v-for="label in modelValue"
         :key="label"
         :label="label"
+        removable
         @remove="remove"
       />
       <input
+        ref="inputRef"
         v-model="typed"
         class="chip-input"
         placeholder="key=value"
@@ -19,6 +21,7 @@
         @keydown="onKeydown"
         @keydown.backspace="onBackspace"
         @focus="open = true"
+        @input="open = true"
         @blur="onBlur"
       />
     </div>
@@ -28,6 +31,7 @@
         :key="s"
         :id="`${listId}-${i}`"
         role="option"
+        :style="suggestionStyle(s, i)"
         :aria-selected="i === activeIndex"
         @mousedown.prevent="addSuggestion(s)"
         @mouseenter="activeIndex = i"
@@ -39,26 +43,57 @@
 <script setup lang="ts">
 import { apiFetch } from '@/composables/useAuth'
 import { ref, computed, onMounted } from 'vue'
-import LabelFilter from './LabelFilter.vue'
+import { stringToColor } from '@/composables/useFilterColors'
+import LabelChip from './LabelChip.vue'
 
 const props = defineProps<{ modelValue: string[] }>()
 const emit = defineEmits<{ (e: 'update:modelValue', v: string[]): void }>()
 
+const inputRef = ref<HTMLInputElement | null>(null)
 const allLabels = ref<string[]>([])
 const typed = ref('')
 const open = ref(false)
 const activeIndex = ref(-1)
 const listId = 'label-suggestions'
 
+function focusInput() { inputRef.value?.focus() }
+
+function suggestionStyle(label: string, i: number) {
+  const key = label.split('=')[0] || label
+  const isActive = i === activeIndex.value
+  const color = stringToColor(key)
+  return {
+    background: isActive ? color + '25' : 'transparent',
+    color,
+    borderLeft: `3px solid ${color}`,
+  }
+}
+
 const suggestions = computed(() =>
-  typed.value.length
-    ? allLabels.value.filter(l => l.includes(typed.value) && !props.modelValue.includes(l))
-    : []
+  allLabels.value.filter(l => {
+    if (props.modelValue.includes(l)) return false
+    if (!typed.value.length) return true
+    return l.includes(typed.value)
+  })
 )
 
+function flattenLabels(raw: unknown): string[] {
+  if (Array.isArray(raw)) return raw as string[]
+  if (raw && typeof raw === 'object') {
+    const out: string[] = []
+    for (const [k, vs] of Object.entries(raw)) {
+      if (Array.isArray(vs)) for (const v of vs) out.push(`${k}=${v}`)
+    }
+    return out
+  }
+  return []
+}
+
 onMounted(async () => {
-  const res = await apiFetch('/api/v1/labels')
-  if (res.ok) allLabels.value = await res.json()
+  try {
+    const res = await apiFetch('/api/v1/labels')
+    if (res.ok) allLabels.value = flattenLabels(await res.json())
+  } catch { /* no labels available */ }
 })
 
 function add(label: string) {

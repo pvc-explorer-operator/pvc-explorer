@@ -2,6 +2,11 @@ apiVersion: pvcexplorer.io/v1alpha1
 kind: PVCExplorerScope
 metadata:
   name: demo-by-label
+  labels:
+    app: pvc-explorer
+    environment: staging
+    team: platform
+    discovery: label-selector
 spec:
   namespaces:
     labelSelector:

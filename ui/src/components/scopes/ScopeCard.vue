@@ -18,12 +18,8 @@
         <span>{{ scope.explorerCount }} explorer{{ scope.explorerCount !== 1 ? 's' : '' }}</span>
       </div>
     </div>
-    <div v-if="scope.labels?.length" class="sc-card-labels">
-      <span
-        v-for="l in scope.labels"
-        :key="l"
-        class="sc-label-chip"
-      >{{ l }}</span>
+    <div v-if="sortedLabels.length" class="sc-card-labels">
+      <LabelChip v-for="l in sortedLabels" :key="l" :label="l" />
     </div>
   </a>
 </template>
@@ -31,8 +27,13 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import type { Scope } from '../../stores/explorerStore'
+import LabelChip from '../filters/LabelChip.vue'
 
 const props = defineProps<{ scope: Scope }>()
+
+const sortedLabels = computed(() =>
+  [...(props.scope.labels ?? [])].sort()
+)
 
 const phaseClass = computed(() => {
   const p = props.scope.phase?.toLowerCase() ?? ''
@@ -109,16 +110,5 @@ const phaseClass = computed(() => {
   display: flex;
   flex-wrap: wrap;
   gap: 0.3rem;
-}
-.sc-label-chip {
-  display: inline-flex;
-  align-items: center;
-  padding: 1px 7px;
-  background: rgba(168,85,247,0.1);
-  color: #a855f7;
-  border: 1px solid rgba(168,85,247,0.2);
-  border-radius: 4px;
-  font-size: 0.7rem;
-  font-family: 'JetBrains Mono', monospace;
 }
 </style>

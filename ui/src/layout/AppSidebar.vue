@@ -54,7 +54,8 @@ const filteredCount = computed(() => {
     }
     if (f.search) {
       const q = f.search.toLowerCase()
-      if (!e.name.toLowerCase().includes(q) && !e.namespace.toLowerCase().includes(q) && !e.pvcName.toLowerCase().includes(q)) continue
+      const matchesLabel = e.labels?.some(l => l.toLowerCase().includes(q))
+      if (!e.name.toLowerCase().includes(q) && !e.namespace.toLowerCase().includes(q) && !e.pvcName.toLowerCase().includes(q) && !matchesLabel) continue
     }
     count++
   }
