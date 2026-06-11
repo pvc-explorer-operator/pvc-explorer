@@ -79,13 +79,8 @@
     </div>
 
     <!-- Labels -->
-    <div v-if="explorer.labels?.length" class="flex gap-2 flex-wrap mt-2">
-      <Chip
-        v-for="label in explorer.labels"
-        :key="label"
-        :label="label"
-        class="label-chip"
-      />
+    <div v-if="sortedLabels.length" class="card-labels-row">
+      <LabelChip v-for="label in sortedLabels" :key="label" :label="label" />
     </div>
 
     <!-- Actions -->
@@ -148,12 +143,12 @@
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import Tag from 'primevue/tag'
-import Chip from 'primevue/chip'
 import Button from 'primevue/button'
 import Badge from 'primevue/badge'
 import ProgressBar from 'primevue/progressbar'
 import type { Explorer } from '../../stores/explorerStore'
 import { useExplorerStore } from '../../stores/explorerStore'
+import LabelChip from '../filters/LabelChip.vue'
 
 const props = defineProps<{ explorer: Explorer }>()
 const router = useRouter()
@@ -163,6 +158,10 @@ const connecting = ref(false)
 const disconnecting = ref(false)
 
 const idleKey = computed(() => `${props.explorer.namespace}/${props.explorer.name}`)
+
+const sortedLabels = computed(() =>
+  [...(props.explorer.labels ?? [])].sort()
+)
 
 const idleDisplay = computed(() => {
   const remaining = explorerStore.idleRemaining[idleKey.value]
@@ -330,10 +329,10 @@ function relativeTime(iso: string): string {
   text-align: right;
   min-width: 0;
 }
-.label-chip {
-  font-size: var(--fs-sm);
-  height: 1.5rem;
-  padding: 0 0.5rem;
+.card-labels-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
 }
 .card-actions {
   display: flex;

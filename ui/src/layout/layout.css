@@ -283,7 +283,6 @@ a {
 /* Sidebar filter area */
 .layout-sidebar-filters {
   padding: 0 0.75rem;
-  overflow: hidden;
 }
 
 .filter-divider {

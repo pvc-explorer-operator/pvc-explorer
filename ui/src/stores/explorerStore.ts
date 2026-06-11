@@ -128,18 +128,32 @@ export const useExplorerStore = defineStore('explorer', () => {
   }
 
   function setSnapshot(rawExplorers: unknown[], rawScopes: unknown[]) {
-    explorers.value = sortExplorers((rawExplorers ?? []).map(e => explorerFromK8s(e as Record<string, unknown>)));
     scopes.value = (rawScopes ?? []).map(s => scopeFromK8s(s as Record<string, unknown>));
+    const scopeLabels = new Map(scopes.value.map(s => [s.name, s.labels ?? []]));
+    explorers.value = sortExplorers((rawExplorers ?? []).map(e => {
+      const exp = explorerFromK8s(e as Record<string, unknown>);
+      if (exp.scope && scopeLabels.has(exp.scope)) {
+        exp.labels = [...new Set([...(exp.labels ?? []), ...scopeLabels.get(exp.scope)!])];
+      }
+      return exp;
+    }));
   }
 
-  function upsertExplorer(raw: unknown) {
+  function upsertExplorer(raw: unknown): Explorer {
     const e = explorerFromK8s(raw as Record<string, unknown>);
+    if (e.scope) {
+      const scope = scopes.value.find(s => s.name === e.scope);
+      if (scope?.labels?.length) {
+        e.labels = [...new Set([...(e.labels ?? []), ...scope.labels])];
+      }
+    }
     const idx = explorers.value.findIndex(x => x.name === e.name && x.namespace === e.namespace);
     if (idx !== -1) {
       explorers.value[idx] = e;
     } else {
       explorers.value = sortExplorers([...explorers.value, e]);
     }
+    return e;
   }
 
   function removeExplorer(namespace: string, name: string) {
@@ -174,7 +188,25 @@ export const useExplorerStore = defineStore('explorer', () => {
     const res = await apiFetch(url);
     if (!res.ok) throw new Error('Failed to fetch explorers');
     const data = await res.json();
-    explorers.value = sortExplorers((data as unknown[]).map(e => explorerFromK8s(e as Record<string, unknown>)));
+
+    // Ensure scopes are loaded so we can merge scope labels onto explorers
+    if (!scopes.value.length) {
+      try {
+        const scopeRes = await apiFetch('/api/v1/scopes');
+        if (scopeRes.ok) {
+          scopes.value = (await scopeRes.json() as unknown[]).map(s => scopeFromK8s(s as Record<string, unknown>));
+        }
+      } catch { /* scopes not available */ }
+    }
+    const scopeLabels = new Map(scopes.value.map(s => [s.name, s.labels ?? []]));
+
+    explorers.value = sortExplorers((data as unknown[]).map(e => {
+      const exp = explorerFromK8s(e as Record<string, unknown>);
+      if (exp.scope && scopeLabels.has(exp.scope)) {
+        exp.labels = [...new Set([...(exp.labels ?? []), ...scopeLabels.get(exp.scope)!])];
+      }
+      return exp;
+    }));
   }
 
   async function fetchScopes(): Promise<void> {
@@ -188,9 +220,7 @@ export const useExplorerStore = defineStore('explorer', () => {
     const res = await apiFetch(`/api/v1/explorers/${encodeURIComponent(ns)}/${encodeURIComponent(name)}`);
     if (!res.ok) throw new Error('Failed to fetch explorer');
     const raw = await res.json();
-    const e = explorerFromK8s(raw);
-    upsertExplorer(raw);
-    return e;
+    return upsertExplorer(raw);
   }
 
   function updatePhase(ns: string, name: string, phase: string) {

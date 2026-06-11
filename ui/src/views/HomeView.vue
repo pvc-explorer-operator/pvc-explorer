@@ -186,7 +186,8 @@ const filtered = computed(() => {
     list = list.filter(e =>
       e.name.toLowerCase().includes(q) ||
       e.namespace.toLowerCase().includes(q) ||
-      e.pvcName.toLowerCase().includes(q)
+      e.pvcName.toLowerCase().includes(q) ||
+      e.labels?.some(l => l.toLowerCase().includes(q))
     )
   }
   return list

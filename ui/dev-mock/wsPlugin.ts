@@ -190,6 +190,25 @@ export function mockWsPlugin(): Plugin {
         next()
       })
 
+      // Mock /api/v1/labels — grouped by key (same format as Go backend)
+      server.middlewares.use('/api/v1/labels', (_req, res, _next) => {
+        const labels: Record<string, Set<string>> = {}
+        for (const e of mockExplorers) {
+          const meta = e.metadata as any
+          if (meta.labels) {
+            for (const [k, v] of Object.entries(meta.labels)) {
+              if ((k as string).startsWith('pvcexplorer.io/')) continue
+              if (!labels[k as string]) labels[k as string] = new Set()
+              labels[k as string].add(v as string)
+            }
+          }
+        }
+        const grouped: Record<string, string[]> = {}
+        for (const [k, vs] of Object.entries(labels)) grouped[k] = [...vs].sort()
+        res.setHeader('Content-Type', 'application/json')
+        res.end(JSON.stringify(grouped))
+      })
+
       // Mock REST endpoints needed by detail views
       server.middlewares.use('/api/v1/explorers', (req, res, next) => {
         const url = req.url ?? '/'

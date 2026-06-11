@@ -205,26 +205,7 @@
         <i :class="['pi', open.labels ? 'pi-chevron-down' : 'pi-chevron-right']" />
       </button>
       <div v-if="open.labels" class="filter-options">
-        <div class="label-input-wrap">
-          <input
-            v-model="labelInput"
-            placeholder="key=value"
-            class="label-input"
-            @keydown.enter.prevent="addLabel"
-            @keydown.backspace="removeLastLabel"
-          />
-        </div>
-        <div v-if="labels.length" class="label-chips">
-          <span
-            v-for="l in labels"
-            :key="l"
-            class="label-tag"
-            :style="{ background: stringToColor(l) + '25', color: stringToColor(l), borderColor: stringToColor(l) + '40' }"
-          >
-            {{ l }}
-            <button class="label-remove" @click="removeLabel(l)">&times;</button>
-          </span>
-        </div>
+        <LabelAutocomplete v-model="labels" @update:model-value="emit_" />
       </div>
     </div>
 
@@ -258,6 +239,7 @@ import {
   type ConsumerFilter,
   type CreatedFilter,
 } from '../../composables/useFilterColors'
+import LabelAutocomplete from './LabelAutocomplete.vue'
 
 export type { Filters } from '../../composables/useFilterColors'
 
@@ -273,7 +255,6 @@ const accessModes = ref<string[]>([])
 const consumers = ref<ConsumerFilter>('')
 const created = ref<CreatedFilter>('')
 const labels = ref<string[]>([])
-const labelInput = ref('')
 
 const open = ref({ phase: true, namespace: true, scope: false, mount: false, accessMode: false, consumers: false, created: false, labels: false })
 
@@ -369,29 +350,6 @@ const createdCounts = computed(() => {
   }
   return c
 })
-
-/* ------------------- Labels ------------------- */
-
-function addLabel() {
-  const v = labelInput.value.trim()
-  if (v && !labels.value.includes(v)) {
-    labels.value = [...labels.value, v]
-    emit_()
-  }
-  labelInput.value = ''
-}
-
-function removeLabel(l: string) {
-  labels.value = labels.value.filter(x => x !== l)
-  emit_()
-}
-
-function removeLastLabel() {
-  if (!labelInput.value && labels.value.length) {
-    labels.value = labels.value.slice(0, -1)
-    emit_()
-  }
-}
 
 /* ------------------- Helpers ------------------- */
 
