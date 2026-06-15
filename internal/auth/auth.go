@@ -35,6 +35,7 @@ type Role string
 
 const (
 	RoleAdmin  Role = "admin"
+	RoleUser   Role = "user"
 	RoleViewer Role = "viewer"
 
 	secretName    = "pvc-explorer-auth"

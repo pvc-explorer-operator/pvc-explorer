@@ -1,11 +1,25 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 
+export type UserRole = 'admin' | 'user' | 'viewer'
+
+export interface UserProfile {
+  username: string
+  role: UserRole
+  email: string
+  groups: string[]
+  subject: string
+}
+
 export const useAuthStore = defineStore('auth', () => {
   const username = ref<string | null>(null)
-  const role = ref<'admin' | 'viewer' | null>(null)
+  const role = ref<UserRole | null>(null)
+  const email = ref<string>('')
+  const groups = ref<string[]>([])
+  const subject = ref<string>('')
   const isAuthenticated = computed(() => role.value !== null)
   const isAdmin = computed(() => role.value === 'admin')
+  const oidcEnabled = ref(false)
   const devAuthBypassEnabled = import.meta.env.VITE_DEV_AUTH_BYPASS !== 'false'
 
   let _initPromise: Promise<void> | null = null
@@ -14,14 +28,20 @@ export const useAuthStore = defineStore('auth', () => {
     return _initPromise ?? Promise.resolve()
   }
 
-  function setAuth(u: string, r: 'admin' | 'viewer') {
-    username.value = u
-    role.value = r
+  function setAuth(data: Partial<UserProfile> & { username: string; role: UserRole }) {
+    username.value = data.username
+    role.value = data.role
+    email.value = data.email ?? ''
+    groups.value = data.groups ?? []
+    subject.value = data.subject ?? ''
   }
 
   function clearAuth() {
     username.value = null
     role.value = null
+    email.value = ''
+    groups.value = []
+    subject.value = ''
   }
 
   function init(): Promise<void> {
@@ -29,15 +49,26 @@ export const useAuthStore = defineStore('auth', () => {
       // DEV AUTH BYPASS: enabled by default in dev, can be disabled via VITE_DEV_AUTH_BYPASS=false.
       if (import.meta.env.DEV && devAuthBypassEnabled) {
         if (!isAuthenticated.value) {
-          setAuth('devuser', 'admin')
+          setAuth({ username: 'devuser', role: 'admin' })
         }
         return
       }
+
+      // Check if OIDC is enabled
+      try {
+        const configRes = await fetch('/api/v1/auth/config')
+        if (configRes.ok) {
+          const config = await configRes.json()
+          oidcEnabled.value = config.oidcEnabled
+        }
+      } catch (_) {
+      }
+
       try {
         const res = await fetch('/api/v1/auth/me')
         if (res.ok) {
           const data = await res.json()
-          setAuth(data.username, data.role)
+          setAuth(data)
         }
       } catch (_) {
       }
@@ -45,18 +76,22 @@ export const useAuthStore = defineStore('auth', () => {
     return _initPromise
   }
 
-  async function login(username: string, password: string): Promise<void> {
+  async function login(usr: string, pwd: string): Promise<void> {
     const res = await fetch('/api/v1/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username, password })
+      body: JSON.stringify({ username: usr, password: pwd })
     });
     if (res.ok) {
       const data = await res.json();
-      setAuth(data.username, data.role);
+      setAuth(data);
     } else {
       throw new Error('Invalid credentials');
     }
+  }
+
+  function loginWithOIDC(): void {
+    window.location.href = '/api/v1/auth/oidc/start'
   }
 
   async function logout(): Promise<void> {
@@ -64,5 +99,5 @@ export const useAuthStore = defineStore('auth', () => {
     clearAuth();
   }
 
-  return { username, role, isAuthenticated, isAdmin, setAuth, clearAuth, init, ready, login, logout }
+  return { username, role, email, groups, subject, isAuthenticated, isAdmin, oidcEnabled, setAuth, clearAuth, init, ready, login, loginWithOIDC, logout }
 })

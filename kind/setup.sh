@@ -68,6 +68,199 @@ kubectl create secret generic pvc-explorer-auth \
   -n pvc-explorer-system \
   --from-literal="admin=${BCRYPT_ADMIN}"
 
+log "Creating config maps (pvc-explorer-config, pvc-explorer-rbac)"
+kubectl apply -f - <<'EOF'
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pvc-explorer-config
+  namespace: pvc-explorer-system
+data:
+  adminUsers: "admin"
+  oidc.enabled: "false"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pvc-explorer-rbac
+  namespace: pvc-explorer-system
+data:
+  policy.default: "viewer"
+  policy.csv: ""
+EOF
+
+# ── Dex OIDC provider (local, no external connections) ─────────────────────
+log "Deploying Dex OIDC provider"
+
+# Generate self-signed TLS cert for Dex
+DEX_CERT_DIR=$(mktemp -d)
+trap 'rm -rf "$DEX_CERT_DIR"' EXIT
+
+openssl req -x509 -nodes -newkey rsa:2048 \
+  -keyout "$DEX_CERT_DIR/tls.key" \
+  -out "$DEX_CERT_DIR/tls.crt" \
+  -days 3650 \
+  -subj "/CN=dex.pvc-explorer-system.svc.cluster.local" \
+  -addext "subjectAltName=DNS:dex.pvc-explorer-system.svc.cluster.local,DNS:localhost,IP:127.0.0.1" \
+  2>/dev/null
+
+# Create Dex TLS secret
+kubectl delete secret dex-tls -n pvc-explorer-system --ignore-not-found
+kubectl create secret tls dex-tls \
+  -n pvc-explorer-system \
+  --cert="$DEX_CERT_DIR/tls.crt" \
+  --key="$DEX_CERT_DIR/tls.key"
+
+# Pre-computed bcrypt hashes (cost=10):
+#   admin123  -> $2a$10$LvpSVk0ccCuniH3hMUBKgOTXWOkRWL5VXqwH/5RY8NwN1fhm8w.6.
+#   user123   -> $2a$10$7i1aaEfcMwO0jZeqBhd3uuoh8xTZI5bT/3XctydgVYPm3Rkpd42.i
+#   viewer123 -> $2a$10$YmQt5lkYoxoIAeT0tHC8qu/e4e94ivQqMKSOMMbn92EJe4w5uS99S
+DEX_ADMIN_HASH='$2a$10$LvpSVk0ccCuniH3hMUBKgOTXWOkRWL5VXqwH/5RY8NwN1fhm8w.6.'
+DEX_USER_HASH='$2a$10$7i1aaEfcMwO0jZeqBhd3uuoh8xTZI5bT/3XctydgVYPm3Rkpd42.i'
+DEX_VIEWER_HASH='$2a$10$YmQt5lkYoxoIAeT0tHC8qu/e4e94ivQqMKSOMMbn92EJe4w5uS99S'
+
+kubectl apply -f - <<EOF
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dex-config
+  namespace: pvc-explorer-system
+data:
+  config.yaml: |
+    issuer: https://dex.pvc-explorer-system.svc.cluster.local:5556
+    storage:
+      type: memory
+    web:
+      https: 0.0.0.0:5556
+      tlsCert: /etc/dex/tls/tls.crt
+      tlsKey: /etc/dex/tls/tls.key
+    staticPasswords:
+      - email: admin@pvc-explorer.local
+        username: admin
+        hash: ${DEX_ADMIN_HASH}
+        groups:
+          - platform-admins
+      - email: user@pvc-explorer.local
+        username: user
+        hash: ${DEX_USER_HASH}
+        groups:
+          - platform-users
+      - email: viewer@pvc-explorer.local
+        username: viewer
+        hash: ${DEX_VIEWER_HASH}
+        groups:
+          - platform-viewers
+    staticClients:
+      - id: pvc-explorer
+        redirectURIs:
+          - 'http://localhost:8080/api/v1/auth/oidc/callback'
+        name: 'PVC Explorer'
+        secret: pvc-explorer-dex-secret
+    enablePasswordDB: true
+    oauth2:
+      responseTypes: ['code']
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: dex
+  namespace: pvc-explorer-system
+  labels:
+    app: dex
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: dex
+  template:
+    metadata:
+      labels:
+        app: dex
+    spec:
+      containers:
+        - name: dex
+          image: ghcr.io/dexidp/dex:v2.45.1
+          command: ["dex", "serve", "/etc/dex/config.yaml"]
+          ports:
+            - containerPort: 5556
+              name: https
+          volumeMounts:
+            - name: config
+              mountPath: /etc/dex/config.yaml
+              subPath: config.yaml
+            - name: tls
+              mountPath: /etc/dex/tls
+      volumes:
+        - name: config
+          configMap:
+            name: dex-config
+        - name: tls
+          secret:
+            secretName: dex-tls
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: dex
+  namespace: pvc-explorer-system
+spec:
+  type: NodePort
+  selector:
+    app: dex
+  ports:
+    - port: 5556
+      targetPort: 5556
+      nodePort: 30556
+      protocol: TCP
+      name: https
+EOF
+
+log "Waiting for Dex to be ready"
+kubectl rollout status deployment/dex -n pvc-explorer-system --timeout=60s
+
+log "Configuring pvc-explorer OIDC (Dex)"
+kubectl apply -f - <<'EOF'
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pvc-explorer-config
+  namespace: pvc-explorer-system
+data:
+  adminUsers: "admin"
+  oidc.enabled: "true"
+  oidc.issuer: "https://dex.pvc-explorer-system.svc.cluster.local:5556"
+  oidc.externalIssuer: "https://localhost:5556"
+  oidc.clientID: "pvc-explorer"
+  oidc.clientSecret: "$pvc-explorer-oidc.clientSecret"
+  oidc.redirectURI: "http://localhost:8080/api/v1/auth/oidc/callback"
+  oidc.scopes: "openid,profile,email,groups"
+  oidc.groupClaim: "groups"
+  oidc.skipTLSVerify: "true"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pvc-explorer-rbac
+  namespace: pvc-explorer-system
+data:
+  policy.default: "viewer"
+  policy.csv: |
+    g, "platform-admins", admin
+    g, "platform-users", user
+    g, "platform-viewers", viewer
+EOF
+
+log "Creating OIDC client secret"
+kubectl delete secret pvc-explorer-oidc -n pvc-explorer-system --ignore-not-found
+kubectl create secret generic pvc-explorer-oidc \
+  -n pvc-explorer-system \
+  --from-literal=clientSecret='pvc-explorer-dex-secret'
+
+log "Restarting controller to pick up OIDC config"
+kubectl rollout restart deployment -n pvc-explorer-system pvc-explorer-controller-manager
+kubectl rollout status deployment -n pvc-explorer-system \
+  pvc-explorer-controller-manager --timeout=300s
+
 log "Applying StorageClass (Immediate binding)"
 kubectl apply -f "$KIND_DIR/storageclass-immediate.yaml"
 kubectl patch storageclass standard \
@@ -158,6 +351,12 @@ echo "────────────────────────�
 echo " Cluster ready: kind-${CLUSTER}"
 echo ""
 echo " Dashboard:  http://localhost:8080  (admin / admin)"
+echo ""
+echo " OIDC (Dex): https://localhost:5556"
+echo "   Test users (password in parentheses):"
+echo "     admin@pvc-explorer.local   (admin123)   → role: admin"
+echo "     user@pvc-explorer.local    (user123)    → role: user"
+echo "     viewer@pvc-explorer.local  (viewer123)  → role: viewer"
 echo ""
 echo " Namespaces:"
 echo "   demo           — managed by scope 'demo' (explicit names)"

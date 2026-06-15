@@ -145,26 +145,35 @@ func TestLogin_ConfigMapAdminList(t *testing.T) {
 
 func TestSessionStore_CreateAndGet(t *testing.T) {
 	s := auth.NewSessionStore()
-	token, err := s.Create("alice", auth.RoleViewer)
+	token, err := s.Create("alice", auth.RoleViewer, "alice@example.com", []string{"team-a", "team-b"}, "sub-123")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	username, role, ok := s.Get(token)
+	entry, ok := s.Get(token)
 	if !ok {
 		t.Fatal("expected session to exist")
 	}
-	if username != "alice" || role != auth.RoleViewer {
-		t.Errorf("unexpected session: %s / %s", username, role)
+	if entry.Username != "alice" || entry.Role != auth.RoleViewer {
+		t.Errorf("unexpected session: %s / %s", entry.Username, entry.Role)
+	}
+	if entry.Email != "alice@example.com" {
+		t.Errorf("unexpected email: %s", entry.Email)
+	}
+	if len(entry.Groups) != 2 || entry.Groups[0] != "team-a" || entry.Groups[1] != "team-b" {
+		t.Errorf("unexpected groups: %v", entry.Groups)
+	}
+	if entry.Subject != "sub-123" {
+		t.Errorf("unexpected subject: %s", entry.Subject)
 	}
 }
 
 func TestSessionStore_DeleteRemovesSession(t *testing.T) {
 	s := auth.NewSessionStore()
-	token, _ := s.Create("bob", auth.RoleAdmin)
+	token, _ := s.Create("bob", auth.RoleAdmin, "", nil, "")
 	s.Delete(token)
 
-	_, _, ok := s.Get(token)
+	_, ok := s.Get(token)
 	if ok {
 		t.Fatal("expected session to be deleted")
 	}
@@ -172,7 +181,7 @@ func TestSessionStore_DeleteRemovesSession(t *testing.T) {
 
 func TestSessionStore_UnknownTokenReturnsFalse(t *testing.T) {
 	s := auth.NewSessionStore()
-	_, _, ok := s.Get("nonexistent-token")
+	_, ok := s.Get("nonexistent-token")
 	if ok {
 		t.Fatal("expected false for unknown token")
 	}
