@@ -27,6 +27,14 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/client/fake"
 )
 
+const (
+	testConfigMapName = "pvc-explorer-config"
+	testPolicyCSV     = `g, "admin-group", admin`
+	testOIDCEnabled   = "oidc.enabled"
+	testTrue          = "true"
+	testOIDCIssuer    = "oidc.issuer"
+)
+
 func TestMapGroupsToRole(t *testing.T) {
 	tests := []struct {
 		name     string
@@ -39,7 +47,7 @@ func TestMapGroupsToRole(t *testing.T) {
 			groups: []string{"admin-group", "other-group"},
 			rbac: &auth.RBACConfig{
 				DefaultRole: auth.RoleViewer,
-				PolicyCSV:   `g, "admin-group", admin`,
+				PolicyCSV:   testPolicyCSV,
 			},
 			expected: auth.RoleAdmin,
 		},
@@ -48,7 +56,7 @@ func TestMapGroupsToRole(t *testing.T) {
 			groups: []string{"user-group"},
 			rbac: &auth.RBACConfig{
 				DefaultRole: auth.RoleViewer,
-				PolicyCSV: `g, "admin-group", admin
+				PolicyCSV: testPolicyCSV + `
 g, "user-group", user`,
 			},
 			expected: auth.RoleUser,
@@ -58,7 +66,7 @@ g, "user-group", user`,
 			groups: []string{"unknown-group"},
 			rbac: &auth.RBACConfig{
 				DefaultRole: auth.RoleViewer,
-				PolicyCSV:   `g, "admin-group", admin`,
+				PolicyCSV:   testPolicyCSV,
 			},
 			expected: auth.RoleViewer,
 		},
@@ -67,7 +75,7 @@ g, "user-group", user`,
 			groups: []string{"unknown-group"},
 			rbac: &auth.RBACConfig{
 				DefaultRole: auth.RoleUser,
-				PolicyCSV:   `g, "admin-group", admin`,
+				PolicyCSV:   testPolicyCSV,
 			},
 			expected: auth.RoleUser,
 		},
@@ -76,7 +84,7 @@ g, "user-group", user`,
 			groups: []string{},
 			rbac: &auth.RBACConfig{
 				DefaultRole: auth.RoleViewer,
-				PolicyCSV:   `g, "admin-group", admin`,
+				PolicyCSV:   testPolicyCSV,
 			},
 			expected: auth.RoleViewer,
 		},
@@ -114,11 +122,11 @@ g, "group-b", admin`,
 func TestLoadOIDCConfig_Disabled(t *testing.T) {
 	cm := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "pvc-explorer-config",
+			Name:      testConfigMapName,
 			Namespace: testNamespace,
 		},
 		Data: map[string]string{
-			"oidc.enabled": "false",
+			testOIDCEnabled: "false",
 		},
 	}
 	c := fake.NewClientBuilder().WithScheme(oidcTestScheme()).WithObjects(cm).Build()
@@ -147,12 +155,12 @@ func TestLoadOIDCConfig_MissingConfigMap(t *testing.T) {
 func TestLoadOIDCConfig_MissingFields(t *testing.T) {
 	cm := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "pvc-explorer-config",
+			Name:      testConfigMapName,
 			Namespace: testNamespace,
 		},
 		Data: map[string]string{
-			"oidc.enabled": "true",
-			"oidc.issuer":  "https://example.com",
+			testOIDCEnabled: testTrue,
+			testOIDCIssuer:  "https://example.com",
 		},
 	}
 	c := fake.NewClientBuilder().WithScheme(oidcTestScheme()).WithObjects(cm).Build()
@@ -166,12 +174,12 @@ func TestLoadOIDCConfig_MissingFields(t *testing.T) {
 func TestLoadOIDCConfig_ValidConfig(t *testing.T) {
 	cm := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "pvc-explorer-config",
+			Name:      testConfigMapName,
 			Namespace: testNamespace,
 		},
 		Data: map[string]string{
-			"oidc.enabled":      "true",
-			"oidc.issuer":       "https://login.microsoftonline.com/tenant/v2.0",
+			testOIDCEnabled:     testTrue,
+			testOIDCIssuer:      "https://login.microsoftonline.com/tenant/v2.0",
 			"oidc.clientID":     "test-client-id",
 			"oidc.clientSecret": "$oidc.clientSecret",
 			"oidc.redirectURI":  "https://app.example.com/callback",
@@ -226,16 +234,16 @@ func TestLoadOIDCConfig_ValidConfig(t *testing.T) {
 func TestLoadOIDCConfig_SkipTLSVerify(t *testing.T) {
 	cm := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "pvc-explorer-config",
+			Name:      testConfigMapName,
 			Namespace: testNamespace,
 		},
 		Data: map[string]string{
-			"oidc.enabled":       "true",
-			"oidc.issuer":        "https://localhost:5556",
+			testOIDCEnabled:      testTrue,
+			testOIDCIssuer:       "https://localhost:5556",
 			"oidc.clientID":      "test-client",
 			"oidc.clientSecret":  "$oidc.clientSecret",
 			"oidc.redirectURI":   "https://localhost:8080/callback",
-			"oidc.skipTLSVerify": "true",
+			"oidc.skipTLSVerify": testTrue,
 		},
 	}
 	secret := &corev1.Secret{
@@ -275,7 +283,7 @@ func TestLoadRBACConfig_CustomDefaults(t *testing.T) {
 		},
 		Data: map[string]string{
 			"policy.default": "user",
-			"policy.csv":     `g, "admin-group", admin`,
+			"policy.csv":     testPolicyCSV,
 		},
 	}
 	c := fake.NewClientBuilder().WithScheme(oidcTestScheme()).WithObjects(cm).Build()
@@ -284,7 +292,7 @@ func TestLoadRBACConfig_CustomDefaults(t *testing.T) {
 	if rbac.DefaultRole != auth.RoleUser {
 		t.Errorf("expected default role user, got %s", rbac.DefaultRole)
 	}
-	if rbac.PolicyCSV != `g, "admin-group", admin` {
+	if rbac.PolicyCSV != testPolicyCSV {
 		t.Errorf("unexpected policy CSV: %s", rbac.PolicyCSV)
 	}
 }
@@ -297,17 +305,17 @@ func TestIsOIDCConfigured(t *testing.T) {
 	}{
 		{
 			name:     "enabled",
-			cmData:   map[string]string{"oidc.enabled": "true"},
+			cmData:   map[string]string{testOIDCEnabled: testTrue},
 			expected: true,
 		},
 		{
 			name:     "enabled case insensitive",
-			cmData:   map[string]string{"oidc.enabled": "True"},
+			cmData:   map[string]string{testOIDCEnabled: "True"},
 			expected: true,
 		},
 		{
 			name:     "disabled",
-			cmData:   map[string]string{"oidc.enabled": "false"},
+			cmData:   map[string]string{testOIDCEnabled: "false"},
 			expected: false,
 		},
 		{
@@ -321,7 +329,7 @@ func TestIsOIDCConfigured(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			cm := &corev1.ConfigMap{
 				ObjectMeta: metav1.ObjectMeta{
-					Name:      "pvc-explorer-config",
+					Name:      testConfigMapName,
 					Namespace: testNamespace,
 				},
 				Data: tt.cmData,
