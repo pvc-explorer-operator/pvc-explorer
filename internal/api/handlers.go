@@ -246,6 +246,21 @@ func (h *Handler) handleOIDCCallback(w http.ResponseWriter, r *http.Request) {
 	}
 
 	groups := claims.Groups
+
+	// Some providers (e.g. Azure AD) don't include groups in the ID token
+	// but return them via the UserInfo endpoint.
+	if len(groups) == 0 {
+		userInfoClaims, err := h.oidc.FetchUserInfo(r.Context(), oauth2Token)
+		if err != nil {
+			log.Info("UserInfo fetch failed", "err", err)
+		} else if len(userInfoClaims.Groups) > 0 {
+			groups = userInfoClaims.Groups
+			claims.Groups = userInfoClaims.Groups
+			claims.Email = userInfoClaims.Email
+			claims.Name = userInfoClaims.Name
+		}
+	}
+
 	role := h.oidc.MapGroupsToRole(groups)
 
 	username := claims.Name

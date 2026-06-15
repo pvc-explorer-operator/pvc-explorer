@@ -80,6 +80,7 @@ type OIDCClaims struct {
 	Email   string   `json:"email"`
 	Name    string   `json:"name"`
 	Groups  []string `json:"groups"`
+	Roles   []string `json:"roles"`
 }
 
 func LoadOIDCConfig(ctx context.Context, reader client.Reader, namespace string) (*OIDCConfig, error) {
@@ -244,7 +245,68 @@ func (p *OIDCProvider) VerifyToken(ctx context.Context, rawIDToken string) (*OID
 		return nil, fmt.Errorf("failed to parse token claims: %w", err)
 	}
 
+	resolveGroupClaim(&claims, p.Config.GroupClaim, token.Claims)
+
 	return &claims, nil
+}
+
+func (p *OIDCProvider) FetchUserInfo(ctx context.Context, token *oauth2.Token) (*OIDCClaims, error) {
+	httpCtx := ctx
+	if p.OAuth2HTTPClient != nil {
+		httpCtx = context.WithValue(ctx, oauth2.HTTPClient, p.OAuth2HTTPClient)
+	}
+
+	userInfo, err := p.Provider.UserInfo(httpCtx, oauth2.StaticTokenSource(token))
+	if err != nil {
+		return nil, fmt.Errorf("failed to fetch userinfo: %w", err)
+	}
+
+	var claims OIDCClaims
+	if err := userInfo.Claims(&claims); err != nil {
+		return nil, fmt.Errorf("failed to parse userinfo claims: %w", err)
+	}
+
+	resolveGroupClaim(&claims, p.Config.GroupClaim, userInfo.Claims)
+
+	return &claims, nil
+}
+
+func resolveGroupClaim(claims *OIDCClaims, groupClaim string, claimsFn func(any) error) {
+	if len(claims.Groups) > 0 {
+		return
+	}
+
+	// Azure AD returns app roles under "roles", not "groups".
+	// Try the configured claim first, then fall back to "roles".
+	targets := []string{"roles"}
+	if groupClaim != "" && groupClaim != "groups" {
+		targets = append([]string{groupClaim}, targets...)
+	}
+
+	var raw map[string]any
+	if err := claimsFn(&raw); err != nil {
+		return
+	}
+
+	for _, name := range targets {
+		g, ok := raw[name]
+		if !ok {
+			continue
+		}
+		switch v := g.(type) {
+		case []any:
+			for _, item := range v {
+				if s, ok := item.(string); ok {
+					claims.Groups = append(claims.Groups, s)
+				}
+			}
+		case []string:
+			claims.Groups = v
+		}
+		if len(claims.Groups) > 0 {
+			return
+		}
+	}
 }
 
 func (p *OIDCProvider) MapGroupsToRole(groups []string) Role {
