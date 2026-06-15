@@ -124,7 +124,7 @@ func TestLogin_ConfigMapAdminList(t *testing.T) {
 	})
 	cm := &corev1.ConfigMap{
 		ObjectMeta: metav1.ObjectMeta{
-			Name:      "pvc-explorer-config",
+			Name:      testConfigMapName,
 			Namespace: testNamespace,
 		},
 		Data: map[string]string{
