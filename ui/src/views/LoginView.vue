@@ -25,6 +25,12 @@
 
         <Button type="submit" label="Sign In" icon="pi pi-sign-in" :loading="loading" :disabled="!canSubmit" class="w-full" fluid />
       </form>
+
+      <div v-if="authStore.oidcEnabled" class="login-divider">
+        <span>or</span>
+      </div>
+
+      <Button v-if="authStore.oidcEnabled" label="Sign in with SSO" icon="pi pi-key" class="w-full" severity="secondary" fluid @click="authStore.loginWithOIDC()" />
     </div>
   </main>
 </template>
@@ -265,6 +271,23 @@ onUnmounted(() => mo.disconnect())
   display: flex;
   flex-direction: column;
   gap: 1.25rem;
+}
+
+.login-divider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin: 0.5rem 0;
+  color: var(--text-color-secondary);
+  font-size: 0.8rem;
+}
+
+.login-divider::before,
+.login-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--surface-border);
 }
 
 .login-field {

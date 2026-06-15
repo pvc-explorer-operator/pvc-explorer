@@ -22,6 +22,7 @@ import (
 	"flag"
 	"net/http"
 	"os"
+	"time"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.
@@ -187,9 +188,36 @@ func main() {
 
 	setupLog.Info("Starting manager")
 
+	ctx := ctrl.SetupSignalHandler()
+
 	sessions := internalauthpkg.NewSessionStore()
 	authenticator := internalauthpkg.NewAuthenticator(mgr.GetAPIReader(), operatorNS)
 	broadcaster := internalapi.NewBroadcaster()
+
+	// Initialize OIDC provider if configured (with retries for Dex startup race)
+	var oidcProvider *internalauthpkg.OIDCProvider
+	oidcCfg, err := internalauthpkg.LoadOIDCConfig(ctx, mgr.GetAPIReader(), operatorNS)
+	if err != nil {
+		setupLog.Error(err, "Failed to load OIDC config, continuing without OIDC")
+	} else if oidcCfg != nil {
+		rbac := internalauthpkg.LoadRBACConfig(ctx, mgr.GetAPIReader(), operatorNS)
+		for attempt := range 5 {
+			oidcProvider, err = internalauthpkg.NewOIDCProvider(ctx, oidcCfg, rbac)
+			if err == nil {
+				setupLog.Info("OIDC provider initialized", "issuer", oidcCfg.Issuer)
+				break
+			}
+			setupLog.Error(err, "Failed to initialize OIDC provider, retrying", "attempt", attempt+1)
+			select {
+			case <-ctx.Done():
+				setupLog.Error(ctx.Err(), "Context cancelled, giving up OIDC init")
+			case <-time.After(3 * time.Second):
+			}
+		}
+		if oidcProvider == nil {
+			setupLog.Error(err, "Failed to initialize OIDC provider after retries, continuing without OIDC")
+		}
+	}
 
 	if err := (&controller.PVCExplorerScopeReconciler{
 		Client: mgr.GetClient(),
@@ -219,7 +247,7 @@ func main() {
 	}
 
 	apiScaler := internalscaler.New(mgr.GetClient(), broadcaster)
-	apiHandler := internalapi.NewHandler(authenticator, sessions)
+	apiHandler := internalapi.NewHandler(authenticator, sessions, oidcProvider)
 	restHandler := internalapi.NewRestHandler(mgr.GetClient(), apiScaler, broadcaster, operatorNS, Version)
 	authMiddleware := internalapi.NewAuthMiddleware(sessions)
 	mux := http.NewServeMux()
@@ -249,14 +277,13 @@ func main() {
 		}
 	}()
 
-	sigCtx := ctrl.SetupSignalHandler()
 	go func() {
-		if mgr.GetCache().WaitForCacheSync(sigCtx) {
-			apiScaler.RunIdleWatcher(sigCtx)
+		if mgr.GetCache().WaitForCacheSync(ctx) {
+			apiScaler.RunIdleWatcher(ctx)
 		}
 	}()
 
-	if err := mgr.Start(sigCtx); err != nil {
+	if err := mgr.Start(ctx); err != nil {
 		setupLog.Error(err, "Failed to run manager")
 		os.Exit(1)
 	}

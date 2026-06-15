@@ -26,6 +26,7 @@ const navInfo = computed(() => {
     case 'AgentDetail':  return { back: '/',                        segments: [ns, n] }
     case 'FileBrowser':  return { back: `/explorers/${ns}/${n}`,   segments: [n, 'Files'] }
     case 'Settings':     return { back: '/',                        segments: ['Settings'] }
+    case 'Profile':      return { back: '/',                        segments: ['Profile'] }
     case 'About':        return { back: '/',                        segments: ['About'] }
     default:             return { back: null,                       segments: [] }
   }

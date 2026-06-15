@@ -1,0 +1,55 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pvc-explorer-config
+  namespace: pvc-explorer-system
+  labels:
+    app.kubernetes.io/name: pvc-explorer
+    app.kubernetes.io/component: config
+data:
+  # Existing password-auth config (still works alongside OIDC)
+  adminUsers: "admin"
+
+  # OIDC configuration (generic - works with any OIDC provider)
+  # Set oidc.enabled to "true" to activate OIDC login
+  oidc.enabled: "false"
+  oidc.issuer: "https://login.microsoftonline.com/{tenant-id}/v2.0"
+  oidc.clientID: "your-client-id"
+  oidc.clientSecret: "$oidc.clientSecret"  # references key "clientSecret" in Secret "pvc-explorer-oidc"
+  oidc.redirectURI: "https://pvc-explorer.example.com/api/v1/auth/oidc/callback"
+  oidc.scopes: "openid,profile,email,groups"
+  oidc.groupClaim: "groups"  # JWT claim containing group memberships
+  # oidc.skipTLSVerify: "false"  # Set to "true" for self-signed certs (dev only)
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: pvc-explorer-oidc
+  namespace: pvc-explorer-system
+  labels:
+    app.kubernetes.io/name: pvc-explorer
+    app.kubernetes.io/component: config
+type: Opaque
+stringData:
+  clientSecret: "your-client-secret-here"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pvc-explorer-rbac
+  namespace: pvc-explorer-system
+  labels:
+    app.kubernetes.io/name: pvc-explorer
+    app.kubernetes.io/component: config
+data:
+  # Default role for authenticated users not matching any policy rule
+  # Options: admin, user, viewer
+  policy.default: "viewer"
+
+  # Group-to-role mapping (ArgoCD-style policy.csv)
+  # Format: g, <group>, <role>
+  # For Azure AD, use group object IDs (GUIDs)
+  # For other providers, use group names
+  policy.csv: |
+    g, "your-admin-group-id-or-name", admin
+    g, "your-user-group-id-or-name", user
