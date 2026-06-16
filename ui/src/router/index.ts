@@ -4,6 +4,7 @@ import { useAuthStore } from '../stores/authStore'
 
 const routes: RouteRecordRaw[] = [
   { path: '/login', name: 'Login', component: () => import('../views/LoginView.vue'), meta: { title: 'Sign In' } },
+  { path: '/auth/callback', name: 'AuthCallback', component: () => import('../views/AuthCallbackView.vue'), meta: { title: 'Signing in...' } },
   { path: '/', name: 'Home', component: () => import('../views/HomeView.vue'), meta: { requiresAuth: true, title: 'Explorers' } },
   { path: '/scopes', name: 'ScopeList', component: () => import('../views/ScopeListView.vue'), meta: { requiresAuth: true, title: 'Scopes' } },
   { path: '/scopes/:name', name: 'ScopeDetail', component: () => import('../views/ScopeDetailView.vue'), meta: { requiresAuth: true, title: 'Scope' } },
@@ -12,6 +13,7 @@ const routes: RouteRecordRaw[] = [
   { path: '/scopes/create', name: 'CreateScope', component: () => import('../views/CreateScopeView.vue'), meta: { requiresAuth: true, adminOnly: true, title: 'Create Scope' } },
   { path: '/explorers/create', name: 'CreateAgent', component: () => import('../views/CreateAgentView.vue'), meta: { requiresAuth: true, adminOnly: true, title: 'Create Explorer' } },
   { path: '/settings', name: 'Settings', component: () => import('../views/SettingsView.vue'), meta: { requiresAuth: true, adminOnly: true, title: 'Settings' } },
+  { path: '/profile', name: 'Profile', component: () => import('../views/ProfileView.vue'), meta: { requiresAuth: true, title: 'Profile' } },
   { path: '/about',    name: 'About',    component: () => import('../views/AboutView.vue'),    meta: { requiresAuth: true, title: 'About' } },
 ]
 

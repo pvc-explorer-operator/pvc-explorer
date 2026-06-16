@@ -316,6 +316,7 @@ a {
   font-weight: 700;
   flex-shrink: 0;
   text-transform: uppercase;
+  text-decoration: none;
 }
 
 .layout-sidebar-footer-user {
@@ -334,6 +335,12 @@ a {
   transition: opacity var(--layout-section-transition-duration), max-width var(--layout-section-transition-duration);
   max-width: 10rem;
   opacity: 1;
+  text-decoration: none;
+  display: block;
+}
+
+.layout-sidebar-footer-name:hover {
+  color: var(--primary-color);
 }
 
 .layout-sidebar-footer-logout {

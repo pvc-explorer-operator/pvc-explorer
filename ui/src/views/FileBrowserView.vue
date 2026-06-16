@@ -8,7 +8,7 @@
     :upload-files="api.uploadFiles"
     :create-file="api.createFile"
     :download-url="api.downloadUrl"
-    :readonly="config.readonly"
+    :readonly="effectiveReadonly"
     :explorer-label="`${ns} / ${name}`"
     :remaining-seconds="remainingSeconds"
     :idle-warning="idleWarning"
@@ -20,16 +20,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import FileExplorerApp from '../components/files/FileExplorerApp.vue'
 import { createFileApi } from '../api/files'
 import { useWebSocket } from '../composables/useWebSocket'
+import { useAuthStore } from '../stores/authStore'
 import type { AgentConfig } from '../api/files'
 
 /* ── Route params ──────────────────────────────────────────────────────────── */
 const route = useRoute()
 const router = useRouter()
+const authStore = useAuthStore()
 const ns   = route.params.ns   as string
 const name = route.params.name as string
 const base = `/api/v1/explorers/${ns}/${name}`
@@ -43,6 +45,7 @@ const remainingSeconds = ref<number | null>(null)
 const idleWarning      = ref(false)
 const disconnected     = ref(false)
 const reconnecting     = ref(false)
+const effectiveReadonly = computed(() => config.value.readonly || !authStore.isAdmin)
 let secondsTimer: ReturnType<typeof setInterval> | null = null
 // Timestamp of the last heartbeat reset. idle.tick events that arrive within
 // a short window after a reset are stale ring-buffer replays and are ignored.
