@@ -31,6 +31,9 @@ const (
 type sessionEntry struct {
 	Username string
 	Role     Role
+	Email    string
+	Groups   []string
+	Subject  string
 	expiry   time.Time
 }
 
@@ -45,7 +48,7 @@ func NewSessionStore() *SessionStore {
 	return s
 }
 
-func (s *SessionStore) Create(username string, role Role) (string, error) {
+func (s *SessionStore) Create(username string, role Role, email string, groups []string, subject string) (string, error) {
 	token, err := randomToken()
 	if err != nil {
 		return "", err
@@ -54,21 +57,24 @@ func (s *SessionStore) Create(username string, role Role) (string, error) {
 	s.sessions[token] = sessionEntry{
 		Username: username,
 		Role:     role,
+		Email:    email,
+		Groups:   groups,
+		Subject:  subject,
 		expiry:   time.Now().Add(sessionTTL),
 	}
 	s.mu.Unlock()
 	return token, nil
 }
 
-func (s *SessionStore) Get(token string) (username string, role Role, ok bool) {
+func (s *SessionStore) Get(token string) (sessionEntry, bool) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	e, exists := s.sessions[token]
 	if !exists || time.Now().After(e.expiry) {
 		delete(s.sessions, token)
-		return "", "", false
+		return sessionEntry{}, false
 	}
-	return e.Username, e.Role, true
+	return e, true
 }
 
 func (s *SessionStore) Delete(token string) {

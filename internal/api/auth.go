@@ -46,12 +46,18 @@ var routePermissions = []permission{
 	{methodPOST, "/api/v1/auth/", auth.Role("")},
 	{"GET", "/api/v1/health", auth.Role("")},
 
-	{methodPOST, explorersPrefix, auth.RoleAdmin},
+	{methodPOST, explorersPrefix, auth.RoleUser},
 	{"PUT", explorersPrefix, auth.RoleAdmin},
 	{"DELETE", explorersPrefix, auth.RoleAdmin},
 	{"POST", "/api/v1/scopes", auth.RoleAdmin},
 	{"PUT", "/api/v1/scopes/", auth.RoleAdmin},
 	{"DELETE", "/api/v1/scopes/", auth.RoleAdmin},
+}
+
+var roleRank = map[auth.Role]int{
+	auth.RoleAdmin:  3,
+	auth.RoleUser:   2,
+	auth.RoleViewer: 1,
 }
 
 type AuthMiddleware struct {
@@ -74,19 +80,19 @@ func (a *AuthMiddleware) Wrap(next http.Handler) http.Handler {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
-		username, role, ok := a.sessions.Get(cookie.Value)
+		entry, ok := a.sessions.Get(cookie.Value)
 		if !ok {
 			http.Error(w, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
 
-		if !isAllowed(r.Method, r.URL.Path, role) {
+		if !isAllowed(r.Method, r.URL.Path, entry.Role) {
 			http.Error(w, "Forbidden", http.StatusForbidden)
 			return
 		}
 
-		ctx := context.WithValue(r.Context(), ctxRole, role)
-		ctx = context.WithValue(ctx, ctxUsername, username)
+		ctx := context.WithValue(r.Context(), ctxRole, entry.Role)
+		ctx = context.WithValue(ctx, ctxUsername, entry.Username)
 		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }
@@ -117,7 +123,7 @@ func isAllowed(method, path string, role auth.Role) bool {
 			continue
 		}
 		if p.method == method && strings.HasPrefix(path, p.prefix) {
-			return role == p.minRole || (p.minRole == auth.RoleViewer)
+			return roleRank[role] >= roleRank[p.minRole]
 		}
 	}
 	if strings.HasPrefix(path, explorersPrefix) && strings.Contains(path, "/proxy/api/") {

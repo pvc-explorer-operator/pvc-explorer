@@ -172,9 +172,9 @@ const toggleFilters = () => {
     <!-- ③ Footer: user + logo at bottom -->
     <div class="layout-sidebar-footer">
       <template v-if="auth.isAuthenticated">
-        <span class="layout-sidebar-footer-avatar">{{ avatarInitial }}</span>
+        <router-link to="/profile" class="layout-sidebar-footer-avatar" title="View profile">{{ avatarInitial }}</router-link>
         <div class="layout-sidebar-footer-user">
-          <div class="layout-sidebar-footer-name">{{ auth.username }}</div>
+          <router-link to="/profile" class="layout-sidebar-footer-name" title="View profile">{{ auth.username }}</router-link>
         </div>
         <button class="layout-sidebar-footer-logout" @click="handleLogout" title="Logout">
           <i class="pi pi-sign-out"></i>
