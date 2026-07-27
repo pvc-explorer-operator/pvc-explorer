@@ -11,7 +11,7 @@
   "dependencies": {
     "@guolao/vue-monaco-editor": "^1.6.0",
     "@primevue/themes": "^4.5.4",
-    "monaco-editor": "^0.55.1",
+    "monaco-editor": "^0.56.0",
     "pinia": "^3.0.4",
     "primeicons": "^7.0.0",
     "primevue": "^4.5.5",
