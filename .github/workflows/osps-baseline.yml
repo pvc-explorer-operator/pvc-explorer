@@ -46,7 +46,7 @@ jobs:
                   fi
 
             - name: Run Open Source Project Security Baseline Scanner
-              uses: revanite-io/osps-baseline-action@v1.3.3
+              uses: revanite-io/osps-baseline-action@v1.5.0
               with:
                   owner: ${{ github.repository_owner }}
                   repo: ${{ github.event.repository.name }}
